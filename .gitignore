@@ -1,0 +1,149 @@
+# ================================
+# SECURITY - NEVER COMMIT SECRETS
+# ================================
+.env
+.env.local
+.env.production
+.env.staging
+.env.development
+INTERNAL_CREDENTIALS.md
+secrets/
+credentials/
+config/production/
+config/staging/
+*.key
+*.pem
+*.p12
+*.keystore
+*.jks
+
+# Supabase temporary files
+supabase/.temp/
+.temp/
+
+# ================================
+# FLUTTER & DART
+# ================================
+# Build artifacts
+build/
+.dart_tool/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+
+# Generated files
+*.g.dart
+*.mapper.dart
+*.freezed.dart
+*.config.dart
+coverage/
+doc/api/
+
+# ================================
+# PLATFORM SPECIFIC
+# ================================
+# iOS
+ios/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Runner.xcworkspace/
+ios/Runner.xcodeproj/
+ios/Pods/
+ios/.symlinks/
+
+# Android
+android/
+android/app/debug
+android/app/profile
+android/app/release
+android/gradle/
+android/gradlew
+android/gradlew.bat
+android/local.properties
+android/key.properties
+
+# Web
+web/
+web/favicon.png
+web/icons/
+web/manifest.json
+
+# Desktop
+windows/
+macos/
+linux/
+
+# ================================
+# IDE & EDITORS
+# ================================
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+.project
+.metadata
+.classpath
+.settings/
+*.swp
+*.swo
+*~
+
+# ================================
+# LOGS & DEBUGGING
+# ================================
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# ================================
+# TEMPORARY FILES
+# ================================
+tmp/
+temp/
+.tmp/
+.temp/
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# ================================
+# BUSINESS SENSITIVE DOCS
+# ================================
+invoice-pe-brd.md
+invoice-pe-trd.md
+invoice-pe-backend.md
+invoice-pe-ux.md
+invoice-pe-phonepay.md
+business-requirements/
+technical-requirements/
+internal-docs/
+
+# ================================
+# TESTING & COVERAGE
+# ================================
+test/coverage/
+coverage/
+.nyc_output/
+*.lcov
+
+# ================================
+# DEPENDENCIES
+# ================================
+node_modules/
+.pnp
+.pnp.js
+
+# ================================
+# MISC
+# ================================
+.fvm/
+.flutter-devtools/
+.metadata
+pubspec.lock.backup
