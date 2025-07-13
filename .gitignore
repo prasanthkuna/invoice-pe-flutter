@@ -38,8 +38,40 @@ build/
 *.mapper.dart
 *.freezed.dart
 *.config.dart
+*.d
 coverage/
 doc/api/
+
+# ================================
+# ELON'S REPO CLEANLINESS RULES
+# ================================
+# Platform-specific scripts (use external tools repo)
+*.ps1
+*.sh
+*.bat
+*.cmd
+
+# Documentation bloat (use wiki/docs site)
+*_GUIDE.md
+*_SETUP.md
+*_CHECKLIST.md
+*_ANALYSIS.md
+*_VERIFICATION.md
+*_COMPLIANCE.md
+*_MISSION_*.md
+
+# Large files (use external storage)
+*.pdf
+*.zip
+*.tar.gz
+*.dmg
+*.exe
+
+# Temporary/local files
+*.tmp
+*.temp
+*_temp.*
+*_local.*
 
 # ================================
 # PLATFORM SPECIFIC
