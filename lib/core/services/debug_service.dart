@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:io' show Platform;
 
-/// Elon Physics Way Debug Service: Minimal but Comprehensive Logging
+/// InvoicePe Physics Way Debug Service: Minimal but Comprehensive Logging
 /// First Principles: What's the minimum data needed to solve maximum problems?
 class DebugService {
   static late Logger _logger;

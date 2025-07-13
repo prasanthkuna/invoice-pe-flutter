@@ -1,4 +1,4 @@
-# InvoicePe - Elon-Style Analysis Options
+# InvoicePe - InvoicePe-Style Analysis Options
 # "The best lint warning is no lint warning" - Focus on bug prevention over style
 # TIER 1: Critical (errors), TIER 2: Performance (warnings), TIER 3: Style (automated)
 
