@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../shared/models/vendor.dart';
 import '../../../../core/providers/data_providers.dart';
-import '../../../../core/services/vendor_service.dart';
 
 class VendorListScreen extends ConsumerWidget {
   const VendorListScreen({super.key});
@@ -183,9 +182,7 @@ class VendorListScreen extends ConsumerWidget {
       
       // Add Vendor FAB
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          _showAddVendorDialog(context, ref);
-        },
+        onPressed: () => context.go('/vendors/create'),
         backgroundColor: AppTheme.primaryAccent,
         icon: const Icon(Icons.add, color: Colors.white),
         label: const Text(
@@ -272,20 +269,42 @@ class _VendorCard extends StatelessWidget {
                   ),
                 ),
                 
-                // Pay Button
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primaryAccent,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Text(
-                    'Pay',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
+                // Action Buttons
+                Row(
+                  children: [
+                    // Edit Button
+                    GestureDetector(
+                      onTap: () => context.go('/vendors/${vendor.id}/edit'),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppTheme.secondaryText.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(
+                          Icons.edit,
+                          color: AppTheme.secondaryText,
+                          size: 16,
+                        ),
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: 8),
+                    // Pay Button
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primaryAccent,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Text(
+                        'Pay',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -342,114 +361,4 @@ class _VendorCard extends StatelessWidget {
       ),
     );
   }
-}
-
-void _showAddVendorDialog(BuildContext context, WidgetRef ref) {
-  final nameController = TextEditingController();
-  final accountController = TextEditingController();
-  final ifscController = TextEditingController();
-  final upiController = TextEditingController();
-
-  showDialog<void>(
-    context: context,
-    builder: (context) => AlertDialog(
-      backgroundColor: AppTheme.cardBackground,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: const Text(
-        'Add New Vendor',
-        style: TextStyle(color: AppTheme.primaryText),
-      ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            controller: nameController,
-            style: const TextStyle(color: AppTheme.primaryText),
-            decoration: const InputDecoration(
-              labelText: 'Vendor Name',
-              labelStyle: TextStyle(color: AppTheme.secondaryText),
-            ),
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: accountController,
-            style: const TextStyle(color: AppTheme.primaryText),
-            decoration: const InputDecoration(
-              labelText: 'Account Number',
-              labelStyle: TextStyle(color: AppTheme.secondaryText),
-            ),
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: ifscController,
-            style: const TextStyle(color: AppTheme.primaryText),
-            decoration: const InputDecoration(
-              labelText: 'IFSC Code',
-              labelStyle: TextStyle(color: AppTheme.secondaryText),
-            ),
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: upiController,
-            style: const TextStyle(color: AppTheme.primaryText),
-            decoration: const InputDecoration(
-              labelText: 'UPI ID (Optional)',
-              labelStyle: TextStyle(color: AppTheme.secondaryText),
-            ),
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
-        ),
-        ElevatedButton(
-          onPressed: () async {
-            if (nameController.text.isNotEmpty &&
-                accountController.text.isNotEmpty &&
-                ifscController.text.isNotEmpty) {
-              try {
-                // Create vendor using VendorService
-                await VendorService.createVendor(
-                  name: nameController.text.trim(),
-                  accountNumber: accountController.text.trim(),
-                  ifscCode: ifscController.text.trim().toUpperCase(),
-                  upiId: upiController.text.trim().isEmpty ? null : upiController.text.trim(),
-                );
-
-                // Check if widget is still mounted before using context
-                if (!context.mounted) return;
-
-                Navigator.pop(context);
-
-                // Refresh the vendors list after adding
-                ref.invalidate(filteredVendorsProvider);
-
-                // Show success message
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Vendor added successfully!'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
-              } catch (error) {
-                // Check if widget is still mounted before using context
-                if (!context.mounted) return;
-
-                // Show error message
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Failed to add vendor: $error'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              }
-            }
-          },
-          child: const Text('Add Vendor'),
-        ),
-      ],
-    ),
-  );
 }

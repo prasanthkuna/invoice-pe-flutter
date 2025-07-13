@@ -325,37 +325,66 @@ class _InvoiceCreateScreenState extends ConsumerState<InvoiceCreateScreen> {
 
               const SizedBox(height: 32),
 
-              // Create Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _createInvoice,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryAccent,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                          ),
-                        )
-                      : const Text(
-                          'Create Invoice',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
+              // Action Buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _createInvoice,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.cardBackground,
+                        foregroundColor: AppTheme.primaryAccent,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          side: const BorderSide(
+                            color: AppTheme.primaryAccent,
+                            width: 1,
                           ),
                         ),
-                ),
-              ).animate().fadeIn(delay: 800.ms).scale(),
+                      ),
+                      child: const Text(
+                        'Save Draft',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    flex: 2,
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _createAndPayInvoice,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryAccent,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: _isLoading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                          : const Text(
+                              'Create & Pay Now',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                    ),
+                  ),
+                ],
+              ).animate().fadeIn(delay: 800.ms).slideY(begin: 0.5),
             ],
           ),
         ),
@@ -400,6 +429,45 @@ class _InvoiceCreateScreenState extends ConsumerState<InvoiceCreateScreen> {
         SnackBar(
           content: Text('Failed to create invoice: $error'),
           backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  void _createAndPayInvoice() async {
+    if (!_formKey.currentState!.validate() || _selectedVendor == null) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Create invoice using smart defaults
+      await InvoiceService.createPaymentInvoice(
+        vendorId: _selectedVendor!.id,
+        amount: double.parse(_amountController.text),
+        description: _descriptionController.text.isEmpty
+            ? 'Payment to ${_selectedVendor!.name}'
+            : _descriptionController.text,
+      );
+
+      // Navigate to payment screen
+      if (mounted) {
+        context.go('/pay/${_selectedVendor!.id}');
+      }
+    } catch (error) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to create invoice: $error'),
+          backgroundColor: AppTheme.errorColor,
         ),
       );
     } finally {

@@ -349,12 +349,12 @@ class PaymentScreen extends ConsumerWidget {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          Row(
+                          const Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
                                 'JOHN DOE',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
@@ -362,7 +362,7 @@ class PaymentScreen extends ConsumerWidget {
                               ),
                               Text(
                                 '12/26',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
@@ -441,7 +441,7 @@ class PaymentScreen extends ConsumerWidget {
       // Close loading dialog
       if (context.mounted) Navigator.of(context).pop();
 
-      if (result == PaymentResult.success) {
+      if (result.isSuccess) {
         final paymentData = {
           'amount': amount,
           'vendorName': _getVendorName(invoice, vendor),
@@ -461,7 +461,7 @@ class PaymentScreen extends ConsumerWidget {
         if (context.mounted) {
           context.go('/payment-success', extra: paymentData);
         }
-      } else if (result == PaymentResult.failure) {
+      } else if (result.isFailure) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(

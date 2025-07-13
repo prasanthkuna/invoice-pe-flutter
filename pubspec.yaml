@@ -58,6 +58,7 @@ dependencies:
   # Security & Authentication (NEW - Phase 1 additions)
   local_auth: ^2.3.0
   encrypt: ^5.0.3
+  crypto: ^3.0.3
 
   # Payment Features (NEW - Phase 1 additions)
   mobile_scanner: ^5.0.0  # QR/Barcode scanning (replaces qr_code_scanner)

@@ -225,7 +225,7 @@ class DashboardScreen extends ConsumerWidget {
                   ],
                 ),
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (error, stackTrace) => Row(
+                error: (error, stackTrace) => const Row(
                   children: [
                     Expanded(
                       child: _MetricCard(
@@ -236,7 +236,7 @@ class DashboardScreen extends ConsumerWidget {
                         color: AppTheme.primaryAccent,
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    SizedBox(width: 16),
                     Expanded(
                       child: _MetricCard(
                         title: 'Transactions',
@@ -267,23 +267,47 @@ class DashboardScreen extends ConsumerWidget {
                 children: [
                   Expanded(
                     child: _ActionCard(
-                      title: 'Pay Vendor',
-                      subtitle: 'Make a payment',
-                      icon: Icons.send,
-                      onTap: () => context.go('/vendors'),
+                      title: 'Quick Pay',
+                      subtitle: 'Instant payment',
+                      icon: Icons.flash_on,
+                      onTap: () => context.go('/quick-pay'),
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: _ActionCard(
-                      title: 'Add Vendor',
-                      subtitle: 'New vendor',
-                      icon: Icons.add_business,
-                      onTap: () => context.go('/vendors'),
+                      title: 'Transactions',
+                      subtitle: 'View history',
+                      icon: Icons.history,
+                      onTap: () => context.go('/transactions'),
                     ),
                   ),
                 ],
               ).animate().fadeIn(delay: 1000.ms).slideY(begin: 0.3),
+
+              const SizedBox(height: 16),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: _ActionCard(
+                      title: 'Cards',
+                      subtitle: 'Manage cards',
+                      icon: Icons.credit_card,
+                      onTap: () => context.go('/cards'),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: _ActionCard(
+                      title: 'Invoice Create',
+                      subtitle: 'Create invoice',
+                      icon: Icons.receipt_long,
+                      onTap: () => context.go('/invoices/create'),
+                    ),
+                  ),
+                ],
+              ).animate().fadeIn(delay: 1200.ms).slideY(begin: 0.3),
               
               const SizedBox(height: 24),
               
@@ -360,11 +384,11 @@ class DashboardScreen extends ConsumerWidget {
       
       // Floating Action Button
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.go('/vendors'),
+        onPressed: () => context.go('/quick-pay'),
         backgroundColor: AppTheme.primaryAccent,
-        icon: const Icon(Icons.add, color: Colors.white),
+        icon: const Icon(Icons.flash_on, color: Colors.white),
         label: const Text(
-          'Pay Vendor',
+          'Quick Pay',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w600,

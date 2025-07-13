@@ -126,6 +126,26 @@ technical-requirements/
 internal-docs/
 
 # ================================
+# ELON'S NOISE ELIMINATION
+# ================================
+# Non-essential documentation (recreatable)
+ELON_TESTING_STRATEGY.md
+PCC_COMPLIANCE_CHECKLIST.md
+README.md
+docs/
+documentation/
+
+# IDE artifacts (developer-specific)
+*.iml
+.idea/
+.vscode/
+
+# Test artifacts (temporary)
+test_*.js
+test_*.json
+*.test.backup
+
+# ================================
 # TESTING & COVERAGE
 # ================================
 test/coverage/

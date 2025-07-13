@@ -242,6 +242,65 @@ class DebugService {
     _logger.i('🎫 SESSION: $event${userId != null ? ' for user $userId' : ''} ${sessionData != null ? '- Data: $sessionData' : ''}');
   }
 
+  /// Log security events (PCC compliance - all security events logged to database)
+  static void logSecurity(String event, {Map<String, dynamic>? data, String? userId}) {
+    if (!_initialized) initialize();
+    _logger.i('🔐 SECURITY: $event${userId != null ? ' for user $userId' : ''} ${data != null ? '- Data: $data' : ''}');
+
+    // All security events are logged to database for PCC compliance
+    _logToDatabase(
+      level: 'INFO',
+      category: 'SECURITY',
+      operation: event,
+      message: 'Security event: $event',
+      context: {
+        if (userId != null) 'user_id': userId,
+        if (data != null) ...data,
+        'timestamp': DateTime.now().toIso8601String(),
+      },
+    );
+  }
+
+  /// Log security violations (critical - always logged to database)
+  static void logSecurityViolation(String violation, {Map<String, dynamic>? context, String? userId}) {
+    if (!_initialized) initialize();
+    _logger.e('🚨 SECURITY VIOLATION: $violation${userId != null ? ' by user $userId' : ''} ${context != null ? '- Context: $context' : ''}');
+
+    // Critical security violations always logged to database
+    _logToDatabase(
+      level: 'ERROR',
+      category: 'SECURITY_VIOLATION',
+      operation: violation,
+      message: 'Security violation: $violation',
+      context: {
+        if (userId != null) 'user_id': userId,
+        if (context != null) ...context,
+        'timestamp': DateTime.now().toIso8601String(),
+        'severity': 'CRITICAL',
+      },
+    );
+  }
+
+  /// Log audit trail for PCC compliance
+  static void logAuditTrail(String action, {required String userId, Map<String, dynamic>? details}) {
+    if (!_initialized) initialize();
+    _logger.i('📋 AUDIT: $action by user $userId ${details != null ? '- Details: $details' : ''}');
+
+    // All audit events logged to database for compliance
+    _logToDatabase(
+      level: 'INFO',
+      category: 'AUDIT',
+      operation: action,
+      message: 'Audit trail: $action',
+      context: {
+        'user_id': userId,
+        if (details != null) ...details,
+        'timestamp': DateTime.now().toIso8601String(),
+        'session_id': _sessionId,
+      },
+    );
+  }
+
   /// Log payment events (all payment events logged to database)
   static void logPayment(String event, {String? transactionId, double? amount, dynamic error, int? performanceMs}) {
     if (!_initialized) initialize();

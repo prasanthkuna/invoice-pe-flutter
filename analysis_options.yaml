@@ -1,6 +1,6 @@
-# InvoicePe - Comprehensive Analysis Options
-# Configured for production-grade Flutter development with strict quality standards
-# Based on flutter_lints 6.0.0 with additional custom rules for fintech app requirements
+# InvoicePe - Elon-Style Analysis Options
+# "The best lint warning is no lint warning" - Focus on bug prevention over style
+# TIER 1: Critical (errors), TIER 2: Performance (warnings), TIER 3: Style (automated)
 
 include: package:flutter_lints/flutter.yaml
 
@@ -38,59 +38,49 @@ analyzer:
 
 linter:
   rules:
-    # === CORE QUALITY RULES ===
-    # Code organization and clarity
-    always_declare_return_types: true
-    always_put_required_named_parameters_first: true
-    always_specify_types: false  # Let type inference work, but be explicit when needed
-    annotate_overrides: true
-    avoid_print: true  # Use proper logging instead
-    avoid_unnecessary_containers: true
-    avoid_web_libraries_in_flutter: true
+    # === TIER 1: CRITICAL (Bug Prevention) ===
+    # These prevent runtime crashes and security issues
+    avoid_dynamic_calls: true
+    avoid_type_to_string: true
+    close_sinks: true
+    hash_and_equals: true
+    no_adjacent_strings_in_list: true
+    unrelated_type_equality_checks: true
 
-    # === PERFORMANCE RULES ===
-    # Widget and build optimization
+    # === TIER 2: PERFORMANCE (Measurable Impact) ===
+    # These have measurable performance benefits
     avoid_function_literals_in_foreach_calls: true
     prefer_const_constructors: true
     prefer_const_constructors_in_immutables: true
     prefer_const_declarations: true
     prefer_const_literals_to_create_immutables: true
     sized_box_for_whitespace: true
-    use_key_in_widget_constructors: true
+    unnecessary_to_list_in_spreads: true
 
-    # === RIVERPOD SPECIFIC RULES ===
-    # State management best practices
-    # avoid_public_notifier_properties: true  # Not available in current version
-
-    # === SECURITY & RELIABILITY ===
-    # Critical for fintech applications
-    avoid_dynamic_calls: true
-    avoid_type_to_string: true
-    close_sinks: true
-    hash_and_equals: true
-    no_adjacent_strings_in_list: true
+    # === TIER 3: STYLE (Automated via dart format/fix) ===
+    # These are handled by automation, not manual fixes
+    always_declare_return_types: true
+    annotate_overrides: true
+    avoid_print: true
+    avoid_unnecessary_containers: true
+    avoid_web_libraries_in_flutter: true
+    curly_braces_in_flow_control_structures: true
     prefer_single_quotes: true
     require_trailing_commas: true
+    use_key_in_widget_constructors: true
 
-    # === STYLE CONSISTENCY ===
-    # Code formatting and readability
-    curly_braces_in_flow_control_structures: true
-    prefer_final_fields: true
-    prefer_final_in_for_each: true
-    prefer_final_locals: true
-    prefer_if_null_operators: true
-    prefer_is_empty: true
-    prefer_is_not_empty: true
-    prefer_null_aware_operators: true
-    sort_child_properties_last: true
-    sort_constructors_first: true
-    sort_unnamed_constructors_first: true
+    # === SUPPRESSED STYLE RULES ===
+    # These create noise without preventing bugs
+    always_put_required_named_parameters_first: false
+    prefer_final_fields: false
+    prefer_final_in_for_each: false
+    prefer_final_locals: false
+    sort_child_properties_last: false
+    sort_constructors_first: false
+    sort_unnamed_constructors_first: false
 
-    # === DOCUMENTATION ===
-    # Essential for team development
-    public_member_api_docs: false  # Enable later when API stabilizes
-
-    # === DISABLED RULES ===
-    # Rules that conflict with our architecture or are too restrictive
-    # avoid_classes_with_only_static_members: false  # Allow utility classes
-    # file_names: false  # Allow flexibility in naming
+    # === DOCUMENTATION RULES ===
+    # Suppressed to reduce noise during development
+    public_member_api_docs: false
+    dangling_library_doc_comments: false
+    unintended_html_in_doc_comment: false

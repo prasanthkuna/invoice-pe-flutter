@@ -11,8 +11,14 @@ import '../../features/auth/presentation/screens/otp_screen.dart';
 import '../../features/auth/presentation/screens/business_info_screen.dart';
 import '../../features/dashboard/presentation/screens/dashboard_screen.dart';
 import '../../features/vendors/presentation/screens/vendor_list_screen.dart';
+import '../../features/vendors/presentation/screens/vendor_create_screen.dart';
+import '../../features/vendors/presentation/screens/vendor_edit_screen.dart';
+import '../../features/transactions/presentation/screens/transaction_list_screen.dart';
+import '../../features/invoices/presentation/screens/invoice_create_screen.dart';
+import '../../features/cards/presentation/screens/card_list_screen.dart';
 import '../../features/payment/presentation/screens/payment_screen.dart';
 import '../../features/payment/presentation/screens/payment_success_screen.dart';
+import '../../features/payment/presentation/screens/quick_payment_screen.dart';
 import '../providers/data_providers.dart';
 
 // Temporary placeholder screen
@@ -118,12 +124,45 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const VendorListScreen(),
       ),
       GoRoute(
+        path: '/vendors/create',
+        name: 'vendor-create',
+        builder: (context, state) => const VendorCreateScreen(),
+      ),
+      GoRoute(
+        path: '/vendors/:id/edit',
+        name: 'vendor-edit',
+        builder: (context, state) {
+          final vendorId = state.pathParameters['id']!;
+          return VendorEditScreen(vendorId: vendorId);
+        },
+      ),
+      GoRoute(
         path: '/pay/:vendorId',
         name: 'payment',
         builder: (context, state) {
           final vendorId = state.pathParameters['vendorId']!;
           return PaymentScreen(vendorId: vendorId);
         },
+      ),
+      GoRoute(
+        path: '/quick-pay',
+        name: 'quick-payment',
+        builder: (context, state) => const QuickPaymentScreen(),
+      ),
+      GoRoute(
+        path: '/transactions',
+        name: 'transactions',
+        builder: (context, state) => const TransactionListScreen(),
+      ),
+      GoRoute(
+        path: '/invoices/create',
+        name: 'invoice-create',
+        builder: (context, state) => const InvoiceCreateScreen(),
+      ),
+      GoRoute(
+        path: '/cards',
+        name: 'cards',
+        builder: (context, state) => const CardListScreen(),
       ),
       GoRoute(
         path: '/payment-success',
@@ -175,7 +214,13 @@ extension AppRouterExtension on BuildContext {
   void goToSetupProfile() => go('/setup-profile');
   void goToDashboard() => go('/dashboard');
   void goToVendors() => go('/vendors');
+  void goToVendorCreate() => go('/vendors/create');
+  void goToVendorEdit(String vendorId) => go('/vendors/$vendorId/edit');
   void goToPayment(String vendorId) => go('/pay/$vendorId');
+  void goToQuickPayment() => go('/quick-pay');
+  void goToTransactions() => go('/transactions');
+  void goToInvoiceCreate() => go('/invoices/create');
+  void goToCards() => go('/cards');
   void goToPaymentSuccess() => go('/payment-success');
   void goToReports() => go('/reports');
 }

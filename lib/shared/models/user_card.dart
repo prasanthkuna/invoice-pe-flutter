@@ -3,7 +3,7 @@ import 'package:dart_mappable/dart_mappable.dart';
 part 'user_card.mapper.dart';
 
 @MappableEnum()
-enum CardType { visa, mastercard, rupay, amex, discover, other }
+enum CardType { visa, mastercard, rupay, amex, discover, credit, debit, other }
 
 @MappableClass()
 class UserCard with UserCardMappable {

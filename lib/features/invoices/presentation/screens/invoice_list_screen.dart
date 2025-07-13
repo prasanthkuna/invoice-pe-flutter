@@ -472,16 +472,16 @@ void _showFilterDialog(BuildContext context, WidgetRef ref) {
         'Filter Invoices',
         style: TextStyle(color: AppTheme.primaryText),
       ),
-      content: Column(
+      content: const Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
+          Text(
             'Filter by status:',
             style: TextStyle(color: AppTheme.secondaryText),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           // Status filter options would go here
-          const Text(
+          Text(
             'More filters coming soon...',
             style: TextStyle(color: AppTheme.secondaryText),
           ),

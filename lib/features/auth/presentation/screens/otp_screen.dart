@@ -132,10 +132,10 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Progress Indicator
-            LinearProgressIndicator(
+            const LinearProgressIndicator(
               value: 0.5,
               backgroundColor: AppTheme.cardBackground,
-              valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primaryAccent),
+              valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryAccent),
             ).animate().scaleX(duration: 800.ms),
             
             const SizedBox(height: 40),

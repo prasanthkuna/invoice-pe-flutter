@@ -135,9 +135,9 @@ class PaymentSuccessScreen extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 4),
-                            Text(
+                            const Text(
                               '${AppConstants.defaultRewardsPercentage}% cashback on your payment',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,

@@ -192,13 +192,24 @@ class TransactionListScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          searchQuery.isEmpty 
+                          searchQuery.isEmpty
                               ? 'Your payment history will appear here'
                               : 'Try a different search term',
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: AppTheme.secondaryText.withValues(alpha: 0.7),
                           ),
                         ),
+                        if (searchQuery.isEmpty) ...[
+                          const SizedBox(height: 24),
+                          ElevatedButton(
+                            onPressed: () => context.go('/quick-pay'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppTheme.primaryAccent,
+                              foregroundColor: Colors.white,
+                            ),
+                            child: const Text('Make Your First Payment'),
+                          ),
+                        ],
                       ],
                     ),
                   )
@@ -454,16 +465,16 @@ void _showFilterDialog(BuildContext context, WidgetRef ref) {
         'Filter Transactions',
         style: TextStyle(color: AppTheme.primaryText),
       ),
-      content: Column(
+      content: const Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
+          Text(
             'Filter by date range and status:',
             style: TextStyle(color: AppTheme.secondaryText),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           // Date range and other filters would go here
-          const Text(
+          Text(
             'Advanced filters coming soon...',
             style: TextStyle(color: AppTheme.secondaryText),
           ),
