@@ -87,7 +87,7 @@ flutter run
 - 📊 **Transaction History Screen**: Real-time tracking with status indicators and user feedback loop
 - 🏢 **Vendor Management CRUD**: Complete system with create/edit screens, UPI/Bank toggle, form validation
 - 📄 **Invoice Management UI**: Smart defaults with Save Draft + Create & Pay Now buttons, factory constructors
-- 🔐 **Card Management UI Foundation**: PCC-ready foundation with demo cards and security notices
+- 🔐 **Card Management UI Foundation**: PCI DSS-ready foundation with demo cards and security notices
 
 ### **✅ Revolutionary Architecture Advantages**
 - **Non-nullable Providers**: Zero defensive programming needed
