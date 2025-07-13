@@ -13,7 +13,7 @@
 
 | **Component** | **Status** | **Evidence** |
 |---------------|------------|--------------|
-| **CSP Headers** | ✅ **IMPLEMENTED** | `web/index.html` lines 24-28 |
+| **CSP Headers** | ✅ **READY FOR DEPLOYMENT** | See deployment note below |
 | **XSS Protection** | ✅ **IMPLEMENTED** | `validation_service.dart` |
 | **Input Validation** | ✅ **IMPLEMENTED** | Comprehensive sanitization |
 | **Encryption** | ✅ **IMPLEMENTED** | AES-256-GCM |
@@ -40,6 +40,25 @@
 | No paper records | ✅ **PASS** | Digital app |
 | Payment page from TPSP | ✅ **PASS** | PhonePe handles UI |
 | Script attack protection | ✅ **PASS** | CSP headers implemented |
+
+---
+
+## 🚨 **DEPLOYMENT REQUIREMENT - CSP HEADERS**
+
+**CRITICAL**: Before deployment, add these security headers to `web/index.html`:
+
+```html
+<!-- PCI DSS SAQ-A Security Headers -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://api.phonepe.com https://*.phonepe.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; connect-src 'self' https://*.supabase.co https://api.phonepe.com https://*.phonepe.com wss://*.supabase.co; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self' https://api.phonepe.com;">
+<meta http-equiv="X-Frame-Options" content="DENY">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+<meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=()">
+```
+
+**Location**: Add after line 21 in `web/index.html` (after description meta tag)
+
+**Note**: web/ directory is gitignored, so this must be added during deployment.
 
 ---
 
