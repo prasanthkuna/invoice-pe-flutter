@@ -1,5 +1,5 @@
 // InvoicePe Security Compliance Tests - PCI DSS Ready
-// Elon's Security Philosophy: "Security is not optional. Test every attack vector."
+// InvoicePe's Security Philosophy: "Security is not optional. Test every attack vector."
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:patrol/patrol.dart';

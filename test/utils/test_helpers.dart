@@ -1,4 +1,4 @@
-// InvoicePe Test Helpers - Elon-Style Minimal Code, Maximum Impact
+// InvoicePe Test Helpers - InvoicePe-Style Minimal Code, Maximum Impact
 // AI-Assisted utilities for revolutionary testing efficiency
 
 import 'package:flutter/material.dart';
@@ -9,7 +9,7 @@ import 'package:invoice_pe_app/main.dart';
 import 'package:invoice_pe_app/core/providers/data_providers.dart';
 import 'package:invoice_pe_app/core/services/debug_service.dart';
 
-/// Elon's Test Philosophy: "Setup once, test everything"
+/// InvoicePe's Test Philosophy: "Setup once, test everything"
 class TestHelpers {
   static late ProviderContainer _container;
 

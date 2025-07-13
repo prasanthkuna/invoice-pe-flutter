@@ -1,5 +1,5 @@
 // InvoicePe Mock Factories - Mocktail Type-Safe Mocking
-// Elon's Principle: "Mock external services, test our logic"
+// InvoicePe's Principle: "Mock external services, test our logic"
 
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';

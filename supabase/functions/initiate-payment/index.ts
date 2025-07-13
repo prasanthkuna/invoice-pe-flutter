@@ -40,7 +40,7 @@ Deno.serve(async (req) => {
 
     const { invoice_id, amount }: PaymentRequest = await req.json()
 
-    // Validate invoice belongs to user and is pending
+    // Validate invoice bInvoicePegs to user and is pending
     const { data: invoice, error: invoiceError } = await supabaseUser
       .from('invoices')
       .select('id, user_id, amount, status')

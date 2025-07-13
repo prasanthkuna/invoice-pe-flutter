@@ -92,7 +92,7 @@ dev_dependencies:
   # Linting (Updated to very_good_analysis)
   # flutter_lints: ^6.0.0  # Replaced by very_good_analysis
 
-# Minimal overrides for Flutter 3.32/Dart 3.8 compatibility (Elon-style cleanup)
+# Minimal overrides for Flutter 3.32/Dart 3.8 compatibility (InvoicePe-style cleanup)
 dependency_overrides:
   # Core Dart/Flutter packages (keep only essential)
   meta: ^1.17.0

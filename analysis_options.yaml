@@ -1,4 +1,4 @@
-# InvoicePe Pragmatic Analysis Options - Elon's "Fix Errors First" Approach
+# InvoicePe Pragmatic Analysis Options - InvoicePe's "Fix Errors First" Approach
 # Focus: ERRORS that break builds, ignore style noise until foundation is solid
 # Strategy: Get to ZERO ERRORS, then gradually add back style rules
 

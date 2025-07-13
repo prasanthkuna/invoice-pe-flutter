@@ -1,5 +1,5 @@
 // InvoicePe Payment Flow Tests - Patrol 2.0 Revolutionary Testing
-// Elon's Priority: "Test the money flow. Everything else is secondary."
+// InvoicePe's Priority: "Test the money flow. Everything else is secondary."
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
