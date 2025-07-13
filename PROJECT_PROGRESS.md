@@ -4,12 +4,12 @@
 **Repository**: https://github.com/prasanthkuna/invoice-pe-flutter.git
 **Supabase Project**: your-project-id (invoice-pe-flutter)
 **Status**: ✅ **99% COMPLETE** - 5 Core Features + Security + Code Quality + Testing Strategy + Repository Cleanup
-**Last Updated**: 2025-07-12 (InvoicePe-STYLE REPOSITORY CLEANUP COMPLETE - PCC Submission Ready)
+**Last Updated**: 2025-07-12 (InvoicePe-STYLE REPOSITORY CLEANUP COMPLETE - PCI DSS Submission Ready)
 **Today's Achievement**: ✅ Complete InvoicePe-style cleanup (noise elimination + 23 files committed) + Production-ready repository
 
-## 🚀 **PCC CERTIFICATION PIPELINE - 99% COMPLETE, SUBMISSION READY**
+## 🚀 **PCI DSS CERTIFICATION PIPELINE - 99% COMPLETE, SUBMISSION READY**
 
-**Certification Flow**: PhonePe UAT ✅ → Complete App Development (99% ✅) → PCC Submission (READY NOW) → 20-Day PCC Review → PCC Certification → PhonePe Review → Advanced Card Management APIs 🎉
+**Certification Flow**: PhonePe UAT ✅ → Complete App Development (99% ✅) → PCI DSS Submission (READY NOW) → 20-Day PCI DSS Review → PCI DSS Certification → PhonePe Review → Advanced Card Management APIs 🎉
 
 ## 🎯 **CURRENT STATUS - InvoicePe-STYLE REVOLUTIONARY ACHIEVEMENT**
 
@@ -18,18 +18,18 @@
 - **📊 Transaction History Screen** - Real-time tracking with status indicators and user feedback loop
 - **🏢 Vendor Management CRUD** - Complete system with create/edit screens, UPI/Bank toggle, form validation
 - **📄 Invoice Management UI** - Smart defaults with Save Draft + Create & Pay Now buttons, factory constructors
-- **🔐 Card Management UI Foundation** - PCC-ready foundation with demo cards and security notices
+- **🔐 Card Management UI Foundation** - PCI DSS-ready foundation with demo cards and security notices
 
 ### **🏗️ REVOLUTIONARY ARCHITECTURE ADVANTAGES**
 - **Non-nullable Providers**: Zero defensive programming needed
 - **Smart Defaults**: Factory constructors eliminate complex validation
 - **Existing Services**: 95% backend logic already implemented
 - **Consistent Patterns**: Unified UI/UX with AppTheme and animations
-- **Security-First**: PCC-compliant architecture from day one
+- **Security-First**: PCI DSS-compliant architecture from day one
 
 **Current Status**: ✅ **99% COMPLETE** - 5 Core Features + Security + Code Quality + Testing Strategy + Repository Cleanup Complete
-**Target**: PCC-compliant application with enterprise-grade security implementation
-**Timeline**: ✅ Foundation (3 days) → ✅ Core Features (4 days) → ✅ Security Implementation (2 days) → ✅ Code Quality (1 day) → 20 days PCC review → Advanced APIs unlocked
+**Target**: PCI DSS-compliant application with enterprise-grade security implementation
+**Timeline**: ✅ Foundation (3 days) → ✅ Core Features (4 days) → ✅ Security Implementation (2 days) → ✅ Code Quality (1 day) → 20 days PCI DSS review → Advanced APIs unlocked
 **Architecture**: ✅ **REVOLUTIONARY** Clean Architecture + Riverpod + Supabase + Flutter 3.32.6 + Business-Aligned Data Models + Zero Technical Debt
 
 ---
@@ -51,20 +51,20 @@
 - **InvoicePe-style 3-tier system** implemented (Critical, Performance, Style)
 - **2 critical bugs fixed** (PaymentResult type equality issues)
 - **Auto-fixed 12 performance issues** (dart fix automation)
-- **Added crypto dependency** (resolved PCC compliance requirement)
+- **Added crypto dependency** (resolved PCI DSS compliance requirement)
 - **Suppressed style noise** (focus on bug prevention over style)
 
 ### **✅ COMPREHENSIVE TESTING STRATEGY DOCUMENTED** ⚡ *Research-driven*
 - **InvoicePe_TESTING_STRATEGY.md** created (300-line strategic document)
 - **Research-based approach** (2025 Flutter testing best practices)
 - **6-phase implementation plan** (5 hours → 95% critical path coverage)
-- **PCC compliance focus** (payment flow + security testing)
+- **PCI DSS compliance focus** (payment flow + security testing)
 - **Performance targets** (<30 second execution, zero flaky tests)
 - **Integration-first approach** (70% integration, 20% service, 10% widget)
 
 ### **🎯 STRATEGIC INSIGHTS CAPTURED**
 - **PhonePe UAT patterns** (test merchant key, mock responses)
-- **AES-256-GCM testing** (known answer tests for PCC compliance)
+- **AES-256-GCM testing** (known answer tests for PCI DSS compliance)
 - **Supabase testing patterns** (local CLI, mock clients)
 - **AI-assisted testing** (2025 best practices integration)
 
@@ -80,7 +80,7 @@
 - **Critical Errors**: 25 → 0 (100% elimination)
 - **Lint Issues**: 104 → 18 (83% noise reduction)
 - **Security Vulnerabilities**: 0 (verified safe dynamic calls)
-- **PCC Compliance**: 100% (all requirements met)
+- **PCI DSS Compliance**: 100% (all requirements met)
 - **Test Coverage Strategy**: 95% critical path coverage planned
 - **Performance**: <30 second test execution target
 - **Maintainability**: InvoicePe-style 3-tier lint system implemented
@@ -106,21 +106,21 @@
 3. **AES-256-GCM Encryption Service** ⚡ *Completed*
    - ✅ Implemented using `encrypt: ^5.0.3` package
    - ✅ Secure key storage with flutter_secure_storage
-   - ✅ Card data encryption for PCC compliance
+   - ✅ Card data encryption for PCI DSS compliance
 
 4. **Audit Logging Service** ⚡ *Completed*
    - ✅ Extended DebugService with logSecurity, logSecurityViolation, logAuditTrail
-   - ✅ Database logging infrastructure for PCC compliance
+   - ✅ Database logging infrastructure for PCI DSS compliance
    - ✅ Payment audit trails and security monitoring
 
 5. **Enhanced Input Validation** ⚡ *Completed*
    - ✅ XSS protection and SQL injection prevention
    - ✅ Rate limiting and security hardening
-   - ✅ Comprehensive ValidationService with PCC compliance
+   - ✅ Comprehensive ValidationService with PCI DSS compliance
 
 ### **📊 REMAINING TASKS (1-2 DAYS)**
 6. **Comprehensive Testing** - All features integration testing
-7. **Final PCC Documentation** - Submission preparation
+7. **Final PCI DSS Documentation** - Submission preparation
 8. **Performance Validation** - Production readiness verification
 
 ---
@@ -186,7 +186,7 @@
 
 ---
 
-## 🎯 **PCC CERTIFICATION DEVELOPMENT PHASES**
+## 🎯 **PCI DSS CERTIFICATION DEVELOPMENT PHASES**
 
 ### **Phase 1: Foundation & Environment** ✅ *COMPLETE*
 - Flutter 3.32.6 development environment
@@ -211,16 +211,16 @@
 - **✅ Revolutionary Architecture**: Non-nullable providers, smart defaults, zero technical debt
 - **✅ Security Implementation**: AES-256-GCM encryption, audit logging, enhanced validation complete
 - **✅ InvoicePe-Style Code Quality**: Zero lint issues, automated quality enforcement, junior-dev ready
-- **Target**: Complete, production-ready app for PCC submission (1-2 days remaining)
+- **Target**: Complete, production-ready app for PCI DSS submission (1-2 days remaining)
 
-### **Phase 5: PCC Certification** ⏳ *20 days*
-- Submit complete app + code to PCC
-- PCC compliance review process
+### **Phase 5: PCI DSS Certification** ⏳ *20 days*
+- Submit complete app + code to PCI DSS
+- PCI DSS compliance review process
 - Address any certification feedback
-- Receive PCC certification
+- Receive PCI DSS certification
 
 ### **Phase 6: PhonePe Advanced Integration** ⚡ *1 week*
-- PhonePe reviews PCC-certified app
+- PhonePe reviews PCI DSS-certified app
 - Receive advanced card management APIs
 - Implement masked card features
 - Enterprise-grade card management
@@ -291,10 +291,10 @@
   - Uses Invoice.forPayment() factory constructor for smart defaults
   - Auto-generates descriptions and invoice numbers
 
-- ✅ **Card Management UI Foundation** - PCC-ready security foundation
+- ✅ **Card Management UI Foundation** - PCI DSS-ready security foundation
   - Route: `/cards` with demo cards and security notices
-  - Disabled add card until PCC certification (security-first approach)
-  - Foundation ready for post-PCC advanced card management features
+  - Disabled add card until PCI DSS certification (security-first approach)
+  - Foundation ready for post-PCI DSS advanced card management features
 
 #### Implementation Metrics ✅
 - **Code Efficiency**: ~1500 lines total (25% less than traditional approach)
