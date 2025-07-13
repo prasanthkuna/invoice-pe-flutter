@@ -78,12 +78,17 @@ class TransactionListScreen extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: TextField(
-              onChanged: (value) => ref.read(transactionSearchQueryProvider.notifier).state = value,
+              onChanged: (value) =>
+                  ref.read(transactionSearchQueryProvider.notifier).state =
+                      value,
               style: const TextStyle(color: AppTheme.primaryText),
               decoration: InputDecoration(
                 hintText: 'Search transactions...',
                 hintStyle: const TextStyle(color: AppTheme.secondaryText),
-                prefixIcon: const Icon(Icons.search, color: AppTheme.secondaryText),
+                prefixIcon: const Icon(
+                  Icons.search,
+                  color: AppTheme.secondaryText,
+                ),
                 filled: true,
                 fillColor: AppTheme.cardBackground,
                 border: OutlineInputBorder(
@@ -93,7 +98,7 @@ class TransactionListScreen extends ConsumerWidget {
               ),
             ),
           ).animate().fadeIn(delay: 200.ms).slideY(begin: -0.3),
-          
+
           // Status Filter Chips
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -103,40 +108,67 @@ class TransactionListScreen extends ConsumerWidget {
                 children: [
                   _StatusChip(
                     label: 'All',
-                    isSelected: ref.watch(selectedTransactionStatusProvider) == null,
-                    onTap: () => ref.read(selectedTransactionStatusProvider.notifier).state = null,
+                    isSelected:
+                        ref.watch(selectedTransactionStatusProvider) == null,
+                    onTap: () =>
+                        ref
+                                .read(
+                                  selectedTransactionStatusProvider.notifier,
+                                )
+                                .state =
+                            null,
                   ),
                   const SizedBox(width: 8),
                   _StatusChip(
                     label: 'Completed',
-                    isSelected: ref.watch(selectedTransactionStatusProvider) == TransactionStatus.success,
-                    onTap: () => ref.read(selectedTransactionStatusProvider.notifier).state = TransactionStatus.success,
+                    isSelected:
+                        ref.watch(selectedTransactionStatusProvider) ==
+                        TransactionStatus.success,
+                    onTap: () =>
+                        ref
+                            .read(selectedTransactionStatusProvider.notifier)
+                            .state = TransactionStatus
+                            .success,
                   ),
                   const SizedBox(width: 8),
                   _StatusChip(
                     label: 'Pending',
-                    isSelected: ref.watch(selectedTransactionStatusProvider) == TransactionStatus.initiated,
-                    onTap: () => ref.read(selectedTransactionStatusProvider.notifier).state = TransactionStatus.initiated,
+                    isSelected:
+                        ref.watch(selectedTransactionStatusProvider) ==
+                        TransactionStatus.initiated,
+                    onTap: () =>
+                        ref
+                            .read(selectedTransactionStatusProvider.notifier)
+                            .state = TransactionStatus
+                            .initiated,
                   ),
                   const SizedBox(width: 8),
                   _StatusChip(
                     label: 'Failed',
-                    isSelected: ref.watch(selectedTransactionStatusProvider) == TransactionStatus.failure,
-                    onTap: () => ref.read(selectedTransactionStatusProvider.notifier).state = TransactionStatus.failure,
+                    isSelected:
+                        ref.watch(selectedTransactionStatusProvider) ==
+                        TransactionStatus.failure,
+                    onTap: () =>
+                        ref
+                            .read(selectedTransactionStatusProvider.notifier)
+                            .state = TransactionStatus
+                            .failure,
                   ),
                 ],
               ),
             ),
           ).animate().fadeIn(delay: 300.ms),
-          
+
           const SizedBox(height: 16),
-          
+
           // Transactions List
           Expanded(
             child: filteredTransactions.when(
               loading: () => const Center(
                 child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryAccent),
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    AppTheme.primaryAccent,
+                  ),
                 ),
               ),
               error: (error, stackTrace) => Center(
@@ -151,9 +183,10 @@ class TransactionListScreen extends ConsumerWidget {
                     const SizedBox(height: 16),
                     Text(
                       'Error loading transactions',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        color: Colors.red,
-                      ),
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(
+                            color: Colors.red,
+                          ),
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -163,7 +196,8 @@ class TransactionListScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 16),
                     ElevatedButton(
-                      onPressed: () => ref.refresh(filteredTransactionsProvider),
+                      onPressed: () =>
+                          ref.refresh(filteredTransactionsProvider),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.primaryAccent,
                         foregroundColor: Colors.black,
@@ -174,61 +208,72 @@ class TransactionListScreen extends ConsumerWidget {
                 ),
               ),
               data: (filteredTransactions) => filteredTransactions.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.receipt_long_outlined,
-                          size: 64,
-                          color: AppTheme.secondaryText.withValues(alpha: 0.5),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          searchQuery.isEmpty ? 'No transactions yet' : 'No transactions found',
-                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            color: AppTheme.secondaryText,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          searchQuery.isEmpty
-                              ? 'Your payment history will appear here'
-                              : 'Try a different search term',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppTheme.secondaryText.withValues(alpha: 0.7),
-                          ),
-                        ),
-                        if (searchQuery.isEmpty) ...[
-                          const SizedBox(height: 24),
-                          ElevatedButton(
-                            onPressed: () => context.go('/quick-pay'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppTheme.primaryAccent,
-                              foregroundColor: Colors.white,
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.receipt_long_outlined,
+                            size: 64,
+                            color: AppTheme.secondaryText.withValues(
+                              alpha: 0.5,
                             ),
-                            child: const Text('Make Your First Payment'),
                           ),
+                          const SizedBox(height: 16),
+                          Text(
+                            searchQuery.isEmpty
+                                ? 'No transactions yet'
+                                : 'No transactions found',
+                            style: Theme.of(context).textTheme.headlineSmall
+                                ?.copyWith(
+                                  color: AppTheme.secondaryText,
+                                ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            searchQuery.isEmpty
+                                ? 'Your payment history will appear here'
+                                : 'Try a different search term',
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(
+                                  color: AppTheme.secondaryText.withValues(
+                                    alpha: 0.7,
+                                  ),
+                                ),
+                          ),
+                          if (searchQuery.isEmpty) ...[
+                            const SizedBox(height: 24),
+                            ElevatedButton(
+                              onPressed: () => context.go('/quick-pay'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppTheme.primaryAccent,
+                                foregroundColor: Colors.white,
+                              ),
+                              child: const Text('Make Your First Payment'),
+                            ),
+                          ],
                         ],
-                      ],
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: filteredTransactions.length,
+                      itemBuilder: (context, index) {
+                        final transaction = filteredTransactions[index];
+                        return Container(
+                              margin: const EdgeInsets.only(bottom: 12),
+                              child: _TransactionCard(
+                                transaction: transaction,
+                                onTap: () => context.go(
+                                  '/transactions/${transaction.id}',
+                                ),
+                              ),
+                            )
+                            .animate(delay: Duration(milliseconds: 100 * index))
+                            .fadeIn()
+                            .slideX(begin: 0.3);
+                      },
                     ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: filteredTransactions.length,
-                    itemBuilder: (context, index) {
-                      final transaction = filteredTransactions[index];
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        child: _TransactionCard(
-                          transaction: transaction,
-                          onTap: () => context.go('/transactions/${transaction.id}'),
-                        ),
-                      ).animate(delay: Duration(milliseconds: 100 * index))
-                          .fadeIn()
-                          .slideX(begin: 0.3);
-                    },
-                  ),
             ),
           ),
         ],
@@ -238,13 +283,12 @@ class TransactionListScreen extends ConsumerWidget {
 }
 
 class _TransactionCard extends StatelessWidget {
-  final Transaction transaction;
-  final VoidCallback onTap;
-
   const _TransactionCard({
     required this.transaction,
     required this.onTap,
   });
+  final Transaction transaction;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -270,7 +314,9 @@ class _TransactionCard extends StatelessWidget {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: _getStatusColor(transaction.status).withValues(alpha: 0.1),
+                    color: _getStatusColor(
+                      transaction.status,
+                    ).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Center(
@@ -282,7 +328,7 @@ class _TransactionCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 16),
-                
+
                 // Transaction Info
                 Expanded(
                   child: Column(
@@ -305,7 +351,7 @@ class _TransactionCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                
+
                 // Amount & Status
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
@@ -319,7 +365,10 @@ class _TransactionCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: _getStatusColor(transaction.status),
                         borderRadius: BorderRadius.circular(8),
@@ -337,9 +386,9 @@ class _TransactionCard extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Date & Payment Method
             Row(
               children: [
@@ -419,15 +468,14 @@ class _TransactionCard extends StatelessWidget {
 }
 
 class _StatusChip extends StatelessWidget {
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
   const _StatusChip({
     required this.label,
     required this.isSelected,
     required this.onTap,
   });
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -439,7 +487,9 @@ class _StatusChip extends StatelessWidget {
           color: isSelected ? AppTheme.primaryAccent : AppTheme.cardBackground,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? AppTheme.primaryAccent : AppTheme.secondaryText.withValues(alpha: 0.3),
+            color: isSelected
+                ? AppTheme.primaryAccent
+                : AppTheme.secondaryText.withValues(alpha: 0.3),
             width: 1,
           ),
         ),

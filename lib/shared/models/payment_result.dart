@@ -4,17 +4,6 @@ part 'payment_result.mapper.dart';
 
 @MappableClass()
 class PaymentResult with PaymentResultMappable {
-  final String transactionId;
-  final String vendorId;
-  final String vendorName;
-  final double amount;
-  final double fee;
-  final double rewards;
-  final double total;
-  final String paymentMethod;
-  final DateTime timestamp;
-  final String? phonepeTransactionId;
-
   const PaymentResult({
     required this.transactionId,
     required this.vendorId,
@@ -27,7 +16,19 @@ class PaymentResult with PaymentResultMappable {
     required this.timestamp,
     this.phonepeTransactionId,
   });
+  final String transactionId;
+  final String vendorId;
+  final String vendorName;
+  final double amount;
+  final double fee;
+  final double rewards;
+  final double total;
+  final String paymentMethod;
+  final DateTime timestamp;
+  final String? phonepeTransactionId;
 
-  static PaymentResult fromMap(Map<String, dynamic> map) => PaymentResultMapper.fromMap(map);
-  static PaymentResult fromJson(String json) => PaymentResultMapper.fromJson(json);
+  static PaymentResult fromMap(Map<String, dynamic> map) =>
+      PaymentResultMapper.fromMap(map);
+  static PaymentResult fromJson(String json) =>
+      PaymentResultMapper.fromJson(json);
 }

@@ -47,11 +47,11 @@ dependencies:
   pdf: ^3.11.1
   permission_handler: ^11.3.1
 
-  # PhonePe Payment Integration
-  phonepe_payment_sdk: ^2.0.3
+  # PhonePe Payment Integration (UPGRADED - Latest tech)
+  phonepe_payment_sdk: ^3.0.0
 
-  # Enhanced Forms & UX (NEW - Phase 1 additions)
-  reactive_forms: ^17.0.1
+  # Enhanced Forms & UX (UPGRADED - Latest tech)
+  reactive_forms: ^18.1.1
   form_builder_validators: ^11.0.0
   cached_network_image: ^3.4.1
 
@@ -60,8 +60,8 @@ dependencies:
   encrypt: ^5.0.3
   crypto: ^3.0.3
 
-  # Payment Features (NEW - Phase 1 additions)
-  mobile_scanner: ^5.0.0  # QR/Barcode scanning (replaces qr_code_scanner)
+  # Payment Features (UPGRADED - Latest tech)
+  mobile_scanner: ^7.0.1  # QR/Barcode scanning (replaces qr_code_scanner)
   logger: ^2.4.0  # For comprehensive logging
 
   # UI/UX Enhancements
@@ -75,6 +75,13 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
+  # Revolutionary Testing Stack 2025 (UPGRADED - Latest tech)
+  patrol: ^3.11.0                   # Revolutionary integration testing
+  mocktail: ^1.0.4                  # Type-safe mocking
+  bloc_test: ^10.0.0                # State management testing (UPGRADED)
+  very_good_analysis: ^9.0.0        # Modern lint rules (UPGRADED)
+  fake_async: ^1.3.1                # Time manipulation for tests
+
   # Code Generation - dart_mappable for Flutter 3.32/Dart 3.8 compatibility
   build_runner: ^2.5.4
   dart_mappable_builder: ^4.5.0
@@ -82,30 +89,15 @@ dev_dependencies:
   # Isar Code Generation (DEFERRED to Phase 2 - version conflict with dart_mappable)
   # isar_generator: ^3.1.0
 
-  # Linting
-  flutter_lints: ^6.0.0
+  # Linting (Updated to very_good_analysis)
+  # flutter_lints: ^6.0.0  # Replaced by very_good_analysis
 
-# Force compatible versions for Flutter 3.32/Dart 3.8
+# Minimal overrides for Flutter 3.32/Dart 3.8 compatibility (Elon-style cleanup)
 dependency_overrides:
-  # Core Dart/Flutter packages
+  # Core Dart/Flutter packages (keep only essential)
   meta: ^1.17.0
   material_color_utilities: ^0.13.0
   vector_math: ^2.2.0
-  characters: ^1.4.1
-
-  # Testing packages
-  leak_tracker: ^11.0.1
-  leak_tracker_flutter_testing: ^3.0.10
-  leak_tracker_testing: ^3.0.2
-  test_api: ^0.7.6
-  vm_service: ^15.0.2
-
-  # Platform-specific secure storage (safe updates)
-  flutter_secure_storage_linux: ^2.0.1
-  flutter_secure_storage_macos: ^4.0.0
-  flutter_secure_storage_platform_interface: ^2.0.1
-  flutter_secure_storage_web: ^2.0.0
-  flutter_secure_storage_windows: ^4.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

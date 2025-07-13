@@ -5,7 +5,6 @@ import '../types/result.dart';
 import '../types/auth_types.dart' as app_auth;
 
 class AuthService extends BaseService {
-  
   /// Auth state stream for providers
   static Stream<AuthState> get authStateStream =>
       BaseService.supabase.auth.onAuthStateChange;
@@ -112,13 +111,16 @@ class AuthService extends BaseService {
       );
     }
   }
-  
+
   /// Verify OTP and complete authentication (modern Result<T> pattern)
   static Future<app_auth.AuthResult> verifyOtp({
     required String phone,
     required String otp,
   }) async {
-    DebugService.logAuth('Starting OTP verification', data: {'phone': phone, 'otp_length': otp.length});
+    DebugService.logAuth(
+      'Starting OTP verification',
+      data: {'phone': phone, 'otp_length': otp.length},
+    );
 
     try {
       final response = await BaseService.supabase.auth.verifyOTP(
@@ -128,26 +130,34 @@ class AuthService extends BaseService {
       );
 
       if (response.user != null && response.session != null) {
-        DebugService.logAuth('OTP verification successful', data: {
-          'user_id': response.user!.id,
-          'phone': response.user!.phone,
-          'created_at': response.user!.createdAt,
-        });
+        DebugService.logAuth(
+          'OTP verification successful',
+          data: {
+            'user_id': response.user!.id,
+            'phone': response.user!.phone,
+            'created_at': response.user!.createdAt,
+          },
+        );
 
         // Check if profile exists, create if not
         try {
           await _ensureProfileExists();
           DebugService.logAuth('Profile creation/verification completed');
         } catch (profileError) {
-          DebugService.logWarning('Profile creation failed but auth succeeded', error: profileError);
+          DebugService.logWarning(
+            'Profile creation failed but auth succeeded',
+            error: profileError,
+          );
           // Continue with auth success even if profile creation fails
         }
 
-        return Success(app_auth.AuthData(
-          user: response.user!,
-          session: response.session!,
-          message: 'Authentication successful',
-        ));
+        return Success(
+          app_auth.AuthData(
+            user: response.user!,
+            session: response.session!,
+            message: 'Authentication successful',
+          ),
+        );
       }
 
       DebugService.logWarning('OTP verification returned null user or session');
@@ -157,7 +167,7 @@ class AuthService extends BaseService {
       return Failure(_parseAuthError(error));
     }
   }
-  
+
   /// Sign out the current user
   static Future<void> signOut() async {
     try {
@@ -189,8 +199,6 @@ class AuthService extends BaseService {
     }
   }
 
-
-  
   /// Ensure profile exists for the current user
   static Future<void> _ensureProfileExists() async {
     try {
@@ -200,7 +208,10 @@ class AuthService extends BaseService {
         return;
       }
 
-      DebugService.logDatabase('Starting profile existence check', data: {'user_id': user.id});
+      DebugService.logDatabase(
+        'Starting profile existence check',
+        data: {'user_id': user.id},
+      );
 
       // Check if profile already exists (manual creation, no triggers)
       final profileResponse = await BaseService.supabase
@@ -210,33 +221,49 @@ class AuthService extends BaseService {
           .maybeSingle();
 
       if (profileResponse == null) {
-        DebugService.logDatabase('Profile not found, creating new profile', table: 'profiles');
+        DebugService.logDatabase(
+          'Profile not found, creating new profile',
+          table: 'profiles',
+        );
         // Create profile manually with user ID as primary key
         try {
-          await BaseService.supabase
-              .from('profiles')
-              .insert({
-                'id': user.id,
-                'phone': user.phone ?? '',
-                'business_name': 'My Business', // Default name
-                'email': user.email,
-              });
-          DebugService.logDatabase('Profile created successfully', table: 'profiles');
+          await BaseService.supabase.from('profiles').insert({
+            'id': user.id,
+            'phone': user.phone ?? '',
+            'business_name': 'My Business', // Default name
+            'email': user.email,
+          });
+          DebugService.logDatabase(
+            'Profile created successfully',
+            table: 'profiles',
+          );
         } catch (insertError) {
-          DebugService.logWarning('Profile insert failed - might already exist', error: insertError, operation: 'profile_insert');
+          DebugService.logWarning(
+            'Profile insert failed - might already exist',
+            error: insertError,
+            operation: 'profile_insert',
+          );
           // Profile might have been created between check and insert
           // This is fine, just ignore the error
         }
       } else {
-        DebugService.logDatabase('Profile already exists', table: 'profiles', data: {'profile_id': profileResponse['id']});
+        DebugService.logDatabase(
+          'Profile already exists',
+          table: 'profiles',
+          data: {'profile_id': profileResponse['id']},
+        );
       }
     } catch (error) {
-      DebugService.logError('Profile creation/check failed', error: error, operation: 'profile_check');
+      DebugService.logError(
+        'Profile creation/check failed',
+        error: error,
+        operation: 'profile_check',
+      );
       // Log error but don't throw - profile creation can be done later
       // Profile creation is handled by database triggers, so this is not critical
     }
   }
-  
+
   /// Refresh the current session
   static Future<void> refreshSession() async {
     try {
@@ -264,8 +291,6 @@ class AuthService extends BaseService {
     }
   }
 
-
-
   /// Handle session expiry gracefully
   static Future<void> handleSessionExpiry() async {
     try {
@@ -281,7 +306,8 @@ class AuthService extends BaseService {
 
     if (errorMessage.contains('invalid') || errorMessage.contains('expired')) {
       return 'Invalid or expired OTP. Please try again.';
-    } else if (errorMessage.contains('too many') || errorMessage.contains('rate limit')) {
+    } else if (errorMessage.contains('too many') ||
+        errorMessage.contains('rate limit')) {
       return 'Too many attempts. Please wait before trying again.';
     } else if (errorMessage.contains('invalid phone')) {
       return 'Please enter a valid phone number.';
@@ -312,10 +338,12 @@ class AuthService extends BaseService {
       }
 
       final missingFields = <String>[];
-      if (response['business_name'] == null || response['business_name'].toString().trim().isEmpty) {
+      if (response['business_name'] == null ||
+          response['business_name'].toString().trim().isEmpty) {
         missingFields.add('business_name');
       }
-      if (response['gstin'] == null || response['gstin'].toString().trim().isEmpty) {
+      if (response['gstin'] == null ||
+          response['gstin'].toString().trim().isEmpty) {
         missingFields.add('gstin');
       }
 

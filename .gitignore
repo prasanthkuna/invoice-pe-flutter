@@ -44,31 +44,25 @@ doc/api/
 # ================================
 # PLATFORM SPECIFIC
 # ================================
-# iOS
-ios/
+# iOS - Only ignore build artifacts, not the platform folder
 ios/Flutter/Flutter.framework
 ios/Flutter/Flutter.podspec
-ios/Runner.xcworkspace/
-ios/Runner.xcodeproj/
+ios/Runner.xcworkspace/xcuserdata/
+ios/Runner.xcodeproj/xcuserdata/
 ios/Pods/
 ios/.symlinks/
+ios/build/
 
-# Android
-android/
-android/app/debug
-android/app/profile
-android/app/release
-android/gradle/
-android/gradlew
-android/gradlew.bat
-android/local.properties
+# Android - Only ignore build artifacts, not the platform folder
+android/app/debug/
+android/app/profile/
+android/app/release/
 android/key.properties
+android/.gradle/
+android/build/
 
-# Web
-web/
-web/favicon.png
-web/icons/
-web/manifest.json
+# Web - Only ignore build artifacts, not the platform folder
+web/build/
 
 # Desktop
 windows/
@@ -131,7 +125,6 @@ internal-docs/
 # Non-essential documentation (recreatable)
 InvoicePe_TESTING_STRATEGY.md
 PCC_COMPLIANCE_CHECKLIST.md
-README.md
 docs/
 documentation/
 

@@ -1,10 +1,9 @@
-
 import '../../shared/models/transaction.dart';
 import 'base_service.dart';
 
 class TransactionService extends BaseService {
   static const String _tableName = 'transactions';
-  
+
   /// Get all transactions for the current user
   static Future<List<Transaction>> getTransactions() async {
     try {
@@ -22,12 +21,12 @@ class TransactionService extends BaseService {
           .eq('user_id', BaseService.currentUserId!)
           .order('created_at', ascending: false);
 
-      return response.map((json) => _fromSupabaseJson(json)).toList();
+      return response.map(_fromSupabaseJson).toList();
     } catch (error) {
       throw BaseService.handleError(error);
     }
   }
-  
+
   /// Get a specific transaction by ID
   static Future<Transaction?> getTransaction(String transactionId) async {
     try {
@@ -53,7 +52,9 @@ class TransactionService extends BaseService {
   }
 
   /// Get transactions by status
-  static Future<List<Transaction>> getTransactionsByStatus(TransactionStatus status) async {
+  static Future<List<Transaction>> getTransactionsByStatus(
+    TransactionStatus status,
+  ) async {
     try {
       BaseService.ensureAuthenticated();
 
@@ -70,14 +71,16 @@ class TransactionService extends BaseService {
           .eq('status', _mapStatusToBackend(status))
           .order('created_at', ascending: false);
 
-      return response.map((json) => _fromSupabaseJson(json)).toList();
+      return response.map(_fromSupabaseJson).toList();
     } catch (error) {
       throw BaseService.handleError(error);
     }
   }
-  
+
   /// Get transactions for a specific invoice
-  static Future<List<Transaction>> getTransactionsForInvoice(String invoiceId) async {
+  static Future<List<Transaction>> getTransactionsForInvoice(
+    String invoiceId,
+  ) async {
     try {
       BaseService.ensureAuthenticated();
 
@@ -94,14 +97,16 @@ class TransactionService extends BaseService {
           .eq('user_id', BaseService.currentUserId!)
           .order('created_at', ascending: false);
 
-      return response.map((json) => _fromSupabaseJson(json)).toList();
+      return response.map(_fromSupabaseJson).toList();
     } catch (error) {
       throw BaseService.handleError(error);
     }
   }
-  
+
   /// Get recent transactions (last 10)
-  static Future<List<Transaction>> getRecentTransactions({int limit = 10}) async {
+  static Future<List<Transaction>> getRecentTransactions({
+    int limit = 10,
+  }) async {
     try {
       BaseService.ensureAuthenticated();
 
@@ -118,12 +123,12 @@ class TransactionService extends BaseService {
           .order('created_at', ascending: false)
           .limit(limit);
 
-      return response.map((json) => _fromSupabaseJson(json)).toList();
+      return response.map(_fromSupabaseJson).toList();
     } catch (error) {
       throw BaseService.handleError(error);
     }
   }
-  
+
   /// Map frontend TransactionStatus to backend status
   static String _mapStatusToBackend(TransactionStatus status) {
     switch (status) {
@@ -135,7 +140,6 @@ class TransactionService extends BaseService {
         return 'failure';
     }
   }
-  
 
   /// Convert Supabase JSON to Transaction model
   static Transaction _fromSupabaseJson(Map<String, dynamic> json) {
@@ -155,8 +159,12 @@ class TransactionService extends BaseService {
       paymentMethod: json['payment_method'] as String?,
       phonepeTransactionId: json['phonepe_transaction_id'] as String?,
       failureReason: json['failure_reason'] as String?,
-      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at'] as String) : null,
-      completedAt: json['completed_at'] != null ? DateTime.parse(json['completed_at'] as String) : null,
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : null,
+      completedAt: json['completed_at'] != null
+          ? DateTime.parse(json['completed_at'] as String)
+          : null,
     );
   }
 }

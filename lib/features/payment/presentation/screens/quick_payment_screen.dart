@@ -36,7 +36,7 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
     final vendors = ref.watch(vendorsProvider);
     final selectedVendor = ref.watch(quickPaymentVendorProvider);
     final amount = ref.watch(quickPaymentAmountProvider);
-    
+
     final fee = amount * AppConstants.defaultFeePercentage / 100;
     final total = amount + fee;
     final rewards = amount * AppConstants.defaultRewardsPercentage / 100;
@@ -64,18 +64,18 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ).animate().fadeIn(delay: 200.ms).slideY(begin: -0.3),
-            
+
             const SizedBox(height: 8),
-            
+
             Text(
               'Select vendor and amount to pay instantly',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 color: AppTheme.secondaryText,
               ),
             ).animate().fadeIn(delay: 400.ms),
-            
+
             const SizedBox(height: 32),
-            
+
             // Vendor Selection
             Text(
               'Select Vendor',
@@ -84,12 +84,13 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
                 fontWeight: FontWeight.w600,
               ),
             ).animate().fadeIn(delay: 600.ms),
-            
+
             const SizedBox(height: 16),
-            
+
             // Vendor Dropdown
             GestureDetector(
-              onTap: () => setState(() => _showVendorDropdown = !_showVendorDropdown),
+              onTap: () =>
+                  setState(() => _showVendorDropdown = !_showVendorDropdown),
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
@@ -97,7 +98,7 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
                   color: AppTheme.cardBackground,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: selectedVendor != null 
+                    color: selectedVendor != null
                         ? AppTheme.primaryAccent.withValues(alpha: 0.5)
                         : AppTheme.secondaryText.withValues(alpha: 0.2),
                     width: 1,
@@ -131,16 +132,18 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
                           children: [
                             Text(
                               selectedVendor.name,
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                color: AppTheme.primaryText,
-                                fontWeight: FontWeight.w600,
-                              ),
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(
+                                    color: AppTheme.primaryText,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                             ),
                             Text(
                               selectedVendor.phone ?? 'No phone',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: AppTheme.secondaryText,
-                              ),
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(
+                                    color: AppTheme.secondaryText,
+                                  ),
                             ),
                           ],
                         ),
@@ -155,21 +158,24 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
                       Expanded(
                         child: Text(
                           'Choose a vendor to pay',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: AppTheme.secondaryText,
-                          ),
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(
+                                color: AppTheme.secondaryText,
+                              ),
                         ),
                       ),
                     ],
                     Icon(
-                      _showVendorDropdown ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                      _showVendorDropdown
+                          ? Icons.keyboard_arrow_up
+                          : Icons.keyboard_arrow_down,
                       color: AppTheme.secondaryText,
                     ),
                   ],
                 ),
               ),
             ).animate().fadeIn(delay: 800.ms).slideY(begin: 0.3),
-            
+
             // Vendor List Dropdown
             if (_showVendorDropdown) ...[
               const SizedBox(height: 8),
@@ -194,7 +200,9 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
                           width: 32,
                           height: 32,
                           decoration: BoxDecoration(
-                            color: AppTheme.primaryAccent.withValues(alpha: 0.1),
+                            color: AppTheme.primaryAccent.withValues(
+                              alpha: 0.1,
+                            ),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Center(
@@ -223,7 +231,8 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
                           ),
                         ),
                         onTap: () {
-                          ref.read(quickPaymentVendorProvider.notifier).state = vendor;
+                          ref.read(quickPaymentVendorProvider.notifier).state =
+                              vendor;
                           setState(() => _showVendorDropdown = false);
                         },
                       );
@@ -233,7 +242,9 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
                     child: Padding(
                       padding: EdgeInsets.all(20),
                       child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryAccent),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          AppTheme.primaryAccent,
+                        ),
                       ),
                     ),
                   ),
@@ -247,9 +258,9 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
                 ),
               ).animate().fadeIn(delay: 100.ms).slideY(begin: -0.2),
             ],
-            
+
             const SizedBox(height: 32),
-            
+
             // Amount Input
             Text(
               'Enter Amount',
@@ -258,9 +269,9 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
                 fontWeight: FontWeight.w600,
               ),
             ).animate().fadeIn(delay: 1000.ms),
-            
+
             const SizedBox(height: 16),
-            
+
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
@@ -285,11 +296,18 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
                           controller: _amountController,
                           onChanged: (value) {
                             final parsedAmount = double.tryParse(value) ?? 0.0;
-                            ref.read(quickPaymentAmountProvider.notifier).state = parsedAmount;
+                            ref
+                                    .read(quickPaymentAmountProvider.notifier)
+                                    .state =
+                                parsedAmount;
                           },
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
                           inputFormatters: [
-                            FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                            FilteringTextInputFormatter.allow(
+                              RegExp(r'^\d+\.?\d{0,2}'),
+                            ),
                           ],
                           style: const TextStyle(
                             fontSize: 32,
@@ -309,22 +327,22 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
                       ),
                     ],
                   ),
-                  
+
                   if (amount > 0) ...[
                     const SizedBox(height: 24),
                     const Divider(color: AppTheme.secondaryText),
                     const SizedBox(height: 16),
-                    
+
                     // Fee Breakdown
                     _buildFeeRow('Amount', '₹${amount.toStringAsFixed(2)}'),
                     const SizedBox(height: 8),
                     _buildFeeRow(
-                      'Processing Fee (${AppConstants.defaultFeePercentage}%)', 
-                      '₹${fee.toStringAsFixed(2)}'
+                      'Processing Fee (${AppConstants.defaultFeePercentage}%)',
+                      '₹${fee.toStringAsFixed(2)}',
                     ),
                     const SizedBox(height: 8),
                     _buildFeeRow(
-                      'Rewards Earned', 
+                      'Rewards Earned',
                       '+₹${rewards.toStringAsFixed(2)}',
                       isReward: true,
                     ),
@@ -332,7 +350,7 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
                     const Divider(color: AppTheme.secondaryText),
                     const SizedBox(height: 16),
                     _buildFeeRow(
-                      'Total', 
+                      'Total',
                       '₹${total.toStringAsFixed(2)}',
                       isTotal: true,
                     ),
@@ -340,16 +358,23 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
                 ],
               ),
             ).animate().fadeIn(delay: 1200.ms).slideY(begin: 0.3),
-            
-            if (selectedVendor != null && amount >= AppConstants.minPaymentAmount) ...[
+
+            if (selectedVendor != null &&
+                amount >= AppConstants.minPaymentAmount) ...[
               const SizedBox(height: 32),
-              
+
               // Pay Button
               SizedBox(
                 width: double.infinity,
                 height: 56,
                 child: ElevatedButton(
-                  onPressed: () => _processQuickPayment(context, ref, selectedVendor, amount, total),
+                  onPressed: () => _processQuickPayment(
+                    context,
+                    ref,
+                    selectedVendor,
+                    amount,
+                    total,
+                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.primaryAccent,
                     shape: RoundedRectangleBorder(
@@ -373,7 +398,12 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
     );
   }
 
-  Widget _buildFeeRow(String label, String value, {bool isReward = false, bool isTotal = false}) {
+  Widget _buildFeeRow(
+    String label,
+    String value, {
+    bool isReward = false,
+    bool isTotal = false,
+  }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -387,19 +417,27 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
         Text(
           value,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: isReward 
-                ? AppTheme.secondaryAccent 
-                : isTotal 
-                    ? AppTheme.primaryText 
-                    : AppTheme.primaryText,
-            fontWeight: isReward || isTotal ? FontWeight.bold : FontWeight.normal,
+            color: isReward
+                ? AppTheme.secondaryAccent
+                : isTotal
+                ? AppTheme.primaryText
+                : AppTheme.primaryText,
+            fontWeight: isReward || isTotal
+                ? FontWeight.bold
+                : FontWeight.normal,
           ),
         ),
       ],
     );
   }
 
-  void _processQuickPayment(BuildContext context, WidgetRef ref, Vendor vendor, double amount, double total) async {
+  void _processQuickPayment(
+    BuildContext context,
+    WidgetRef ref,
+    Vendor vendor,
+    double amount,
+    double total,
+  ) async {
     // Show loading dialog
     showDialog<void>(
       context: context,

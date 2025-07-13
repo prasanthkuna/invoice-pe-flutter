@@ -19,7 +19,7 @@ final currentUserProvider = Provider<User?>((ref) {
   final authState = ref.watch(authStateProvider);
   return authState.when(
     data: (state) => state.session?.user,
-    loading: () => AuthService.getCurrentUser(), // Return current user during loading
+    loading: AuthService.getCurrentUser, // Return current user during loading
     error: (error, stackTrace) => null,
   );
 });
@@ -34,7 +34,7 @@ final isAuthenticatedProvider = Provider<bool>((ref) {
 final currentProfileProvider = FutureProvider<UserProfile?>((ref) async {
   final isAuthenticated = ref.watch(isAuthenticatedProvider);
   if (!isAuthenticated) return null;
-  
+
   try {
     return await ProfileService.getCurrentProfile();
   } catch (error) {
@@ -42,10 +42,12 @@ final currentProfileProvider = FutureProvider<UserProfile?>((ref) async {
   }
 });
 
-final dashboardMetricsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
+final dashboardMetricsProvider = FutureProvider<Map<String, dynamic>>((
+  ref,
+) async {
   final isAuthenticated = ref.watch(isAuthenticatedProvider);
   if (!isAuthenticated) return {};
-  
+
   try {
     return await ProfileService.getDashboardMetrics();
   } catch (error) {
@@ -57,7 +59,7 @@ final dashboardMetricsProvider = FutureProvider<Map<String, dynamic>>((ref) asyn
 final vendorsProvider = FutureProvider<List<Vendor>>((ref) async {
   final isAuthenticated = ref.watch(isAuthenticatedProvider);
   if (!isAuthenticated) return [];
-  
+
   try {
     return await VendorService.getVendors();
   } catch (error) {
@@ -65,28 +67,32 @@ final vendorsProvider = FutureProvider<List<Vendor>>((ref) async {
   }
 });
 
-final vendorProvider = FutureProvider.family<Vendor, String>((ref, vendorId) async {
-  final isAuthenticated = ref.watch(isAuthenticatedProvider);
-  if (!isAuthenticated) {
-    throw Exception('User not authenticated');
-  }
+final FutureProviderFamily<Vendor, String> vendorProvider =
+    FutureProvider.family<Vendor, String>((
+      ref,
+      vendorId,
+    ) async {
+      final isAuthenticated = ref.watch(isAuthenticatedProvider);
+      if (!isAuthenticated) {
+        throw Exception('User not authenticated');
+      }
 
-  try {
-    final vendor = await VendorService.getVendor(vendorId);
-    if (vendor == null) {
-      throw Exception('Vendor not found: $vendorId');
-    }
-    return vendor;
-  } catch (error) {
-    throw Exception('Failed to load vendor: $error');
-  }
-});
+      try {
+        final vendor = await VendorService.getVendor(vendorId);
+        if (vendor == null) {
+          throw Exception('Vendor not found: $vendorId');
+        }
+        return vendor;
+      } catch (error) {
+        throw Exception('Failed to load vendor: $error');
+      }
+    });
 
 // Invoice Providers
 final invoicesProvider = FutureProvider<List<Invoice>>((ref) async {
   final isAuthenticated = ref.watch(isAuthenticatedProvider);
   if (!isAuthenticated) return [];
-  
+
   try {
     return await InvoiceService.getInvoices();
   } catch (error) {
@@ -94,23 +100,27 @@ final invoicesProvider = FutureProvider<List<Invoice>>((ref) async {
   }
 });
 
-final invoiceProvider = FutureProvider.family<Invoice, String>((ref, invoiceId) async {
-  final isAuthenticated = ref.watch(isAuthenticatedProvider);
-  if (!isAuthenticated) {
-    throw Exception('User not authenticated');
-  }
+final FutureProviderFamily<Invoice, String> invoiceProvider =
+    FutureProvider.family<Invoice, String>((
+      ref,
+      invoiceId,
+    ) async {
+      final isAuthenticated = ref.watch(isAuthenticatedProvider);
+      if (!isAuthenticated) {
+        throw Exception('User not authenticated');
+      }
 
-  try {
-    return await InvoiceService.getInvoice(invoiceId);
-  } catch (error) {
-    throw Exception('Failed to load invoice: $error');
-  }
-});
+      try {
+        return await InvoiceService.getInvoice(invoiceId);
+      } catch (error) {
+        throw Exception('Failed to load invoice: $error');
+      }
+    });
 
 final pendingInvoicesProvider = FutureProvider<List<Invoice>>((ref) async {
   final isAuthenticated = ref.watch(isAuthenticatedProvider);
   if (!isAuthenticated) return [];
-  
+
   try {
     return await InvoiceService.getInvoicesByStatus(InvoiceStatus.pending);
   } catch (error) {
@@ -122,7 +132,7 @@ final pendingInvoicesProvider = FutureProvider<List<Invoice>>((ref) async {
 final transactionsProvider = FutureProvider<List<Transaction>>((ref) async {
   final isAuthenticated = ref.watch(isAuthenticatedProvider);
   if (!isAuthenticated) return [];
-  
+
   try {
     return await TransactionService.getTransactions();
   } catch (error) {
@@ -130,10 +140,12 @@ final transactionsProvider = FutureProvider<List<Transaction>>((ref) async {
   }
 });
 
-final recentTransactionsProvider = FutureProvider<List<Transaction>>((ref) async {
+final recentTransactionsProvider = FutureProvider<List<Transaction>>((
+  ref,
+) async {
   final isAuthenticated = ref.watch(isAuthenticatedProvider);
   if (!isAuthenticated) return [];
-  
+
   try {
     return await TransactionService.getRecentTransactions(limit: 5);
   } catch (error) {
@@ -141,22 +153,28 @@ final recentTransactionsProvider = FutureProvider<List<Transaction>>((ref) async
   }
 });
 
-final transactionProvider = FutureProvider.family<Transaction, String>((ref, transactionId) async {
-  final isAuthenticated = ref.watch(isAuthenticatedProvider);
-  if (!isAuthenticated) {
-    throw Exception('User not authenticated');
-  }
+final FutureProviderFamily<Transaction, String> transactionProvider =
+    FutureProvider.family<Transaction, String>((
+      ref,
+      transactionId,
+    ) async {
+      final isAuthenticated = ref.watch(isAuthenticatedProvider);
+      if (!isAuthenticated) {
+        throw Exception('User not authenticated');
+      }
 
-  try {
-    final transaction = await TransactionService.getTransaction(transactionId);
-    if (transaction == null) {
-      throw Exception('Transaction not found: $transactionId');
-    }
-    return transaction;
-  } catch (error) {
-    throw Exception('Failed to load transaction: $error');
-  }
-});
+      try {
+        final transaction = await TransactionService.getTransaction(
+          transactionId,
+        );
+        if (transaction == null) {
+          throw Exception('Transaction not found: $transactionId');
+        }
+        return transaction;
+      } catch (error) {
+        throw Exception('Failed to load transaction: $error');
+      }
+    });
 
 // Computed Providers for Dashboard
 final totalRewardsProvider = Provider<double>((ref) {
@@ -201,8 +219,12 @@ final invoiceSearchQueryProvider = StateProvider<String>((ref) => '');
 final transactionSearchQueryProvider = StateProvider<String>((ref) => '');
 
 // Status Filter Providers
-final selectedInvoiceStatusProvider = StateProvider<InvoiceStatus?>((ref) => null);
-final selectedTransactionStatusProvider = StateProvider<TransactionStatus?>((ref) => null);
+final selectedInvoiceStatusProvider = StateProvider<InvoiceStatus?>(
+  (ref) => null,
+);
+final selectedTransactionStatusProvider = StateProvider<TransactionStatus?>(
+  (ref) => null,
+);
 
 final filteredVendorsProvider = Provider<AsyncValue<List<Vendor>>>((ref) {
   final vendorsAsync = ref.watch(vendorsProvider);
@@ -211,15 +233,18 @@ final filteredVendorsProvider = Provider<AsyncValue<List<Vendor>>>((ref) {
   return vendorsAsync.when(
     data: (vendors) {
       if (searchQuery.isEmpty) return AsyncValue.data(vendors);
-      final filtered = vendors.where((vendor) =>
-        vendor.name.toLowerCase().contains(searchQuery) ||
-        (vendor.email?.toLowerCase().contains(searchQuery) ?? false) ||
-        (vendor.phone?.contains(searchQuery) ?? false)
-      ).toList();
+      final filtered = vendors
+          .where(
+            (vendor) =>
+                vendor.name.toLowerCase().contains(searchQuery) ||
+                (vendor.email?.toLowerCase().contains(searchQuery) ?? false) ||
+                (vendor.phone?.contains(searchQuery) ?? false),
+          )
+          .toList();
       return AsyncValue.data(filtered);
     },
     loading: () => const AsyncValue.loading(),
-    error: (error, stackTrace) => AsyncValue.error(error, stackTrace),
+    error: AsyncValue.error,
   );
 });
 
@@ -234,26 +259,33 @@ final filteredInvoicesProvider = Provider<AsyncValue<List<Invoice>>>((ref) {
 
       // Filter by search query
       if (searchQuery.isNotEmpty) {
-        filtered = filtered.where((invoice) =>
-          invoice.vendorName.toLowerCase().contains(searchQuery) ||
-          invoice.invoiceNumber.toLowerCase().contains(searchQuery) ||
-          invoice.description.toLowerCase().contains(searchQuery)
-        ).toList();
+        filtered = filtered
+            .where(
+              (invoice) =>
+                  invoice.vendorName.toLowerCase().contains(searchQuery) ||
+                  invoice.invoiceNumber.toLowerCase().contains(searchQuery) ||
+                  invoice.description.toLowerCase().contains(searchQuery),
+            )
+            .toList();
       }
 
       // Filter by status
       if (selectedStatus != null) {
-        filtered = filtered.where((invoice) => invoice.status == selectedStatus).toList();
+        filtered = filtered
+            .where((invoice) => invoice.status == selectedStatus)
+            .toList();
       }
 
       return AsyncValue.data(filtered);
     },
     loading: () => const AsyncValue.loading(),
-    error: (error, stackTrace) => AsyncValue.error(error, stackTrace),
+    error: AsyncValue.error,
   );
 });
 
-final filteredTransactionsProvider = Provider<AsyncValue<List<Transaction>>>((ref) {
+final filteredTransactionsProvider = Provider<AsyncValue<List<Transaction>>>((
+  ref,
+) {
   final transactionsAsync = ref.watch(transactionsProvider);
   final searchQuery = ref.watch(transactionSearchQueryProvider).toLowerCase();
   final selectedStatus = ref.watch(selectedTransactionStatusProvider);
@@ -264,20 +296,29 @@ final filteredTransactionsProvider = Provider<AsyncValue<List<Transaction>>>((re
 
       // Filter by search query
       if (searchQuery.isNotEmpty) {
-        filtered = filtered.where((transaction) =>
-          transaction.vendorName?.toLowerCase().contains(searchQuery) == true ||
-          (transaction.phonepeTransactionId?.toLowerCase().contains(searchQuery) ?? false)
-        ).toList();
+        filtered = filtered
+            .where(
+              (transaction) =>
+                  transaction.vendorName?.toLowerCase().contains(searchQuery) ==
+                      true ||
+                  (transaction.phonepeTransactionId?.toLowerCase().contains(
+                        searchQuery,
+                      ) ??
+                      false),
+            )
+            .toList();
       }
 
       // Filter by status
       if (selectedStatus != null) {
-        filtered = filtered.where((transaction) => transaction.status == selectedStatus).toList();
+        filtered = filtered
+            .where((transaction) => transaction.status == selectedStatus)
+            .toList();
       }
 
       return AsyncValue.data(filtered);
     },
     loading: () => const AsyncValue.loading(),
-    error: (error, stackTrace) => AsyncValue.error(error, stackTrace),
+    error: AsyncValue.error,
   );
 });

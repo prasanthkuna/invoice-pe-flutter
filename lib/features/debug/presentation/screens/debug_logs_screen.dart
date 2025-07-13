@@ -37,21 +37,27 @@ class _DebugLogsScreenState extends ConsumerState<DebugLogsScreen> {
           .limit(100);
 
       // Apply client-side filtering
-      List<Map<String, dynamic>> filteredLogs = List<Map<String, dynamic>>.from(response);
+      var filteredLogs = List<Map<String, dynamic>>.from(
+        response,
+      );
 
       if (_selectedLevel != 'ALL') {
-        filteredLogs = filteredLogs.where((log) => log['level'] == _selectedLevel).toList();
+        filteredLogs = filteredLogs
+            .where((log) => log['level'] == _selectedLevel)
+            .toList();
       }
 
       if (_selectedCategory != 'ALL') {
-        filteredLogs = filteredLogs.where((log) => log['category'] == _selectedCategory).toList();
+        filteredLogs = filteredLogs
+            .where((log) => log['category'] == _selectedCategory)
+            .toList();
       }
-      
+
       setState(() {
         _logs = filteredLogs;
         _isLoading = false;
       });
-      
+
       DebugService.logInfo('Loaded ${_logs.length} debug logs');
     } catch (e) {
       DebugService.logError('Failed to load debug logs', error: e);
@@ -90,10 +96,12 @@ class _DebugLogsScreenState extends ConsumerState<DebugLogsScreen> {
                     value: _selectedLevel,
                     isExpanded: true,
                     items: ['ALL', 'ERROR', 'WARN', 'INFO', 'DEBUG']
-                        .map((level) => DropdownMenuItem(
-                              value: level,
-                              child: Text(level),
-                            ))
+                        .map(
+                          (level) => DropdownMenuItem(
+                            value: level,
+                            child: Text(level),
+                          ),
+                        )
                         .toList(),
                     onChanged: (value) {
                       setState(() => _selectedLevel = value!);
@@ -106,12 +114,23 @@ class _DebugLogsScreenState extends ConsumerState<DebugLogsScreen> {
                   child: DropdownButton<String>(
                     value: _selectedCategory,
                     isExpanded: true,
-                    items: ['ALL', 'AUTH', 'DB', 'API', 'PAYMENT', 'NAVIGATION', 'USER_ACTION']
-                        .map((category) => DropdownMenuItem(
-                              value: category,
-                              child: Text(category),
-                            ))
-                        .toList(),
+                    items:
+                        [
+                              'ALL',
+                              'AUTH',
+                              'DB',
+                              'API',
+                              'PAYMENT',
+                              'NAVIGATION',
+                              'USER_ACTION',
+                            ]
+                            .map(
+                              (category) => DropdownMenuItem(
+                                value: category,
+                                child: Text(category),
+                              ),
+                            )
+                            .toList(),
                     onChanged: (value) {
                       setState(() => _selectedCategory = value!);
                       _loadLogs();
@@ -121,28 +140,28 @@ class _DebugLogsScreenState extends ConsumerState<DebugLogsScreen> {
               ],
             ),
           ),
-          
+
           // Logs List
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _logs.isEmpty
-                    ? const Center(
-                        child: Text(
-                          'No logs found',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: AppTheme.secondaryText,
-                          ),
-                        ),
-                      )
-                    : ListView.builder(
-                        itemCount: _logs.length,
-                        itemBuilder: (context, index) {
-                          final log = _logs[index];
-                          return _LogTile(log: log);
-                        },
+                ? const Center(
+                    child: Text(
+                      'No logs found',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: AppTheme.secondaryText,
                       ),
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: _logs.length,
+                    itemBuilder: (context, index) {
+                      final log = _logs[index];
+                      return _LogTile(log: log);
+                    },
+                  ),
           ),
         ],
       ),
@@ -181,9 +200,8 @@ class _DebugLogsScreenState extends ConsumerState<DebugLogsScreen> {
 }
 
 class _LogTile extends StatelessWidget {
-  final Map<String, dynamic> log;
-
   const _LogTile({required this.log});
+  final Map<String, dynamic> log;
 
   @override
   Widget build(BuildContext context) {
@@ -197,24 +215,20 @@ class _LogTile extends StatelessWidget {
 
     Color levelColor;
     IconData levelIcon;
-    
+
     switch (level) {
       case 'ERROR':
         levelColor = Colors.red;
         levelIcon = Icons.error;
-        break;
       case 'WARN':
         levelColor = Colors.orange;
         levelIcon = Icons.warning;
-        break;
       case 'INFO':
         levelColor = Colors.blue;
         levelIcon = Icons.info;
-        break;
       case 'DEBUG':
         levelColor = Colors.grey;
         levelIcon = Icons.bug_report;
-        break;
       default:
         levelColor = Colors.grey;
         levelIcon = Icons.circle;
@@ -239,11 +253,17 @@ class _LogTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Context:', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text(
+                    'Context:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 4),
                   Text(
                     contextData.toString(),
-                    style: const TextStyle(fontSize: 12, fontFamily: 'monospace'),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontFamily: 'monospace',
+                    ),
                   ),
                 ],
               ),
@@ -254,11 +274,21 @@ class _LogTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Error Details:', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red)),
+                  const Text(
+                    'Error Details:',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.red,
+                    ),
+                  ),
                   const SizedBox(height: 4),
                   Text(
                     errorDetails.toString(),
-                    style: const TextStyle(fontSize: 12, fontFamily: 'monospace', color: Colors.red),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontFamily: 'monospace',
+                      color: Colors.red,
+                    ),
                   ),
                 ],
               ),
@@ -271,7 +301,7 @@ class _LogTile extends StatelessWidget {
   String _formatTime(DateTime dateTime) {
     final now = DateTime.now();
     final diff = now.difference(dateTime);
-    
+
     if (diff.inMinutes < 1) {
       return 'Just now';
     } else if (diff.inHours < 1) {

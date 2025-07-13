@@ -7,12 +7,11 @@ import '../../../../shared/models/transaction.dart';
 import '../../../../core/providers/data_providers.dart';
 
 class TransactionDetailScreen extends ConsumerWidget {
-  final String transactionId;
-
   const TransactionDetailScreen({
-    super.key,
     required this.transactionId,
+    super.key,
   });
+  final String transactionId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -66,7 +65,8 @@ class TransactionDetailScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () => ref.refresh(transactionProvider(transactionId)),
+                onPressed: () =>
+                    ref.refresh(transactionProvider(transactionId)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primaryAccent,
                   foregroundColor: Colors.black,
@@ -97,7 +97,9 @@ class TransactionDetailScreen extends ConsumerWidget {
                       width: 80,
                       height: 80,
                       decoration: BoxDecoration(
-                        color: _getStatusColor(transaction.status).withValues(alpha: 0.1),
+                        color: _getStatusColor(
+                          transaction.status,
+                        ).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(40),
                       ),
                       child: Center(
@@ -111,23 +113,28 @@ class TransactionDetailScreen extends ConsumerWidget {
                     const SizedBox(height: 16),
                     Text(
                       _getStatusMessage(transaction.status),
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        color: AppTheme.primaryText,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(
+                            color: AppTheme.primaryText,
+                            fontWeight: FontWeight.bold,
+                          ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 8),
                     Text(
                       '₹${transaction.amount.toStringAsFixed(2)}',
-                      style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                        color: AppTheme.primaryAccent,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: Theme.of(context).textTheme.headlineLarge
+                          ?.copyWith(
+                            color: AppTheme.primaryAccent,
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
                     const SizedBox(height: 16),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: _getStatusColor(transaction.status),
                         borderRadius: BorderRadius.circular(20),
@@ -177,8 +184,8 @@ class TransactionDetailScreen extends ConsumerWidget {
                     _DetailRow(
                       label: 'Date & Time',
                       value: transaction.createdAt != null
-                        ? _formatDateTime(transaction.createdAt!)
-                        : 'Not available',
+                          ? _formatDateTime(transaction.createdAt!)
+                          : 'Not available',
                     ),
                     const SizedBox(height: 16),
                     _DetailRow(
@@ -227,14 +234,18 @@ class TransactionDetailScreen extends ConsumerWidget {
                           width: 48,
                           height: 48,
                           decoration: BoxDecoration(
-                            color: AppTheme.primaryAccent.withValues(alpha: 0.1),
+                            color: AppTheme.primaryAccent.withValues(
+                              alpha: 0.1,
+                            ),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Center(
                             child: Text(
                               (transaction.vendorName?.isNotEmpty == true)
-                                ? transaction.vendorName!.substring(0, 1).toUpperCase()
-                                : 'V',
+                                  ? transaction.vendorName!
+                                        .substring(0, 1)
+                                        .toUpperCase()
+                                  : 'V',
                               style: const TextStyle(
                                 color: AppTheme.primaryAccent,
                                 fontSize: 20,
@@ -250,10 +261,11 @@ class TransactionDetailScreen extends ConsumerWidget {
                             children: [
                               Text(
                                 transaction.vendorName ?? 'Unknown Vendor',
-                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                  color: AppTheme.primaryText,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                                style: Theme.of(context).textTheme.titleLarge
+                                    ?.copyWith(
+                                      color: AppTheme.primaryText,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                               ),
                               const SizedBox(height: 4),
                               Text(
@@ -425,15 +437,14 @@ class TransactionDetailScreen extends ConsumerWidget {
 }
 
 class _DetailRow extends StatelessWidget {
-  final String label;
-  final String value;
-  final bool isSelectable;
-
   const _DetailRow({
     required this.label,
     required this.value,
     this.isSelectable = false,
   });
+  final String label;
+  final String value;
+  final bool isSelectable;
 
   @override
   Widget build(BuildContext context) {

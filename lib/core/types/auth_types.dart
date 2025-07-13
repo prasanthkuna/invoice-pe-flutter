@@ -9,19 +9,18 @@ typedef AuthResult = Result<AuthData>;
 
 /// Authentication data container
 class AuthData {
-  final User user;
-  final Session session;
-  final String? message;
-  
   const AuthData({
     required this.user,
     required this.session,
     this.message,
   });
-  
+  final User user;
+  final Session session;
+  final String? message;
+
   @override
   String toString() => 'AuthData(user: ${user.id}, message: $message)';
-  
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -29,7 +28,7 @@ class AuthData {
           runtimeType == other.runtimeType &&
           user.id == other.user.id &&
           session.accessToken == other.session.accessToken;
-  
+
   @override
   int get hashCode => user.id.hashCode ^ session.accessToken.hashCode;
 }
@@ -41,28 +40,26 @@ sealed class OtpResult {
 
 /// OTP sent successfully
 final class OtpSent extends OtpResult {
-  final String phone;
-  final String message;
-  
   const OtpSent({
     required this.phone,
     this.message = 'OTP sent successfully',
   });
-  
+  final String phone;
+  final String message;
+
   @override
   String toString() => 'OtpSent(phone: $phone, message: $message)';
 }
 
 /// OTP sending failed
 final class OtpFailed extends OtpResult {
-  final String error;
-  final String? phone;
-  
   const OtpFailed({
     required this.error,
     this.phone,
   });
-  
+  final String error;
+  final String? phone;
+
   @override
   String toString() => 'OtpFailed(error: $error, phone: $phone)';
 }
@@ -74,20 +71,18 @@ sealed class ProfileStatus {
 
 /// Profile is complete
 final class ProfileComplete extends ProfileStatus {
-  final Map<String, dynamic> profile;
-  
   const ProfileComplete(this.profile);
-  
+  final Map<String, dynamic> profile;
+
   @override
   String toString() => 'ProfileComplete($profile)';
 }
 
 /// Profile is incomplete
 final class ProfileIncomplete extends ProfileStatus {
-  final List<String> missingFields;
-  
   const ProfileIncomplete(this.missingFields);
-  
+  final List<String> missingFields;
+
   @override
   String toString() => 'ProfileIncomplete(missing: $missingFields)';
 }
@@ -99,46 +94,43 @@ sealed class AuthState {
 
 /// User is authenticated
 final class Authenticated extends AuthState {
-  final User user;
-  final Session session;
-  final ProfileStatus profileStatus;
-  
   const Authenticated({
     required this.user,
     required this.session,
     required this.profileStatus,
   });
-  
+  final User user;
+  final Session session;
+  final ProfileStatus profileStatus;
+
   @override
-  String toString() => 'Authenticated(user: ${user.id}, profile: $profileStatus)';
+  String toString() =>
+      'Authenticated(user: ${user.id}, profile: $profileStatus)';
 }
 
 /// User is not authenticated
 final class Unauthenticated extends AuthState {
-  final String? reason;
-  
   const Unauthenticated([this.reason]);
-  
+  final String? reason;
+
   @override
   String toString() => 'Unauthenticated(reason: $reason)';
 }
 
 /// Authentication is loading
 final class AuthLoading extends AuthState {
-  final String? message;
-  
   const AuthLoading([this.message]);
-  
+  final String? message;
+
   @override
   String toString() => 'AuthLoading(message: $message)';
 }
 
 /// Authentication error
 final class AuthError extends AuthState {
-  final String error;
-  
   const AuthError(this.error);
-  
+  final String error;
+
   @override
   String toString() => 'AuthError(error: $error)';
 }
@@ -147,13 +139,13 @@ final class AuthError extends AuthState {
 extension AuthResultExtensions on AuthResult {
   /// Check if authentication was successful
   bool get isAuthenticated => isSuccess;
-  
+
   /// Get user if authenticated
   User? get user => dataOrNull?.user;
-  
+
   /// Get session if authenticated
   Session? get session => dataOrNull?.session;
-  
+
   /// Get auth message
   String? get message => dataOrNull?.message ?? errorOrNull;
 }
@@ -162,19 +154,19 @@ extension AuthResultExtensions on AuthResult {
 extension OtpResultExtensions on OtpResult {
   /// Check if OTP was sent successfully
   bool get isSuccess => this is OtpSent;
-  
+
   /// Get success message
   String? get successMessage => switch (this) {
     OtpSent(message: final message) => message,
     OtpFailed() => null,
   };
-  
+
   /// Get error message
   String? get errorMessage => switch (this) {
     OtpSent() => null,
     OtpFailed(error: final error) => error,
   };
-  
+
   /// Get phone number
   String? get phone => switch (this) {
     OtpSent(phone: final phone) => phone,
@@ -186,13 +178,13 @@ extension OtpResultExtensions on OtpResult {
 extension ProfileStatusExtensions on ProfileStatus {
   /// Check if profile is complete
   bool get isComplete => this is ProfileComplete;
-  
+
   /// Get missing fields if incomplete
   List<String> get missingFields => switch (this) {
     ProfileComplete() => [],
     ProfileIncomplete(missingFields: final fields) => fields,
   };
-  
+
   /// Get profile data if complete
   Map<String, dynamic>? get profileData => switch (this) {
     ProfileComplete(profile: final profile) => profile,

@@ -14,22 +14,28 @@ final timerProvider = StateProvider<int>((ref) => 60);
 final isVerifyingProvider = StateProvider<bool>((ref) => false);
 
 class OtpScreen extends ConsumerStatefulWidget {
-  final String phone;
-
   const OtpScreen({
-    super.key,
     required this.phone,
+    super.key,
   });
+  final String phone;
 
   @override
   ConsumerState<OtpScreen> createState() => _OtpScreenState();
 }
 
 class _OtpScreenState extends ConsumerState<OtpScreen> {
-  final List<TextEditingController> controllers = List.generate(6, (_) => TextEditingController());
+  final List<TextEditingController> controllers = List.generate(
+    6,
+    (_) => TextEditingController(),
+  );
   final List<FocusNode> focusNodes = List.generate(6, (_) => FocusNode());
 
-  Future<void> _verifyOtp(BuildContext context, WidgetRef ref, String otp) async {
+  Future<void> _verifyOtp(
+    BuildContext context,
+    WidgetRef ref,
+    String otp,
+  ) async {
     try {
       ref.read(isVerifyingProvider.notifier).state = true;
 
@@ -86,10 +92,10 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
 
   @override
   void dispose() {
-    for (var controller in controllers) {
+    for (final controller in controllers) {
       controller.dispose();
     }
-    for (var focusNode in focusNodes) {
+    for (final focusNode in focusNodes) {
       focusNode.dispose();
     }
     super.dispose();
@@ -98,7 +104,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   void _onOtpChanged() {
     final otp = controllers.map((c) => c.text).join();
     ref.read(otpProvider.notifier).state = otp;
-    
+
     if (otp.length == 6) {
       // Auto-submit when OTP is complete
       context.push('/setup-profile');
@@ -137,9 +143,9 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
               backgroundColor: AppTheme.cardBackground,
               valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryAccent),
             ).animate().scaleX(duration: 800.ms),
-            
+
             const SizedBox(height: 40),
-            
+
             // Title
             Text(
               'Enter verification code',
@@ -148,18 +154,18 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ).animate().fadeIn(delay: 200.ms).slideX(begin: -0.3),
-            
+
             const SizedBox(height: 16),
-            
+
             Text(
               'We sent a 6-digit code to your phone',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 color: AppTheme.secondaryText,
               ),
             ).animate().fadeIn(delay: 400.ms).slideX(begin: -0.3),
-            
+
             const SizedBox(height: 48),
-            
+
             // OTP Input
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -171,8 +177,8 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                     color: AppTheme.cardBackground,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: controllers[index].text.isNotEmpty 
-                          ? AppTheme.primaryAccent 
+                      color: controllers[index].text.isNotEmpty
+                          ? AppTheme.primaryAccent
                           : Colors.transparent,
                       width: 2,
                     ),
@@ -207,9 +213,9 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                 );
               }).animate(interval: 100.ms).fadeIn(delay: 600.ms).scale(),
             ),
-            
+
             const SizedBox(height: 32),
-            
+
             // Timer and Resend
             Center(
               child: timer > 0
@@ -227,17 +233,21 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                       child: const Text('Resend Code'),
                     ),
             ).animate().fadeIn(delay: 800.ms),
-            
+
             const Spacer(),
-            
+
             // Continue Button
             SizedBox(
               width: double.infinity,
               height: 56,
               child: ElevatedButton(
-                onPressed: (otp.length == 6 && !isVerifying) ? () => _verifyOtp(context, ref, otp) : null,
+                onPressed: (otp.length == 6 && !isVerifying)
+                    ? () => _verifyOtp(context, ref, otp)
+                    : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: otp.length == 6 ? AppTheme.primaryAccent : AppTheme.cardBackground,
+                  backgroundColor: otp.length == 6
+                      ? AppTheme.primaryAccent
+                      : AppTheme.cardBackground,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -248,7 +258,9 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                         height: 24,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
                         ),
                       )
                     : Text(
@@ -256,12 +268,14 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
-                          color: otp.length == 6 ? Colors.white : AppTheme.secondaryText,
+                          color: otp.length == 6
+                              ? Colors.white
+                              : AppTheme.secondaryText,
                         ),
                       ),
               ),
             ).animate().fadeIn(delay: 1000.ms).slideY(begin: 0.5),
-            
+
             const SizedBox(height: 24),
           ],
         ),

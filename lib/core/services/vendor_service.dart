@@ -4,7 +4,7 @@ import 'debug_service.dart';
 
 class VendorService extends BaseService {
   static const String _tableName = 'vendors';
-  
+
   /// Get all vendors for the current user
   static Future<List<Vendor>> getVendors() async {
     try {
@@ -16,12 +16,12 @@ class VendorService extends BaseService {
           .eq('user_id', BaseService.currentUserId!)
           .order('created_at', ascending: false);
 
-      return response.map((json) => _fromSupabaseJson(json)).toList();
+      return response.map(_fromSupabaseJson).toList();
     } catch (error) {
       throw BaseService.handleError(error);
     }
   }
-  
+
   /// Get a specific vendor by ID
   static Future<Vendor?> getVendor(String vendorId) async {
     try {
@@ -39,7 +39,7 @@ class VendorService extends BaseService {
       throw BaseService.handleError(error);
     }
   }
-  
+
   /// Create a new vendor
   static Future<Vendor> createVendor({
     required String name,
@@ -75,14 +75,23 @@ class VendorService extends BaseService {
           .select()
           .single();
 
-      DebugService.logDatabase('Vendor created successfully', table: 'vendors', data: {'vendor_id': response['id']});
+      DebugService.logDatabase(
+        'Vendor created successfully',
+        table: 'vendors',
+        data: {'vendor_id': response['id']},
+      );
       return _fromSupabaseJson(response);
     } catch (error) {
-      DebugService.logDatabase('Failed to create vendor', table: 'vendors', data: data, error: error);
+      DebugService.logDatabase(
+        'Failed to create vendor',
+        table: 'vendors',
+        data: data,
+        error: error,
+      );
       throw BaseService.handleError(error);
     }
   }
-  
+
   /// Update an existing vendor
   static Future<Vendor> updateVendor({
     required String vendorId,
@@ -121,7 +130,7 @@ class VendorService extends BaseService {
       throw BaseService.handleError(error);
     }
   }
-  
+
   /// Delete a vendor
   static Future<void> deleteVendor(String vendorId) async {
     try {
@@ -136,7 +145,7 @@ class VendorService extends BaseService {
       throw BaseService.handleError(error);
     }
   }
-  
+
   /// Convert Supabase JSON to Vendor model
   static Vendor _fromSupabaseJson(Map<String, dynamic> json) {
     return Vendor(
@@ -153,8 +162,12 @@ class VendorService extends BaseService {
       logoUrl: json['logo_url'] as String?,
       totalPaid: (json['total_paid'] as num?)?.toDouble() ?? 0.0,
       transactionCount: json['transaction_count'] as int? ?? 0,
-      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at'] as String) : null,
-      updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at'] as String) : null,
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : null,
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'] as String)
+          : null,
     );
   }
 }

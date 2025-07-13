@@ -9,17 +9,19 @@ import 'debug_service.dart';
 enum PaymentResult { success, failure, cancelled }
 
 class PaymentService extends BaseService {
-
   /// Initialize PhonePe SDK
   static Future<void> initializePhonePe() async {
     try {
       DebugService.logInfo('🚀 Initializing PhonePe SDK');
 
       // Use string-based environment configuration (PhonePe SDK 2.0.3 pattern)
-      final environment = AppConstants.phonePeEnvironment; // 'PRODUCTION' or 'UAT'
+      final environment =
+          AppConstants.phonePeEnvironment; // 'PRODUCTION' or 'UAT'
       final merchantId = AppConstants.phonePeMerchantId;
 
-      DebugService.logInfo('📱 PhonePe Config: Environment=$environment, MerchantId=$merchantId');
+      DebugService.logInfo(
+        '📱 PhonePe Config: Environment=$environment, MerchantId=$merchantId',
+      );
 
       // PhonePe SDK 2.0.3 initialization pattern
       await PhonePePaymentSdk.init(
@@ -49,7 +51,9 @@ class PaymentService extends BaseService {
       DebugService.logInfo('🚀 Starting PhonePe payment process');
 
       // Create invoice if not provided
-      String finalInvoiceId = invoiceId ?? await _createInvoiceForPayment(vendorId, amount, description);
+      final finalInvoiceId =
+          invoiceId ??
+          await _createInvoiceForPayment(vendorId, amount, description);
 
       // Call initiate-payment Edge Function
       final response = await BaseService.supabase.functions.invoke(
@@ -61,31 +65,34 @@ class PaymentService extends BaseService {
       );
 
       if (response.data == null || response.data['success'] != true) {
-        throw Exception('Failed to initiate payment: ${response.data?['error'] ?? 'Unknown error'}');
+        throw Exception(
+          'Failed to initiate payment: ${response.data?['error'] ?? 'Unknown error'}',
+        );
       }
 
       final paymentData = response.data;
 
-      // Start PhonePe transaction with proper type casting
+      // Start PhonePe transaction (PhonePe SDK 3.0.0 API)
       final result = await PhonePePaymentSdk.startTransaction(
         paymentData['body'] as String,
-        paymentData['callbackUrl'] as String,
         paymentData['checksum'] as String,
-        null, // Package name (optional)
       );
 
       DebugService.logInfo('PhonePe transaction result: $result');
 
       // Handle PhonePe response with modern pattern matching
       if (result != null) {
-        final phonePeResponse = payment_types.PhonePeResponse.fromMap(Map<String, dynamic>.from(result));
+        final phonePeResponse = payment_types.PhonePeResponse.fromMap(
+          Map<String, dynamic>.from(result),
+        );
 
         if (phonePeResponse.isSuccess) {
           // Call process-payment Edge Function
           await BaseService.supabase.functions.invoke(
             'process-payment',
             body: {
-              'payment_gateway_ref': paymentData['merchantTransactionId'] as String,
+              'payment_gateway_ref':
+                  paymentData['merchantTransactionId'] as String,
               'phonepe_response': result as Map<String, dynamic>,
             },
           );
@@ -95,7 +102,9 @@ class PaymentService extends BaseService {
             transactionId: paymentData['merchantTransactionId'] as String,
             invoiceId: finalInvoiceId,
             amount: amount,
-            rewards: payment_types.PaymentFeeCalculator.calculateRewards(amount),
+            rewards: payment_types.PaymentFeeCalculator.calculateRewards(
+              amount,
+            ),
             message: 'Payment completed successfully',
           );
         } else if (phonePeResponse.isCancelled) {
@@ -114,17 +123,24 @@ class PaymentService extends BaseService {
         }
       } else {
         DebugService.logWarning('❌ Payment failed - null response');
-        return const payment_types.PaymentFailure(error: 'Payment failed - no response received');
+        return const payment_types.PaymentFailure(
+          error: 'Payment failed - no response received',
+        );
       }
-
     } catch (error) {
       DebugService.logError('Payment processing error', error: error);
-      return payment_types.PaymentFailure(error: 'Payment processing failed: ${error.toString()}');
+      return payment_types.PaymentFailure(
+        error: 'Payment processing failed: $error',
+      );
     }
   }
-  
+
   /// Create invoice for direct payment (when paying vendor without existing invoice)
-  static Future<String> _createInvoiceForPayment(String vendorId, double amount, String? description) async {
+  static Future<String> _createInvoiceForPayment(
+    String vendorId,
+    double amount,
+    String? description,
+  ) async {
     final data = {
       'user_id': BaseService.currentUserId!,
       'vendor_id': vendorId,
@@ -143,7 +159,7 @@ class PaymentService extends BaseService {
 
     return response['id'] as String;
   }
-  
+
   /// Create transaction record (Future use - PCC compliance)
   // ignore: unused_element
   static Future<String> _createTransaction({
@@ -153,7 +169,7 @@ class PaymentService extends BaseService {
   }) async {
     final fee = amount * 0.02; // 2% fee
     final rewards = amount * 0.015; // 1.5% rewards
-    
+
     final data = {
       'user_id': BaseService.currentUserId!,
       'vendor_id': vendorId,
@@ -163,7 +179,8 @@ class PaymentService extends BaseService {
       'rewards_earned': rewards,
       'status': 'initiated',
       'payment_method': 'Credit Card',
-      'phonepe_transaction_id': 'MOCK_TXN_${DateTime.now().millisecondsSinceEpoch}',
+      'phonepe_transaction_id':
+          'MOCK_TXN_${DateTime.now().millisecondsSinceEpoch}',
     };
 
     final response = await BaseService.supabase
@@ -174,14 +191,19 @@ class PaymentService extends BaseService {
 
     return response['id'] as String;
   }
-  
+
   /// Update transaction status (Future use - PCC compliance)
   // ignore: unused_element
-  static Future<void> _updateTransactionStatus(String transactionId, TransactionStatus status) async {
+  static Future<void> _updateTransactionStatus(
+    String transactionId,
+    TransactionStatus status,
+  ) async {
     final updateData = {
       'status': status.name,
-      if (status == TransactionStatus.success) 'completed_at': DateTime.now().toIso8601String(),
-      if (status == TransactionStatus.failure) 'failure_reason': 'Mock payment failure for demo',
+      if (status == TransactionStatus.success)
+        'completed_at': DateTime.now().toIso8601String(),
+      if (status == TransactionStatus.failure)
+        'failure_reason': 'Mock payment failure for demo',
     };
 
     await BaseService.supabase
@@ -189,13 +211,17 @@ class PaymentService extends BaseService {
         .update(updateData)
         .eq('id', transactionId);
   }
-  
+
   /// Update invoice status (Future use - PCC compliance)
   // ignore: unused_element
-  static Future<void> _updateInvoiceStatus(String invoiceId, InvoiceStatus status) async {
+  static Future<void> _updateInvoiceStatus(
+    String invoiceId,
+    InvoiceStatus status,
+  ) async {
     final updateData = {
       'status': status.name,
-      if (status == InvoiceStatus.paid) 'paid_at': DateTime.now().toIso8601String(),
+      if (status == InvoiceStatus.paid)
+        'paid_at': DateTime.now().toIso8601String(),
     };
 
     await BaseService.supabase
@@ -203,12 +229,12 @@ class PaymentService extends BaseService {
         .update(updateData)
         .eq('id', invoiceId);
   }
-  
+
   /// Get payment fee for amount
   static double calculateFee(double amount) {
     return amount * 0.02; // 2% fee
   }
-  
+
   /// Get rewards for amount
   static double calculateRewards(double amount) {
     return amount * 0.015; // 1.5% rewards

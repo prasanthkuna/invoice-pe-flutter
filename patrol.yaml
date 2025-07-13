@@ -1,0 +1,39 @@
+# InvoicePe Patrol Configuration - Revolutionary Testing Setup
+# Elon's Philosophy: "Single build, maximum test coverage, zero flaky tests"
+
+# Patrol configuration for InvoicePe
+patrol:
+  app_name: InvoicePe
+  package_name: com.invoicepe.app
+  
+  # Test bundling configuration (Revolutionary feature)
+  test_bundling:
+    enabled: true
+    timeout: 120s  # 2 minutes for all tests
+    
+  # Performance optimization
+  performance:
+    parallel_execution: true
+    max_workers: 4
+    test_timeout: 30s
+    
+  # PCI DSS compliance testing
+  security:
+    enable_audit_logging: true
+    test_encryption: true
+    validate_inputs: true
+    
+  # Platform-specific configuration
+  android:
+    package_name: com.invoicepe.app
+    main_activity: .MainActivity
+    
+  ios:
+    bundle_id: com.invoicepe.app
+    scheme: Runner
+    
+  # Test environment
+  environment:
+    supabase_url: "https://test.supabase.co"
+    phonepe_environment: "UAT"
+    debug_mode: true

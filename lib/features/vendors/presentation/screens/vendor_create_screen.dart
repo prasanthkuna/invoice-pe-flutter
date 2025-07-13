@@ -7,7 +7,6 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/providers/data_providers.dart';
 import '../../../../core/services/vendor_service.dart';
 
-
 class VendorCreateScreen extends ConsumerStatefulWidget {
   const VendorCreateScreen({super.key});
 
@@ -23,7 +22,7 @@ class _VendorCreateScreenState extends ConsumerState<VendorCreateScreen> {
   final _upiIdController = TextEditingController();
   final _accountNumberController = TextEditingController();
   final _ifscCodeController = TextEditingController();
-  
+
   bool _isLoading = false;
   bool _useUpi = true;
 
@@ -65,18 +64,18 @@ class _VendorCreateScreenState extends ConsumerState<VendorCreateScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ).animate().fadeIn(delay: 200.ms).slideY(begin: -0.3),
-              
+
               const SizedBox(height: 8),
-              
+
               Text(
                 'Enter vendor details to start making payments',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: AppTheme.secondaryText,
                 ),
               ).animate().fadeIn(delay: 400.ms),
-              
+
               const SizedBox(height: 32),
-              
+
               // Basic Information
               Text(
                 'Basic Information',
@@ -85,9 +84,9 @@ class _VendorCreateScreenState extends ConsumerState<VendorCreateScreen> {
                   fontWeight: FontWeight.w600,
                 ),
               ).animate().fadeIn(delay: 600.ms),
-              
+
               const SizedBox(height: 16),
-              
+
               // Name Field
               _buildTextField(
                 controller: _nameController,
@@ -104,9 +103,9 @@ class _VendorCreateScreenState extends ConsumerState<VendorCreateScreen> {
                   return null;
                 },
               ).animate().fadeIn(delay: 800.ms).slideY(begin: 0.3),
-              
+
               const SizedBox(height: 16),
-              
+
               // Phone Field
               _buildTextField(
                 controller: _phoneController,
@@ -128,9 +127,9 @@ class _VendorCreateScreenState extends ConsumerState<VendorCreateScreen> {
                   return null;
                 },
               ).animate().fadeIn(delay: 1000.ms).slideY(begin: 0.3),
-              
+
               const SizedBox(height: 16),
-              
+
               // Email Field
               _buildTextField(
                 controller: _emailController,
@@ -140,16 +139,18 @@ class _VendorCreateScreenState extends ConsumerState<VendorCreateScreen> {
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
                   if (value != null && value.trim().isNotEmpty) {
-                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value.trim())) {
+                    if (!RegExp(
+                      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                    ).hasMatch(value.trim())) {
                       return 'Enter a valid email address';
                     }
                   }
                   return null;
                 },
               ).animate().fadeIn(delay: 1200.ms).slideY(begin: 0.3),
-              
+
               const SizedBox(height: 32),
-              
+
               // Payment Method
               Text(
                 'Payment Method',
@@ -158,9 +159,9 @@ class _VendorCreateScreenState extends ConsumerState<VendorCreateScreen> {
                   fontWeight: FontWeight.w600,
                 ),
               ).animate().fadeIn(delay: 1400.ms),
-              
+
               const SizedBox(height: 16),
-              
+
               // Payment Method Toggle
               Container(
                 decoration: BoxDecoration(
@@ -175,14 +176,18 @@ class _VendorCreateScreenState extends ConsumerState<VendorCreateScreen> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           decoration: BoxDecoration(
-                            color: _useUpi ? AppTheme.primaryAccent : Colors.transparent,
+                            color: _useUpi
+                                ? AppTheme.primaryAccent
+                                : Colors.transparent,
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Text(
                             'UPI ID',
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              color: _useUpi ? Colors.white : AppTheme.secondaryText,
+                              color: _useUpi
+                                  ? Colors.white
+                                  : AppTheme.secondaryText,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -195,14 +200,18 @@ class _VendorCreateScreenState extends ConsumerState<VendorCreateScreen> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           decoration: BoxDecoration(
-                            color: !_useUpi ? AppTheme.primaryAccent : Colors.transparent,
+                            color: !_useUpi
+                                ? AppTheme.primaryAccent
+                                : Colors.transparent,
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Text(
                             'Bank Account',
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              color: !_useUpi ? Colors.white : AppTheme.secondaryText,
+                              color: !_useUpi
+                                  ? Colors.white
+                                  : AppTheme.secondaryText,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -212,9 +221,9 @@ class _VendorCreateScreenState extends ConsumerState<VendorCreateScreen> {
                   ],
                 ),
               ).animate().fadeIn(delay: 1600.ms).slideY(begin: 0.3),
-              
+
               const SizedBox(height: 16),
-              
+
               // Payment Details
               if (_useUpi) ...[
                 _buildTextField(
@@ -249,9 +258,9 @@ class _VendorCreateScreenState extends ConsumerState<VendorCreateScreen> {
                     return null;
                   },
                 ).animate().fadeIn(delay: 1800.ms).slideY(begin: 0.3),
-                
+
                 const SizedBox(height: 16),
-                
+
                 _buildTextField(
                   controller: _ifscCodeController,
                   label: 'IFSC Code',
@@ -269,9 +278,9 @@ class _VendorCreateScreenState extends ConsumerState<VendorCreateScreen> {
                   },
                 ).animate().fadeIn(delay: 2000.ms).slideY(begin: 0.3),
               ],
-              
+
               const SizedBox(height: 32),
-              
+
               // Save Button
               SizedBox(
                 width: double.infinity,
@@ -286,7 +295,9 @@ class _VendorCreateScreenState extends ConsumerState<VendorCreateScreen> {
                   ),
                   child: _isLoading
                       ? const CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
                         )
                       : const Text(
                           'Add Vendor',
@@ -377,10 +388,14 @@ class _VendorCreateScreenState extends ConsumerState<VendorCreateScreen> {
     try {
       await VendorService.createVendor(
         name: _nameController.text.trim(),
-        accountNumber: _useUpi ? 'UPI_ACCOUNT' : _accountNumberController.text.trim(),
+        accountNumber: _useUpi
+            ? 'UPI_ACCOUNT'
+            : _accountNumberController.text.trim(),
         ifscCode: _useUpi ? 'UPI_IFSC' : _ifscCodeController.text.trim(),
         phone: _phoneController.text.trim(),
-        email: _emailController.text.trim().isEmpty ? null : _emailController.text.trim(),
+        email: _emailController.text.trim().isEmpty
+            ? null
+            : _emailController.text.trim(),
         upiId: _useUpi ? _upiIdController.text.trim() : null,
       );
 

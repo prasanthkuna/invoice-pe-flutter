@@ -6,7 +6,6 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../shared/models/invoice.dart';
 import '../../../../core/providers/data_providers.dart';
 
-
 class InvoiceListScreen extends ConsumerWidget {
   const InvoiceListScreen({super.key});
 
@@ -73,12 +72,16 @@ class InvoiceListScreen extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: TextField(
-              onChanged: (value) => ref.read(invoiceSearchQueryProvider.notifier).state = value,
+              onChanged: (value) =>
+                  ref.read(invoiceSearchQueryProvider.notifier).state = value,
               style: const TextStyle(color: AppTheme.primaryText),
               decoration: InputDecoration(
                 hintText: 'Search invoices...',
                 hintStyle: const TextStyle(color: AppTheme.secondaryText),
-                prefixIcon: const Icon(Icons.search, color: AppTheme.secondaryText),
+                prefixIcon: const Icon(
+                  Icons.search,
+                  color: AppTheme.secondaryText,
+                ),
                 filled: true,
                 fillColor: AppTheme.cardBackground,
                 border: OutlineInputBorder(
@@ -88,7 +91,7 @@ class InvoiceListScreen extends ConsumerWidget {
               ),
             ),
           ).animate().fadeIn(delay: 200.ms).slideY(begin: -0.3),
-          
+
           // Status Filter Chips
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -97,38 +100,54 @@ class InvoiceListScreen extends ConsumerWidget {
                 _StatusChip(
                   label: 'All',
                   isSelected: ref.watch(selectedInvoiceStatusProvider) == null,
-                  onTap: () => ref.read(selectedInvoiceStatusProvider.notifier).state = null,
+                  onTap: () =>
+                      ref.read(selectedInvoiceStatusProvider.notifier).state =
+                          null,
                 ),
                 const SizedBox(width: 8),
                 _StatusChip(
                   label: 'Pending',
-                  isSelected: ref.watch(selectedInvoiceStatusProvider) == InvoiceStatus.pending,
-                  onTap: () => ref.read(selectedInvoiceStatusProvider.notifier).state = InvoiceStatus.pending,
+                  isSelected:
+                      ref.watch(selectedInvoiceStatusProvider) ==
+                      InvoiceStatus.pending,
+                  onTap: () =>
+                      ref.read(selectedInvoiceStatusProvider.notifier).state =
+                          InvoiceStatus.pending,
                 ),
                 const SizedBox(width: 8),
                 _StatusChip(
                   label: 'Paid',
-                  isSelected: ref.watch(selectedInvoiceStatusProvider) == InvoiceStatus.paid,
-                  onTap: () => ref.read(selectedInvoiceStatusProvider.notifier).state = InvoiceStatus.paid,
+                  isSelected:
+                      ref.watch(selectedInvoiceStatusProvider) ==
+                      InvoiceStatus.paid,
+                  onTap: () =>
+                      ref.read(selectedInvoiceStatusProvider.notifier).state =
+                          InvoiceStatus.paid,
                 ),
                 const SizedBox(width: 8),
                 _StatusChip(
                   label: 'Overdue',
-                  isSelected: ref.watch(selectedInvoiceStatusProvider) == InvoiceStatus.overdue,
-                  onTap: () => ref.read(selectedInvoiceStatusProvider.notifier).state = InvoiceStatus.overdue,
+                  isSelected:
+                      ref.watch(selectedInvoiceStatusProvider) ==
+                      InvoiceStatus.overdue,
+                  onTap: () =>
+                      ref.read(selectedInvoiceStatusProvider.notifier).state =
+                          InvoiceStatus.overdue,
                 ),
               ],
             ),
           ).animate().fadeIn(delay: 300.ms),
-          
+
           const SizedBox(height: 16),
-          
+
           // Invoices List
           Expanded(
             child: filteredInvoices.when(
               loading: () => const Center(
                 child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryAccent),
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    AppTheme.primaryAccent,
+                  ),
                 ),
               ),
               error: (error, stackTrace) => Center(
@@ -143,9 +162,10 @@ class InvoiceListScreen extends ConsumerWidget {
                     const SizedBox(height: 16),
                     Text(
                       'Error loading invoices',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        color: Colors.red,
-                      ),
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(
+                            color: Colors.red,
+                          ),
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -166,55 +186,65 @@ class InvoiceListScreen extends ConsumerWidget {
                 ),
               ),
               data: (filteredInvoices) => filteredInvoices.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.receipt_outlined,
-                          size: 64,
-                          color: AppTheme.secondaryText.withValues(alpha: 0.5),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          searchQuery.isEmpty ? 'No invoices yet' : 'No invoices found',
-                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            color: AppTheme.secondaryText,
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.receipt_outlined,
+                            size: 64,
+                            color: AppTheme.secondaryText.withValues(
+                              alpha: 0.5,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          searchQuery.isEmpty 
-                              ? 'Create your first invoice to get started'
-                              : 'Try a different search term',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppTheme.secondaryText.withValues(alpha: 0.7),
+                          const SizedBox(height: 16),
+                          Text(
+                            searchQuery.isEmpty
+                                ? 'No invoices yet'
+                                : 'No invoices found',
+                            style: Theme.of(context).textTheme.headlineSmall
+                                ?.copyWith(
+                                  color: AppTheme.secondaryText,
+                                ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 8),
+                          Text(
+                            searchQuery.isEmpty
+                                ? 'Create your first invoice to get started'
+                                : 'Try a different search term',
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(
+                                  color: AppTheme.secondaryText.withValues(
+                                    alpha: 0.7,
+                                  ),
+                                ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: filteredInvoices.length,
+                      itemBuilder: (context, index) {
+                        final invoice = filteredInvoices[index];
+                        return Container(
+                              margin: const EdgeInsets.only(bottom: 12),
+                              child: _InvoiceCard(
+                                invoice: invoice,
+                                onTap: () =>
+                                    context.go('/invoices/${invoice.id}'),
+                              ),
+                            )
+                            .animate(delay: Duration(milliseconds: 100 * index))
+                            .fadeIn()
+                            .slideX(begin: 0.3);
+                      },
                     ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: filteredInvoices.length,
-                    itemBuilder: (context, index) {
-                      final invoice = filteredInvoices[index];
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        child: _InvoiceCard(
-                          invoice: invoice,
-                          onTap: () => context.go('/invoices/${invoice.id}'),
-                        ),
-                      ).animate(delay: Duration(milliseconds: 100 * index))
-                          .fadeIn()
-                          .slideX(begin: 0.3);
-                    },
-                  ),
             ),
           ),
         ],
       ),
-      
+
       // Add Invoice FAB
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
@@ -235,13 +265,12 @@ class InvoiceListScreen extends ConsumerWidget {
 }
 
 class _InvoiceCard extends StatelessWidget {
-  final Invoice invoice;
-  final VoidCallback onTap;
-
   const _InvoiceCard({
     required this.invoice,
     required this.onTap,
   });
+  final Invoice invoice;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -267,7 +296,9 @@ class _InvoiceCard extends StatelessWidget {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: _getStatusColor(invoice.status).withValues(alpha: 0.1),
+                    color: _getStatusColor(
+                      invoice.status,
+                    ).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Center(
@@ -316,7 +347,10 @@ class _InvoiceCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: _getStatusColor(invoice.status),
                         borderRadius: BorderRadius.circular(8),
@@ -426,15 +460,14 @@ class _InvoiceCard extends StatelessWidget {
 }
 
 class _StatusChip extends StatelessWidget {
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
   const _StatusChip({
     required this.label,
     required this.isSelected,
     required this.onTap,
   });
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -446,7 +479,9 @@ class _StatusChip extends StatelessWidget {
           color: isSelected ? AppTheme.primaryAccent : AppTheme.cardBackground,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? AppTheme.primaryAccent : AppTheme.secondaryText.withValues(alpha: 0.3),
+            color: isSelected
+                ? AppTheme.primaryAccent
+                : AppTheme.secondaryText.withValues(alpha: 0.3),
             width: 1,
           ),
         ),

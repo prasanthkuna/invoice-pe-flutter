@@ -18,19 +18,19 @@ abstract class AppError with AppErrorMappable {
 
   /// User-friendly error message
   final String message;
-  
+
   /// Error code for programmatic handling
   final String code;
-  
+
   /// Additional error details for debugging
   final Map<String, dynamic>? details;
-  
+
   /// Stack trace for debugging
   final String? stackTrace;
 
   /// Convert to user-friendly display message
   String get displayMessage => message;
-  
+
   /// Check if error should be reported to crash analytics
   bool get shouldReport => true;
 }
@@ -162,11 +162,11 @@ class ErrorHandler {
   /// Convert any exception to AppError
   static AppError fromException(dynamic exception, [StackTrace? stackTrace]) {
     final stackTraceString = stackTrace?.toString();
-    
+
     if (exception is AppError) {
       return exception;
     }
-    
+
     // Handle common exception types
     if (exception is FormatException) {
       return ValidationError(
@@ -175,11 +175,11 @@ class ErrorHandler {
         stackTrace: stackTraceString,
       );
     }
-    
+
     if (exception is TimeoutException) {
       return NetworkError.timeout();
     }
-    
+
     // Default to unknown error
     return UnknownError(
       message: exception.toString(),
@@ -187,7 +187,7 @@ class ErrorHandler {
       stackTrace: stackTraceString,
     );
   }
-  
+
   /// Get user-friendly message from any error
   static String getUserMessage(dynamic error) {
     if (error is AppError) {

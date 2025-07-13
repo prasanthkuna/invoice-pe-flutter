@@ -12,7 +12,8 @@ class InvoiceCreateScreen extends ConsumerStatefulWidget {
   const InvoiceCreateScreen({super.key});
 
   @override
-  ConsumerState<InvoiceCreateScreen> createState() => _InvoiceCreateScreenState();
+  ConsumerState<InvoiceCreateScreen> createState() =>
+      _InvoiceCreateScreenState();
 }
 
 class _InvoiceCreateScreenState extends ConsumerState<InvoiceCreateScreen> {
@@ -20,7 +21,7 @@ class _InvoiceCreateScreenState extends ConsumerState<InvoiceCreateScreen> {
   final _amountController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _invoiceNumberController = TextEditingController();
-  
+
   Vendor? _selectedVendor;
   DateTime _dueDate = DateTime.now().add(const Duration(days: 30));
   bool _isLoading = false;
@@ -94,7 +95,10 @@ class _InvoiceCreateScreenState extends ConsumerState<InvoiceCreateScreen> {
                       decoration: const InputDecoration(
                         labelText: 'Invoice Number',
                         labelStyle: TextStyle(color: AppTheme.secondaryText),
-                        prefixIcon: Icon(Icons.receipt, color: AppTheme.secondaryText),
+                        prefixIcon: Icon(
+                          Icons.receipt,
+                          color: AppTheme.secondaryText,
+                        ),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -111,7 +115,10 @@ class _InvoiceCreateScreenState extends ConsumerState<InvoiceCreateScreen> {
                       decoration: const InputDecoration(
                         labelText: 'Amount (₹)',
                         labelStyle: TextStyle(color: AppTheme.secondaryText),
-                        prefixIcon: Icon(Icons.currency_rupee, color: AppTheme.secondaryText),
+                        prefixIcon: Icon(
+                          Icons.currency_rupee,
+                          color: AppTheme.secondaryText,
+                        ),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -131,7 +138,10 @@ class _InvoiceCreateScreenState extends ConsumerState<InvoiceCreateScreen> {
                       decoration: const InputDecoration(
                         labelText: 'Description',
                         labelStyle: TextStyle(color: AppTheme.secondaryText),
-                        prefixIcon: Icon(Icons.description, color: AppTheme.secondaryText),
+                        prefixIcon: Icon(
+                          Icons.description,
+                          color: AppTheme.secondaryText,
+                        ),
                         alignLabelWithHint: true,
                       ),
                       validator: (value) {
@@ -172,7 +182,9 @@ class _InvoiceCreateScreenState extends ConsumerState<InvoiceCreateScreen> {
                     vendors.when(
                       loading: () => const Center(
                         child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryAccent),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            AppTheme.primaryAccent,
+                          ),
                         ),
                       ),
                       error: (error, stackTrace) => Text(
@@ -185,7 +197,10 @@ class _InvoiceCreateScreenState extends ConsumerState<InvoiceCreateScreen> {
                         decoration: const InputDecoration(
                           labelText: 'Select Vendor',
                           labelStyle: TextStyle(color: AppTheme.secondaryText),
-                          prefixIcon: Icon(Icons.business, color: AppTheme.secondaryText),
+                          prefixIcon: Icon(
+                            Icons.business,
+                            color: AppTheme.secondaryText,
+                          ),
                         ),
                         dropdownColor: AppTheme.cardBackground,
                         items: vendorList.map((vendor) {
@@ -193,7 +208,9 @@ class _InvoiceCreateScreenState extends ConsumerState<InvoiceCreateScreen> {
                             value: vendor,
                             child: Text(
                               vendor.name,
-                              style: const TextStyle(color: AppTheme.primaryText),
+                              style: const TextStyle(
+                                color: AppTheme.primaryText,
+                              ),
                             ),
                           );
                         }).toList(),
@@ -230,7 +247,8 @@ class _InvoiceCreateScreenState extends ConsumerState<InvoiceCreateScreen> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              _selectedVendor!.upiId ?? '${_selectedVendor!.accountNumber} • ${_selectedVendor!.ifscCode}',
+                              _selectedVendor!.upiId ??
+                                  '${_selectedVendor!.accountNumber} • ${_selectedVendor!.ifscCode}',
                               style: const TextStyle(
                                 color: AppTheme.secondaryText,
                                 fontSize: 12,
@@ -274,7 +292,9 @@ class _InvoiceCreateScreenState extends ConsumerState<InvoiceCreateScreen> {
                           context: context,
                           initialDate: _dueDate,
                           firstDate: DateTime.now(),
-                          lastDate: DateTime.now().add(const Duration(days: 365)),
+                          lastDate: DateTime.now().add(
+                            const Duration(days: 365),
+                          ),
                           builder: (context, child) {
                             return Theme(
                               data: Theme.of(context).copyWith(
@@ -297,7 +317,9 @@ class _InvoiceCreateScreenState extends ConsumerState<InvoiceCreateScreen> {
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           border: Border.all(
-                            color: AppTheme.secondaryText.withValues(alpha: 0.3),
+                            color: AppTheme.secondaryText.withValues(
+                              alpha: 0.3,
+                            ),
                           ),
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -371,7 +393,9 @@ class _InvoiceCreateScreenState extends ConsumerState<InvoiceCreateScreen> {
                               width: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
+                                ),
                               ),
                             )
                           : const Text(

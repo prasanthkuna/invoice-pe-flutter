@@ -33,10 +33,14 @@ class ValidationService {
   );
 
   // UPI ID validation
-  static final RegExp _upiPattern = RegExp(r'^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$');
+  static final RegExp _upiPattern = RegExp(
+    r'^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$',
+  );
 
   // GSTIN validation
-  static final RegExp _gstinPattern = RegExp(r'^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$');
+  static final RegExp _gstinPattern = RegExp(
+    r'^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$',
+  );
 
   // Account number validation (9-18 digits)
   static final RegExp _accountNumberPattern = RegExp(r'^\d{9,18}$');
@@ -49,8 +53,8 @@ class ValidationService {
     if (input.isEmpty) return input;
 
     // Remove potential XSS patterns
-    String sanitized = input.replaceAll(_xssPattern, '');
-    
+    var sanitized = input.replaceAll(_xssPattern, '');
+
     // HTML encode special characters
     sanitized = sanitized
         .replaceAll('&', '&amp;')
@@ -62,18 +66,22 @@ class ValidationService {
 
     // Log if sanitization occurred
     if (sanitized != input) {
-      DebugService.logSecurityViolation('XSS attempt detected and sanitized', context: {
-        'original_length': input.length,
-        'sanitized_length': sanitized.length,
-        'input_hash': input.hashCode.toString(),
-      });
+      DebugService.logSecurityViolation(
+        'XSS attempt detected and sanitized',
+        context: {
+          'original_length': input.length,
+          'sanitized_length': sanitized.length,
+          'input_hash': input.hashCode.toString(),
+        },
+      );
     }
 
     return sanitized.trim();
   }
 
   /// Validate and sanitize text input
-  static Result<String> validateTextInput(String input, {
+  static Result<String> validateTextInput(
+    String input, {
     required String fieldName,
     int? minLength,
     int? maxLength,
@@ -87,14 +95,17 @@ class ValidationService {
       }
 
       // Sanitize input if requested
-      String validatedInput = sanitize ? sanitizeInput(input) : input.trim();
+      final validatedInput = sanitize ? sanitizeInput(input) : input.trim();
 
       // Check for SQL injection attempts
       if (_sqlInjectionPattern.hasMatch(validatedInput)) {
-        DebugService.logSecurityViolation('SQL injection attempt detected', context: {
-          'field': fieldName,
-          'input_hash': input.hashCode.toString(),
-        });
+        DebugService.logSecurityViolation(
+          'SQL injection attempt detected',
+          context: {
+            'field': fieldName,
+            'input_hash': input.hashCode.toString(),
+          },
+        );
         return Failure('Invalid characters detected in $fieldName');
       }
 
@@ -117,7 +128,7 @@ class ValidationService {
   /// Validate phone number
   static Result<String> validatePhoneNumber(String phone) {
     final sanitized = sanitizeInput(phone);
-    
+
     if (sanitized.isEmpty) {
       return const Failure('Phone number is required');
     }
@@ -135,7 +146,7 @@ class ValidationService {
   /// Validate email address
   static Result<String> validateEmail(String email, {bool required = true}) {
     final sanitized = sanitizeInput(email);
-    
+
     if (sanitized.isEmpty) {
       return required ? const Failure('Email is required') : const Success('');
     }
@@ -150,7 +161,7 @@ class ValidationService {
   /// Validate UPI ID
   static Result<String> validateUpiId(String upiId) {
     final sanitized = sanitizeInput(upiId);
-    
+
     if (sanitized.isEmpty) {
       return const Failure('UPI ID is required');
     }
@@ -163,17 +174,18 @@ class ValidationService {
   }
 
   /// Validate amount (financial)
-  static Result<double> validateAmount(String amount, {
+  static Result<double> validateAmount(
+    String amount, {
     double? minAmount,
     double? maxAmount,
   }) {
     final sanitized = sanitizeInput(amount);
-    
+
     if (sanitized.isEmpty) {
       return const Failure('Amount is required');
     }
 
-    final double? parsedAmount = double.tryParse(sanitized);
+    final parsedAmount = double.tryParse(sanitized);
     if (parsedAmount == null) {
       return const Failure('Enter a valid amount');
     }
@@ -196,7 +208,7 @@ class ValidationService {
   /// Validate GSTIN
   static Result<String> validateGstin(String gstin, {bool required = false}) {
     final sanitized = sanitizeInput(gstin);
-    
+
     if (sanitized.isEmpty) {
       return required ? const Failure('GSTIN is required') : const Success('');
     }
@@ -211,7 +223,7 @@ class ValidationService {
   /// Validate account number
   static Result<String> validateAccountNumber(String accountNumber) {
     final sanitized = sanitizeInput(accountNumber);
-    
+
     if (sanitized.isEmpty) {
       return const Failure('Account number is required');
     }
@@ -226,7 +238,7 @@ class ValidationService {
   /// Validate IFSC code
   static Result<String> validateIfscCode(String ifsc) {
     final sanitized = sanitizeInput(ifsc);
-    
+
     if (sanitized.isEmpty) {
       return const Failure('IFSC code is required');
     }
@@ -239,21 +251,25 @@ class ValidationService {
   }
 
   /// Validate file upload
-  static Result<String> validateFileUpload(String fileName, {
+  static Result<String> validateFileUpload(
+    String fileName, {
     List<String>? allowedExtensions,
     int? maxSizeBytes,
   }) {
     final sanitized = sanitizeInput(fileName);
-    
+
     if (sanitized.isEmpty) {
       return const Failure('File name is required');
     }
 
     // Check for malicious file types
     if (_maliciousFilePattern.hasMatch(sanitized)) {
-      DebugService.logSecurityViolation('Malicious file upload attempt', context: {
-        'filename': sanitized,
-      });
+      DebugService.logSecurityViolation(
+        'Malicious file upload attempt',
+        context: {
+          'filename': sanitized,
+        },
+      );
       return const Failure('File type not allowed for security reasons');
     }
 
@@ -261,7 +277,9 @@ class ValidationService {
     if (allowedExtensions != null) {
       final extension = sanitized.split('.').last.toLowerCase();
       if (!allowedExtensions.contains(extension)) {
-        return Failure('Only ${allowedExtensions.join(', ')} files are allowed');
+        return Failure(
+          'Only ${allowedExtensions.join(', ')} files are allowed',
+        );
       }
     }
 
@@ -272,7 +290,7 @@ class ValidationService {
   static Result<Map<String, dynamic>> validateJsonInput(String jsonString) {
     try {
       final sanitized = sanitizeInput(jsonString);
-      
+
       if (sanitized.isEmpty) {
         return const Failure('JSON data is required');
       }
@@ -282,10 +300,10 @@ class ValidationService {
         return const Failure('Invalid JSON format');
       }
       final data = decoded;
-      
+
       // Additional security checks for JSON
       _validateJsonSecurity(data);
-      
+
       return Success(data);
     } catch (error) {
       DebugService.logError('JSON validation failed', error: error);
@@ -299,18 +317,24 @@ class ValidationService {
       if (value is String) {
         // Check for XSS in string values
         if (_xssPattern.hasMatch(value)) {
-          DebugService.logSecurityViolation('XSS attempt in JSON data', context: {
-            'field': key,
-            'value_hash': value.hashCode.toString(),
-          });
+          DebugService.logSecurityViolation(
+            'XSS attempt in JSON data',
+            context: {
+              'field': key,
+              'value_hash': value.hashCode.toString(),
+            },
+          );
         }
-        
+
         // Check for SQL injection in string values
         if (_sqlInjectionPattern.hasMatch(value)) {
-          DebugService.logSecurityViolation('SQL injection attempt in JSON data', context: {
-            'field': key,
-            'value_hash': value.hashCode.toString(),
-          });
+          DebugService.logSecurityViolation(
+            'SQL injection attempt in JSON data',
+            context: {
+              'field': key,
+              'value_hash': value.hashCode.toString(),
+            },
+          );
         }
       } else if (value is Map<String, dynamic>) {
         // Recursively validate nested objects
@@ -328,30 +352,36 @@ class ValidationService {
 
   /// Rate limiting validation (prevent brute force)
   static final Map<String, List<DateTime>> _rateLimitMap = {};
-  
-  static Result<void> validateRateLimit(String identifier, {
+
+  static Result<void> validateRateLimit(
+    String identifier, {
     int maxAttempts = 5,
     Duration timeWindow = const Duration(minutes: 15),
   }) {
     final now = DateTime.now();
     final attempts = _rateLimitMap[identifier] ?? [];
-    
+
     // Remove old attempts outside the time window
     attempts.removeWhere((attempt) => now.difference(attempt) > timeWindow);
-    
+
     if (attempts.length >= maxAttempts) {
-      DebugService.logSecurityViolation('Rate limit exceeded', context: {
-        'identifier': identifier,
-        'attempts': attempts.length,
-        'time_window_minutes': timeWindow.inMinutes,
-      });
-      return Failure('Too many attempts. Please try again in ${timeWindow.inMinutes} minutes.');
+      DebugService.logSecurityViolation(
+        'Rate limit exceeded',
+        context: {
+          'identifier': identifier,
+          'attempts': attempts.length,
+          'time_window_minutes': timeWindow.inMinutes,
+        },
+      );
+      return Failure(
+        'Too many attempts. Please try again in ${timeWindow.inMinutes} minutes.',
+      );
     }
-    
+
     // Add current attempt
     attempts.add(now);
     _rateLimitMap[identifier] = attempts;
-    
+
     return const Success(null);
   }
 

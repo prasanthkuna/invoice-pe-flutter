@@ -23,7 +23,9 @@ void main() {
       container.dispose();
     });
 
-    testWidgets('Dashboard navigation to all 5 core features works', (tester) async {
+    testWidgets('Dashboard navigation to all 5 core features works', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
@@ -73,10 +75,14 @@ void main() {
       expect(find.text('Create Invoice'), findsOneWidget);
       DebugService.logInfo('✅ Invoice Create navigation successful');
 
-      DebugService.logInfo('🎉 All 5 core features navigation verified successfully');
+      DebugService.logInfo(
+        '🎉 All 5 core features navigation verified successfully',
+      );
     });
 
-    testWidgets('Dashboard quick actions are properly displayed', (tester) async {
+    testWidgets('Dashboard quick actions are properly displayed', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
@@ -141,7 +147,9 @@ void main() {
   });
 
   group('Provider Integration Tests', () {
-    testWidgets('Data providers refresh correctly after navigation', (tester) async {
+    testWidgets('Data providers refresh correctly after navigation', (
+      tester,
+    ) async {
       final container = ProviderContainer(
         overrides: [
           isAuthenticatedProvider.overrideWith((ref) => true),

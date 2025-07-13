@@ -11,7 +11,7 @@ final supabaseClientProvider = Provider<SupabaseClient>((ref) {
 // Dio HTTP Client Provider
 final dioProvider = Provider<Dio>((ref) {
   final dio = Dio();
-  
+
   // Add centralized logging interceptor using DebugService
   dio.interceptors.add(
     InterceptorsWrapper(
@@ -31,7 +31,8 @@ final dioProvider = Provider<Dio>((ref) {
         handler.next(options);
       },
       onResponse: (response, handler) {
-        final stopwatch = response.requestOptions.extra['_start_time'] as Stopwatch?;
+        final stopwatch =
+            response.requestOptions.extra['_start_time'] as Stopwatch?;
         final duration = stopwatch?.elapsedMilliseconds;
 
         DebugService.logApi(
@@ -46,7 +47,8 @@ final dioProvider = Provider<Dio>((ref) {
         handler.next(response);
       },
       onError: (error, handler) {
-        final stopwatch = error.requestOptions.extra['_start_time'] as Stopwatch?;
+        final stopwatch =
+            error.requestOptions.extra['_start_time'] as Stopwatch?;
         final duration = stopwatch?.elapsedMilliseconds;
 
         DebugService.logApi(
@@ -63,23 +65,23 @@ final dioProvider = Provider<Dio>((ref) {
       },
     ),
   );
-  
+
   // Add auth interceptor for Supabase
   dio.interceptors.add(
     InterceptorsWrapper(
       onRequest: (options, handler) async {
         final supabase = ref.read(supabaseClientProvider);
         final session = supabase.auth.currentSession;
-        
+
         if (session != null) {
           options.headers['Authorization'] = 'Bearer ${session.accessToken}';
         }
-        
+
         handler.next(options);
       },
     ),
   );
-  
+
   return dio;
 });
 
@@ -106,7 +108,11 @@ final loadingStateProvider = StateProvider<bool>((ref) => false);
 final errorStateProvider = StateProvider<String?>((ref) => null);
 
 // Theme Mode Provider
-final themeModeProvider = StateProvider<bool>((ref) => true); // true = dark mode
+final themeModeProvider = StateProvider<bool>(
+  (ref) => true,
+); // true = dark mode
 
 // Network Status Provider
-final networkStatusProvider = StateProvider<bool>((ref) => true); // true = connected
+final networkStatusProvider = StateProvider<bool>(
+  (ref) => true,
+); // true = connected

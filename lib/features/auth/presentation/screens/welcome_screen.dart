@@ -26,7 +26,7 @@ class WelcomeScreen extends StatelessWidget {
             child: Column(
               children: [
                 const Spacer(flex: 2),
-                
+
                 // Logo and Title
                 Column(
                   children: [
@@ -38,7 +38,9 @@ class WelcomeScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(30),
                         boxShadow: [
                           BoxShadow(
-                            color: AppTheme.primaryAccent.withValues(alpha: 0.3),
+                            color: AppTheme.primaryAccent.withValues(
+                              alpha: 0.3,
+                            ),
                             blurRadius: 20,
                             spreadRadius: 5,
                           ),
@@ -50,9 +52,9 @@ class WelcomeScreen extends StatelessWidget {
                         color: Colors.white,
                       ),
                     ).animate().scale(delay: 300.ms, duration: 600.ms),
-                    
+
                     const SizedBox(height: 32),
-                    
+
                     Text(
                       'InvoicePe',
                       style: Theme.of(context).textTheme.displayLarge?.copyWith(
@@ -60,9 +62,9 @@ class WelcomeScreen extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.3),
-                    
+
                     const SizedBox(height: 16),
-                    
+
                     Text(
                       'Pay ANY vendor with your credit card\nEarn rewards while they get instant transfers',
                       textAlign: TextAlign.center,
@@ -73,9 +75,9 @@ class WelcomeScreen extends StatelessWidget {
                     ).animate().fadeIn(delay: 900.ms).slideY(begin: 0.3),
                   ],
                 ),
-                
+
                 const Spacer(flex: 3),
-                
+
                 // Get Started Button
                 SizedBox(
                   width: double.infinity,
@@ -97,9 +99,9 @@ class WelcomeScreen extends StatelessWidget {
                     ),
                   ),
                 ).animate().fadeIn(delay: 1200.ms).slideY(begin: 0.5),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // Terms and Privacy
                 Text(
                   'By continuing, you agree to our Terms & Privacy Policy',
@@ -108,7 +110,7 @@ class WelcomeScreen extends StatelessWidget {
                     color: AppTheme.secondaryText.withValues(alpha: 0.7),
                   ),
                 ).animate().fadeIn(delay: 1500.ms),
-                
+
                 const Spacer(),
               ],
             ),

@@ -74,9 +74,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                 color: Colors.white,
               ),
             ),
-            
+
             const SizedBox(height: 32),
-            
+
             // App Name
             const Text(
               'InvoicePe',
@@ -86,9 +86,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                 color: AppTheme.primaryText,
               ),
             ),
-            
+
             const SizedBox(height: 8),
-            
+
             // Tagline
             const Text(
               'Smart Invoice Management',
@@ -97,9 +97,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                 color: AppTheme.secondaryText,
               ),
             ),
-            
+
             const SizedBox(height: 48),
-            
+
             // Loading Indicator
             const CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryAccent),

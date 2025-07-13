@@ -41,9 +41,9 @@ class BusinessInfoScreen extends ConsumerWidget {
               backgroundColor: AppTheme.cardBackground,
               valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryAccent),
             ).animate().scaleX(duration: 800.ms),
-            
+
             const SizedBox(height: 40),
-            
+
             // Title
             Text(
               'Tell us about your business',
@@ -52,18 +52,18 @@ class BusinessInfoScreen extends ConsumerWidget {
                 fontWeight: FontWeight.bold,
               ),
             ).animate().fadeIn(delay: 200.ms).slideX(begin: -0.3),
-            
+
             const SizedBox(height: 16),
-            
+
             Text(
               'This helps us personalize your experience',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 color: AppTheme.secondaryText,
               ),
             ).animate().fadeIn(delay: 400.ms).slideX(begin: -0.3),
-            
+
             const SizedBox(height: 48),
-            
+
             // Business Name Input
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,7 +77,8 @@ class BusinessInfoScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 8),
                 TextField(
-                  onChanged: (value) => ref.read(businessNameProvider.notifier).state = value,
+                  onChanged: (value) =>
+                      ref.read(businessNameProvider.notifier).state = value,
                   style: const TextStyle(
                     fontSize: 16,
                     color: AppTheme.primaryText,
@@ -93,15 +94,18 @@ class BusinessInfoScreen extends ConsumerWidget {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(color: AppTheme.primaryAccent, width: 2),
+                      borderSide: const BorderSide(
+                        color: AppTheme.primaryAccent,
+                        width: 2,
+                      ),
                     ),
                   ),
                 ),
               ],
             ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.3),
-            
+
             const SizedBox(height: 24),
-            
+
             // GSTIN Input
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -115,7 +119,8 @@ class BusinessInfoScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 8),
                 TextField(
-                  onChanged: (value) => ref.read(gstinProvider.notifier).state = value,
+                  onChanged: (value) =>
+                      ref.read(gstinProvider.notifier).state = value,
                   style: const TextStyle(
                     fontSize: 16,
                     color: AppTheme.primaryText,
@@ -131,7 +136,10 @@ class BusinessInfoScreen extends ConsumerWidget {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(color: AppTheme.primaryAccent, width: 2),
+                      borderSide: const BorderSide(
+                        color: AppTheme.primaryAccent,
+                        width: 2,
+                      ),
                     ),
                   ),
                 ),
@@ -144,9 +152,9 @@ class BusinessInfoScreen extends ConsumerWidget {
                 ),
               ],
             ).animate().fadeIn(delay: 800.ms).slideY(begin: 0.3),
-            
+
             const Spacer(),
-            
+
             // Complete Setup Button
             SizedBox(
               width: double.infinity,
@@ -154,7 +162,9 @@ class BusinessInfoScreen extends ConsumerWidget {
               child: ElevatedButton(
                 onPressed: isValid ? () => context.go('/') : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: isValid ? AppTheme.primaryAccent : AppTheme.cardBackground,
+                  backgroundColor: isValid
+                      ? AppTheme.primaryAccent
+                      : AppTheme.cardBackground,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -169,7 +179,7 @@ class BusinessInfoScreen extends ConsumerWidget {
                 ),
               ),
             ).animate().fadeIn(delay: 1000.ms).slideY(begin: 0.5),
-            
+
             const SizedBox(height: 24),
           ],
         ),

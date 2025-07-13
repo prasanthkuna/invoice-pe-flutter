@@ -23,10 +23,9 @@ import '../providers/data_providers.dart';
 
 // Temporary placeholder screen
 class PlaceholderScreen extends StatelessWidget {
+  const PlaceholderScreen({required this.title, super.key});
   final String title;
-  
-  const PlaceholderScreen({super.key, required this.title});
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,8 +53,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     initialLocation: '/splash',
     redirect: (context, state) {
       final isAuthenticated = ref.read(isAuthenticatedProvider);
-      final isAuthRoute = state.matchedLocation.startsWith('/auth') ||
-                         state.matchedLocation == '/welcome';
+      final isAuthRoute =
+          state.matchedLocation.startsWith('/auth') ||
+          state.matchedLocation == '/welcome';
       final isSplashRoute = state.matchedLocation == '/splash';
 
       // Allow splash screen to handle initial routing
@@ -178,7 +178,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const PlaceholderScreen(title: 'Reports'),
       ),
     ],
-    
+
     // Error handling
     errorBuilder: (context, state) => Scaffold(
       body: Center(

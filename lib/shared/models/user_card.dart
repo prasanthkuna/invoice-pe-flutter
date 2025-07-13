@@ -13,9 +13,9 @@ class UserCard with UserCardMappable {
     required this.cardToken,
     required this.cardLastFour,
     required this.cardType,
-    this.cardNetwork,
     required this.isDefault,
     required this.isActive,
+    this.cardNetwork,
     this.createdAt,
     this.updatedAt,
   });
@@ -31,6 +31,8 @@ class UserCard with UserCardMappable {
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
-  static const fromMap = UserCardMapper.fromMap;
-  static const fromJson = UserCardMapper.fromJson;
+  static const UserCard Function(Map<String, dynamic> map) fromMap =
+      UserCardMapper.fromMap;
+  static const UserCard Function(String json) fromJson =
+      UserCardMapper.fromJson;
 }

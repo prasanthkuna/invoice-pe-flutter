@@ -10,12 +10,12 @@ class Transaction with TransactionMappable {
   const Transaction({
     required this.id,
     required this.userId,
-    this.vendorId,
-    this.vendorName,
     required this.amount,
     required this.fee,
     required this.rewardsEarned,
     required this.status,
+    this.vendorId,
+    this.vendorName,
     this.invoiceId,
     this.paymentMethod,
     this.phonepeTransactionId,
@@ -39,6 +39,7 @@ class Transaction with TransactionMappable {
   final DateTime? createdAt;
   final DateTime? completedAt;
 
-  static Transaction fromMap(Map<String, dynamic> map) => TransactionMapper.fromMap(map);
+  static Transaction fromMap(Map<String, dynamic> map) =>
+      TransactionMapper.fromMap(map);
   static Transaction fromJson(String json) => TransactionMapper.fromJson(json);
 }

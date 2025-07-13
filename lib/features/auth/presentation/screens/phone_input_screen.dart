@@ -14,7 +14,11 @@ final isLoadingProvider = StateProvider<bool>((ref) => false);
 class PhoneInputScreen extends ConsumerWidget {
   const PhoneInputScreen({super.key});
 
-  Future<void> _sendOtp(BuildContext context, WidgetRef ref, String phoneNumber) async {
+  Future<void> _sendOtp(
+    BuildContext context,
+    WidgetRef ref,
+    String phoneNumber,
+  ) async {
     try {
       ref.read(isLoadingProvider.notifier).state = true;
 
@@ -86,9 +90,9 @@ class PhoneInputScreen extends ConsumerWidget {
               backgroundColor: AppTheme.cardBackground,
               valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryAccent),
             ).animate().scaleX(duration: 800.ms),
-            
+
             const SizedBox(height: 40),
-            
+
             // Title
             Text(
               'Enter your phone number',
@@ -97,18 +101,18 @@ class PhoneInputScreen extends ConsumerWidget {
                 fontWeight: FontWeight.bold,
               ),
             ).animate().fadeIn(delay: 200.ms).slideX(begin: -0.3),
-            
+
             const SizedBox(height: 16),
-            
+
             Text(
-              'We\'ll send you a verification code',
+              "We'll send you a verification code",
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 color: AppTheme.secondaryText,
               ),
             ).animate().fadeIn(delay: 400.ms).slideX(begin: -0.3),
-            
+
             const SizedBox(height: 48),
-            
+
             // Phone Input
             Container(
               decoration: BoxDecoration(
@@ -139,7 +143,8 @@ class PhoneInputScreen extends ConsumerWidget {
                   ),
                   Expanded(
                     child: TextField(
-                      onChanged: (value) => ref.read(phoneNumberProvider.notifier).state = value,
+                      onChanged: (value) =>
+                          ref.read(phoneNumberProvider.notifier).state = value,
                       keyboardType: TextInputType.phone,
                       inputFormatters: [
                         FilteringTextInputFormatter.digitsOnly,
@@ -161,17 +166,21 @@ class PhoneInputScreen extends ConsumerWidget {
                 ],
               ),
             ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.3),
-            
+
             const Spacer(),
-            
+
             // Continue Button
             SizedBox(
               width: double.infinity,
               height: 56,
               child: ElevatedButton(
-                onPressed: (isValid && !isLoading) ? () => _sendOtp(context, ref, phoneNumber) : null,
+                onPressed: (isValid && !isLoading)
+                    ? () => _sendOtp(context, ref, phoneNumber)
+                    : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: isValid ? AppTheme.primaryAccent : AppTheme.cardBackground,
+                  backgroundColor: isValid
+                      ? AppTheme.primaryAccent
+                      : AppTheme.cardBackground,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -182,7 +191,9 @@ class PhoneInputScreen extends ConsumerWidget {
                         height: 24,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
                         ),
                       )
                     : Text(
@@ -190,12 +201,14 @@ class PhoneInputScreen extends ConsumerWidget {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
-                          color: isValid ? Colors.white : AppTheme.secondaryText,
+                          color: isValid
+                              ? Colors.white
+                              : AppTheme.secondaryText,
                         ),
                       ),
               ),
             ).animate().fadeIn(delay: 800.ms).slideY(begin: 0.5),
-            
+
             const SizedBox(height: 24),
           ],
         ),

@@ -6,30 +6,32 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../shared/models/user_card.dart';
 
 // Mock provider for cards (will be replaced with real provider post-PCC)
-final cardsProvider = StateProvider<List<UserCard>>((ref) => [
-  UserCard(
-    id: '1',
-    userId: 'user1',
-    cardToken: 'token_1234',
-    cardLastFour: '1234',
-    cardType: CardType.credit,
-    cardNetwork: 'VISA',
-    isDefault: true,
-    isActive: true,
-    createdAt: DateTime.now().subtract(const Duration(days: 30)),
-  ),
-  UserCard(
-    id: '2',
-    userId: 'user1',
-    cardToken: 'token_5678',
-    cardLastFour: '5678',
-    cardType: CardType.debit,
-    cardNetwork: 'MASTERCARD',
-    isDefault: false,
-    isActive: true,
-    createdAt: DateTime.now().subtract(const Duration(days: 15)),
-  ),
-]);
+final cardsProvider = StateProvider<List<UserCard>>(
+  (ref) => [
+    UserCard(
+      id: '1',
+      userId: 'user1',
+      cardToken: 'token_1234',
+      cardLastFour: '1234',
+      cardType: CardType.credit,
+      cardNetwork: 'VISA',
+      isDefault: true,
+      isActive: true,
+      createdAt: DateTime.now().subtract(const Duration(days: 30)),
+    ),
+    UserCard(
+      id: '2',
+      userId: 'user1',
+      cardToken: 'token_5678',
+      cardLastFour: '5678',
+      cardType: CardType.debit,
+      cardNetwork: 'MASTERCARD',
+      isDefault: false,
+      isActive: true,
+      createdAt: DateTime.now().subtract(const Duration(days: 15)),
+    ),
+  ],
+);
 
 class CardListScreen extends ConsumerWidget {
   const CardListScreen({super.key});
@@ -61,18 +63,18 @@ class CardListScreen extends ConsumerWidget {
                 fontWeight: FontWeight.bold,
               ),
             ).animate().fadeIn(delay: 200.ms).slideY(begin: -0.3),
-            
+
             const SizedBox(height: 8),
-            
+
             Text(
               'Manage your saved payment cards',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 color: AppTheme.secondaryText,
               ),
             ).animate().fadeIn(delay: 400.ms),
-            
+
             const SizedBox(height: 32),
-            
+
             // PCC Notice
             Container(
               width: double.infinity,
@@ -98,10 +100,11 @@ class CardListScreen extends ConsumerWidget {
                       const SizedBox(width: 12),
                       Text(
                         'PCC Certification Required',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: AppTheme.warningColor,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              color: AppTheme.warningColor,
+                              fontWeight: FontWeight.w600,
+                            ),
                       ),
                     ],
                   ),
@@ -115,9 +118,9 @@ class CardListScreen extends ConsumerWidget {
                 ],
               ),
             ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.3),
-            
+
             const SizedBox(height: 32),
-            
+
             // Cards List
             if (cards.isEmpty) ...[
               Container(
@@ -157,20 +160,21 @@ class CardListScreen extends ConsumerWidget {
                 final index = entry.key;
                 final card = entry.value;
                 return Container(
-                  margin: const EdgeInsets.only(bottom: 16),
-                  child: _CardItem(
-                    card: card,
-                    onTap: () => _showCardDetails(context, card),
-                    onDelete: () => _deleteCard(context, ref, card),
-                  ),
-                ).animate(delay: Duration(milliseconds: 800 + (index * 200)))
+                      margin: const EdgeInsets.only(bottom: 16),
+                      child: _CardItem(
+                        card: card,
+                        onTap: () => _showCardDetails(context, card),
+                        onDelete: () => _deleteCard(context, ref, card),
+                      ),
+                    )
+                    .animate(delay: Duration(milliseconds: 800 + (index * 200)))
                     .fadeIn()
                     .slideX(begin: 0.3);
               }),
             ],
-            
+
             const SizedBox(height: 32),
-            
+
             // Add Card Button (Disabled for PCC)
             SizedBox(
               width: double.infinity,
@@ -283,8 +287,9 @@ class CardListScreen extends ConsumerWidget {
             onPressed: () {
               Navigator.of(context).pop();
               final cards = ref.read(cardsProvider);
-              ref.read(cardsProvider.notifier).state = 
-                  cards.where((c) => c.id != card.id).toList();
+              ref.read(cardsProvider.notifier).state = cards
+                  .where((c) => c.id != card.id)
+                  .toList();
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Card deleted successfully'),
@@ -309,15 +314,14 @@ class CardListScreen extends ConsumerWidget {
 }
 
 class _CardItem extends StatelessWidget {
-  final UserCard card;
-  final VoidCallback onTap;
-  final VoidCallback onDelete;
-
   const _CardItem({
     required this.card,
     required this.onTap,
     required this.onDelete,
   });
+  final UserCard card;
+  final VoidCallback onTap;
+  final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -353,7 +357,10 @@ class _CardItem extends StatelessWidget {
                   children: [
                     if (card.isDefault)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(8),
@@ -432,10 +439,9 @@ class _CardItem extends StatelessWidget {
 }
 
 class _DetailRow extends StatelessWidget {
+  const _DetailRow(this.label, this.value);
   final String label;
   final String value;
-
-  const _DetailRow(this.label, this.value);
 
   @override
   Widget build(BuildContext context) {

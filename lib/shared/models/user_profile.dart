@@ -30,6 +30,7 @@ class UserProfile with UserProfileMappable {
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
-  static UserProfile fromMap(Map<String, dynamic> map) => UserProfileMapper.fromMap(map);
+  static UserProfile fromMap(Map<String, dynamic> map) =>
+      UserProfileMapper.fromMap(map);
   static UserProfile fromJson(String json) => UserProfileMapper.fromJson(json);
 }

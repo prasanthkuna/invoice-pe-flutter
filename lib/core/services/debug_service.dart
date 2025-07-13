@@ -37,14 +37,23 @@ class DebugService {
   }
 
   /// Log info messages
-  static void logInfo(String message, {dynamic error, StackTrace? stackTrace, Map<String, dynamic>? context}) {
+  static void logInfo(
+    String message, {
+    dynamic error,
+    StackTrace? stackTrace,
+    Map<String, dynamic>? context,
+  }) {
     if (!_initialized) initialize();
     _logger.i(message, error: error, stackTrace: stackTrace);
     // Info logs stay local only for performance
   }
 
   /// Log debug messages (only in debug mode)
-  static void logDebug(String message, [dynamic error, StackTrace? stackTrace]) {
+  static void logDebug(
+    String message, [
+    dynamic error,
+    StackTrace? stackTrace,
+  ]) {
     if (!_initialized) initialize();
     if (kDebugMode) {
       _logger.d(message, error: error, stackTrace: stackTrace);
@@ -52,7 +61,13 @@ class DebugService {
   }
 
   /// Log warning messages (also logs to database)
-  static void logWarning(String message, {dynamic error, StackTrace? stackTrace, Map<String, dynamic>? context, String? operation}) {
+  static void logWarning(
+    String message, {
+    dynamic error,
+    StackTrace? stackTrace,
+    Map<String, dynamic>? context,
+    String? operation,
+  }) {
     if (!_initialized) initialize();
     _logger.w(message, error: error, stackTrace: stackTrace);
 
@@ -68,7 +83,13 @@ class DebugService {
   }
 
   /// Log error messages (also logs to database)
-  static void logError(String message, {dynamic error, StackTrace? stackTrace, Map<String, dynamic>? context, String? operation}) {
+  static void logError(
+    String message, {
+    dynamic error,
+    StackTrace? stackTrace,
+    Map<String, dynamic>? context,
+    String? operation,
+  }) {
     if (!_initialized) initialize();
     _logger.e(message, error: error, stackTrace: stackTrace);
 
@@ -84,7 +105,12 @@ class DebugService {
   }
 
   /// Log Supabase authentication events with detailed error analysis
-  static void logAuth(String event, {Map<String, dynamic>? data, dynamic error, int? performanceMs}) {
+  static void logAuth(
+    String event, {
+    Map<String, dynamic>? data,
+    dynamic error,
+    int? performanceMs,
+  }) {
     if (!_initialized) initialize();
     final message = '🔐 AUTH: $event';
 
@@ -118,7 +144,13 @@ class DebugService {
   }
 
   /// Log Supabase database operations with database logging for errors
-  static void logDatabase(String operation, {String? table, Map<String, dynamic>? data, dynamic error, int? performanceMs}) {
+  static void logDatabase(
+    String operation, {
+    String? table,
+    Map<String, dynamic>? data,
+    dynamic error,
+    int? performanceMs,
+  }) {
     if (!_initialized) initialize();
     final message = '🗄️ DB: $operation${table != null ? ' on $table' : ''}';
 
@@ -153,9 +185,16 @@ class DebugService {
   }
 
   /// Log API calls with database logging for errors
-  static void logApi(String method, String endpoint, {Map<String, dynamic>? data, dynamic error, int? statusCode}) {
+  static void logApi(
+    String method,
+    String endpoint, {
+    Map<String, dynamic>? data,
+    dynamic error,
+    int? statusCode,
+  }) {
     if (!_initialized) initialize();
-    final message = '🌐 API: $method $endpoint${statusCode != null ? ' ($statusCode)' : ''}';
+    final message =
+        '🌐 API: $method $endpoint${statusCode != null ? ' ($statusCode)' : ''}';
 
     if (error != null) {
       _logger.e(message, error: error);
@@ -191,10 +230,17 @@ class DebugService {
   /// Log navigation events (critical routes logged to database)
   static void logNavigation(String route, {Map<String, dynamic>? params}) {
     if (!_initialized) initialize();
-    _logger.i('🧭 NAVIGATION: $route ${params != null ? '- Params: $params' : ''}');
+    _logger.i(
+      '🧭 NAVIGATION: $route ${params != null ? '- Params: $params' : ''}',
+    );
 
     // Log critical navigation events to database
-    final criticalRoutes = ['/login', '/dashboard', '/payment', '/payment-success'];
+    final criticalRoutes = [
+      '/login',
+      '/dashboard',
+      '/payment',
+      '/payment-success',
+    ];
     if (criticalRoutes.any((r) => route.contains(r))) {
       _logToDatabase(
         level: 'INFO',
@@ -209,10 +255,17 @@ class DebugService {
   /// Log user actions (important actions logged to database)
   static void logUserAction(String action, {Map<String, dynamic>? context}) {
     if (!_initialized) initialize();
-    _logger.i('👤 USER: $action ${context != null ? '- Context: $context' : ''}');
+    _logger.i(
+      '👤 USER: $action ${context != null ? '- Context: $context' : ''}',
+    );
 
     // Log important user actions to database
-    final importantActions = ['payment_initiated', 'vendor_selected', 'logout', 'profile_updated'];
+    final importantActions = [
+      'payment_initiated',
+      'vendor_selected',
+      'logout',
+      'profile_updated',
+    ];
     if (importantActions.contains(action)) {
       _logToDatabase(
         level: 'INFO',
@@ -225,27 +278,47 @@ class DebugService {
   }
 
   /// Log performance metrics
-  static void logPerformance(String operation, Duration duration, {Map<String, dynamic>? metrics}) {
+  static void logPerformance(
+    String operation,
+    Duration duration, {
+    Map<String, dynamic>? metrics,
+  }) {
     if (!_initialized) initialize();
-    _logger.i('⚡ PERFORMANCE: $operation took ${duration.inMilliseconds}ms ${metrics != null ? '- Metrics: $metrics' : ''}');
+    _logger.i(
+      '⚡ PERFORMANCE: $operation took ${duration.inMilliseconds}ms ${metrics != null ? '- Metrics: $metrics' : ''}',
+    );
   }
 
   /// Log network connectivity
   static void logNetwork(String status, {Map<String, dynamic>? details}) {
     if (!_initialized) initialize();
-    _logger.i('📶 NETWORK: $status ${details != null ? '- Details: $details' : ''}');
+    _logger.i(
+      '📶 NETWORK: $status ${details != null ? '- Details: $details' : ''}',
+    );
   }
 
   /// Log session events
-  static void logSession(String event, {String? userId, Map<String, dynamic>? sessionData}) {
+  static void logSession(
+    String event, {
+    String? userId,
+    Map<String, dynamic>? sessionData,
+  }) {
     if (!_initialized) initialize();
-    _logger.i('🎫 SESSION: $event${userId != null ? ' for user $userId' : ''} ${sessionData != null ? '- Data: $sessionData' : ''}');
+    _logger.i(
+      '🎫 SESSION: $event${userId != null ? ' for user $userId' : ''} ${sessionData != null ? '- Data: $sessionData' : ''}',
+    );
   }
 
   /// Log security events (PCC compliance - all security events logged to database)
-  static void logSecurity(String event, {Map<String, dynamic>? data, String? userId}) {
+  static void logSecurity(
+    String event, {
+    Map<String, dynamic>? data,
+    String? userId,
+  }) {
     if (!_initialized) initialize();
-    _logger.i('🔐 SECURITY: $event${userId != null ? ' for user $userId' : ''} ${data != null ? '- Data: $data' : ''}');
+    _logger.i(
+      '🔐 SECURITY: $event${userId != null ? ' for user $userId' : ''} ${data != null ? '- Data: $data' : ''}',
+    );
 
     // All security events are logged to database for PCC compliance
     _logToDatabase(
@@ -262,9 +335,15 @@ class DebugService {
   }
 
   /// Log security violations (critical - always logged to database)
-  static void logSecurityViolation(String violation, {Map<String, dynamic>? context, String? userId}) {
+  static void logSecurityViolation(
+    String violation, {
+    Map<String, dynamic>? context,
+    String? userId,
+  }) {
     if (!_initialized) initialize();
-    _logger.e('🚨 SECURITY VIOLATION: $violation${userId != null ? ' by user $userId' : ''} ${context != null ? '- Context: $context' : ''}');
+    _logger.e(
+      '🚨 SECURITY VIOLATION: $violation${userId != null ? ' by user $userId' : ''} ${context != null ? '- Context: $context' : ''}',
+    );
 
     // Critical security violations always logged to database
     _logToDatabase(
@@ -282,9 +361,15 @@ class DebugService {
   }
 
   /// Log audit trail for PCC compliance
-  static void logAuditTrail(String action, {required String userId, Map<String, dynamic>? details}) {
+  static void logAuditTrail(
+    String action, {
+    required String userId,
+    Map<String, dynamic>? details,
+  }) {
     if (!_initialized) initialize();
-    _logger.i('📋 AUDIT: $action by user $userId ${details != null ? '- Details: $details' : ''}');
+    _logger.i(
+      '📋 AUDIT: $action by user $userId ${details != null ? '- Details: $details' : ''}',
+    );
 
     // All audit events logged to database for compliance
     _logToDatabase(
@@ -302,9 +387,16 @@ class DebugService {
   }
 
   /// Log payment events (all payment events logged to database)
-  static void logPayment(String event, {String? transactionId, double? amount, dynamic error, int? performanceMs}) {
+  static void logPayment(
+    String event, {
+    String? transactionId,
+    double? amount,
+    dynamic error,
+    int? performanceMs,
+  }) {
     if (!_initialized) initialize();
-    final message = '💳 PAYMENT: $event${transactionId != null ? ' ($transactionId)' : ''}${amount != null ? ' - ₹$amount' : ''}';
+    final message =
+        '💳 PAYMENT: $event${transactionId != null ? ' ($transactionId)' : ''}${amount != null ? ' - ₹$amount' : ''}';
 
     if (error != null) {
       _logger.e(message, error: error);
@@ -341,9 +433,15 @@ class DebugService {
   }
 
   /// Log file operations
-  static void logFile(String operation, String path, {int? size, dynamic error}) {
+  static void logFile(
+    String operation,
+    String path, {
+    int? size,
+    dynamic error,
+  }) {
     if (!_initialized) initialize();
-    final message = '📁 FILE: $operation $path${size != null ? ' (${size}B)' : ''}';
+    final message =
+        '📁 FILE: $operation $path${size != null ? ' (${size}B)' : ''}';
     if (error != null) {
       _logger.e(message, error: error);
     } else {
@@ -352,10 +450,18 @@ class DebugService {
   }
 
   /// Log critical errors that need immediate attention with detailed analysis
-  static void logCritical(String message, dynamic error, [StackTrace? stackTrace]) {
+  static void logCritical(
+    String message,
+    dynamic error, [
+    StackTrace? stackTrace,
+  ]) {
     if (!_initialized) initialize();
     final errorDetails = _extractDetailedError(error);
-    _logger.f('🚨 CRITICAL: $message', error: errorDetails, stackTrace: stackTrace);
+    _logger.f(
+      '🚨 CRITICAL: $message',
+      error: errorDetails,
+      stackTrace: stackTrace,
+    );
   }
 
   /// Get formatted timestamp
@@ -373,7 +479,9 @@ class DebugService {
     // For database errors, extract the core issue
     if (errorStr.contains('Database error saving new user')) {
       // This is the key error - let's see if we can get more from the error object
-      if (error.runtimeType.toString().contains('AuthRetryableFetchException')) {
+      if (error.runtimeType.toString().contains(
+        'AuthRetryableFetchException',
+      )) {
         return 'DB_SAVE_FAILED: AuthRetryableFetchException - Check trigger function permissions';
       }
     }
@@ -387,7 +495,9 @@ class DebugService {
       }
     }
 
-    return errorStr.length > 100 ? '${errorStr.substring(0, 100)}...' : errorStr;
+    return errorStr.length > 100
+        ? '${errorStr.substring(0, 100)}...'
+        : errorStr;
   }
 
   /// Log to database for critical events (ERROR, WARN)
@@ -413,10 +523,12 @@ class DebugService {
         'operation': operation,
         'message': message,
         'context': context ?? {},
-        'error_details': error != null ? {
-          'error': _extractDetailedError(error),
-          'type': error.runtimeType.toString(),
-        } : <String, dynamic>{},
+        'error_details': error != null
+            ? {
+                'error': _extractDetailedError(error),
+                'type': error.runtimeType.toString(),
+              }
+            : <String, dynamic>{},
         'performance_ms': performanceMs,
         'device_info': {
           'platform': kIsWeb ? 'web' : Platform.operatingSystem,
@@ -446,9 +558,7 @@ class DebugService {
       final logsToFlush = List<Map<String, dynamic>>.from(_logBuffer);
       _logBuffer.clear();
 
-      await Supabase.instance.client
-          .from('logs')
-          .insert(logsToFlush);
+      await Supabase.instance.client.from('logs').insert(logsToFlush);
     } catch (e) {
       // Don't let logging errors crash the app
       _logger.e('Failed to flush log buffer: $e');

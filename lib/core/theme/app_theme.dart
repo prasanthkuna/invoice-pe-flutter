@@ -5,7 +5,9 @@ import 'package:flutter/services.dart';
 class AppTheme {
   // Color Palette (UX Specification)
   static const Color primaryBackground = Color(0xFF101213); // Deep Charcoal
-  static const Color cardBackground = Color(0xFF1A1D1E); // Slightly lighter Charcoal
+  static const Color cardBackground = Color(
+    0xFF1A1D1E,
+  ); // Slightly lighter Charcoal
   static const Color primaryAccent = Color(0xFF338DFF); // Electric Blue
   static const Color secondaryAccent = Color(0xFFAE8F61); // Brushed Gold
   static const Color primaryText = Color(0xFFF1F1F1); // Off-White
@@ -20,7 +22,7 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.dark,
       scaffoldBackgroundColor: primaryBackground,
-      
+
       // Color Scheme
       colorScheme: const ColorScheme.dark(
         primary: primaryAccent,
@@ -32,7 +34,7 @@ class AppTheme {
         onSurface: primaryText,
         onError: Colors.white,
       ),
-      
+
       // App Bar Theme
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
@@ -46,7 +48,7 @@ class AppTheme {
         ),
         iconTheme: IconThemeData(color: primaryText),
       ),
-      
+
       // Card Theme
       cardTheme: const CardThemeData(
         color: cardBackground,
@@ -55,7 +57,7 @@ class AppTheme {
           borderRadius: BorderRadius.all(Radius.circular(24)),
         ),
       ),
-      
+
       // Elevated Button Theme
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -73,7 +75,7 @@ class AppTheme {
           ),
         ),
       ),
-      
+
       // Text Button Theme
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
@@ -85,7 +87,7 @@ class AppTheme {
           ),
         ),
       ),
-      
+
       // Input Decoration Theme
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -115,7 +117,7 @@ class AppTheme {
           fontFamily: 'Inter',
         ),
       ),
-      
+
       // Text Theme
       textTheme: const TextTheme(
         displayLarge: TextStyle(
@@ -191,7 +193,7 @@ class AppTheme {
           fontFamily: 'Inter',
         ),
       ),
-      
+
       // Bottom Navigation Bar Theme
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: cardBackground,
@@ -202,7 +204,7 @@ class AppTheme {
       ),
     );
   }
-  
+
   // Light Theme (Secondary - for accessibility)
   static ThemeData get lightTheme {
     return ThemeData(

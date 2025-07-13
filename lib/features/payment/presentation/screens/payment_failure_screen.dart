@@ -4,12 +4,11 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 
 class PaymentFailureScreen extends StatelessWidget {
-  final Map<String, dynamic>? paymentData;
-
   const PaymentFailureScreen({
     super.key,
     this.paymentData,
   });
+  final Map<String, dynamic>? paymentData;
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +16,8 @@ class PaymentFailureScreen extends StatelessWidget {
     final amount = paymentData?['amount'] ?? 0.0;
     final vendorName = paymentData?['vendorName'] ?? 'Unknown Vendor';
     final transactionId = paymentData?['transactionId'] ?? 'Unknown';
-    final failureReason = paymentData?['failureReason'] ?? 'Payment could not be processed';
+    final failureReason =
+        paymentData?['failureReason'] ?? 'Payment could not be processed';
     final errorCode = paymentData?['errorCode'] ?? 'UNKNOWN_ERROR';
 
     return Scaffold(
@@ -66,20 +66,21 @@ class PaymentFailureScreen extends StatelessWidget {
 
                 // Failure Animation
                 Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    color: Colors.red.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(60),
-                  ),
-                  child: const Center(
-                    child: Icon(
-                      Icons.error_outline,
-                      size: 60,
-                      color: Colors.red,
-                    ),
-                  ),
-                ).animate()
+                      width: 120,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        color: Colors.red.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(60),
+                      ),
+                      child: const Center(
+                        child: Icon(
+                          Icons.error_outline,
+                          size: 60,
+                          color: Colors.red,
+                        ),
+                      ),
+                    )
+                    .animate()
                     .scale(delay: 200.ms, duration: 600.ms)
                     .then()
                     .shake(hz: 4, curve: Curves.easeInOut),
@@ -135,10 +136,11 @@ class PaymentFailureScreen extends StatelessWidget {
                           ),
                           Text(
                             '₹${amount.toStringAsFixed(2)}',
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              color: AppTheme.primaryText,
-                              fontWeight: FontWeight.w600,
-                            ),
+                            style: Theme.of(context).textTheme.titleLarge
+                                ?.copyWith(
+                                  color: AppTheme.primaryText,
+                                  fontWeight: FontWeight.w600,
+                                ),
                           ),
                         ],
                       ),
@@ -159,10 +161,11 @@ class PaymentFailureScreen extends StatelessWidget {
                           Flexible(
                             child: Text(
                               vendorName?.toString() ?? 'Unknown Vendor',
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                color: AppTheme.primaryText,
-                                fontWeight: FontWeight.w500,
-                              ),
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(
+                                    color: AppTheme.primaryText,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                               textAlign: TextAlign.right,
                             ),
                           ),
@@ -185,10 +188,11 @@ class PaymentFailureScreen extends StatelessWidget {
                           Flexible(
                             child: Text(
                               transactionId?.toString() ?? 'N/A',
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: AppTheme.primaryText,
-                                fontFamily: 'monospace',
-                              ),
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(
+                                    color: AppTheme.primaryText,
+                                    fontFamily: 'monospace',
+                                  ),
                               textAlign: TextAlign.right,
                             ),
                           ),
@@ -209,7 +213,10 @@ class PaymentFailureScreen extends StatelessWidget {
                             ),
                           ),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.red.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8),
@@ -244,11 +251,14 @@ class PaymentFailureScreen extends StatelessWidget {
                           // Navigate back to payment screen with same data
                           final vendorId = paymentData?['vendorId'];
                           final invoiceId = paymentData?['invoiceId'];
-                          
+
                           if (invoiceId != null) {
                             context.go('/payment/$invoiceId');
                           } else if (vendorId != null) {
-                            context.go('/payment', extra: {'vendorId': vendorId});
+                            context.go(
+                              '/payment',
+                              extra: {'vendorId': vendorId},
+                            );
                           } else {
                             context.go('/dashboard');
                           }
@@ -279,7 +289,11 @@ class PaymentFailureScreen extends StatelessWidget {
                       child: OutlinedButton(
                         onPressed: () {
                           // TODO: Implement contact support
-                          _showSupportDialog(context, transactionId?.toString() ?? 'N/A', errorCode?.toString() ?? 'UNKNOWN');
+                          _showSupportDialog(
+                            context,
+                            transactionId?.toString() ?? 'N/A',
+                            errorCode?.toString() ?? 'UNKNOWN',
+                          );
                         },
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppTheme.primaryAccent,
@@ -321,7 +335,11 @@ class PaymentFailureScreen extends StatelessWidget {
     );
   }
 
-  void _showSupportDialog(BuildContext context, String transactionId, String errorCode) {
+  void _showSupportDialog(
+    BuildContext context,
+    String transactionId,
+    String errorCode,
+  ) {
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(

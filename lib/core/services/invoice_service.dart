@@ -1,10 +1,9 @@
-
 import '../../shared/models/invoice.dart';
 import 'base_service.dart';
 
 class InvoiceService extends BaseService {
   static const String _tableName = 'invoices';
-  
+
   /// Get all invoices for the current user
   static Future<List<Invoice>> getInvoices() async {
     try {
@@ -19,12 +18,12 @@ class InvoiceService extends BaseService {
           .eq('user_id', BaseService.currentUserId!)
           .order('created_at', ascending: false);
 
-      return response.map((json) => _fromSupabaseJson(json)).toList();
+      return response.map(_fromSupabaseJson).toList();
     } catch (error) {
       throw BaseService.handleError(error);
     }
   }
-  
+
   /// Get a specific invoice by ID
   /// Returns non-nullable Invoice or throws exception if not found
   static Future<Invoice> getInvoice(String invoiceId) async {
@@ -81,7 +80,7 @@ class InvoiceService extends BaseService {
         description: description,
         invoiceNumber: invoiceNumber,
         status: status ?? InvoiceStatus.draft,
-        userId: BaseService.currentUserId!,
+        userId: BaseService.currentUserId,
       );
 
       final data = {
@@ -89,7 +88,9 @@ class InvoiceService extends BaseService {
         'vendor_id': vendorId,
         'vendor_name': vendorName,
         'amount': amount,
-        'due_date': invoice.dueDate.toIso8601String().split('T')[0], // Date only
+        'due_date': invoice.dueDate.toIso8601String().split(
+          'T',
+        )[0], // Date only
         'status': invoice.status.name,
         'description': invoice.description,
         'invoice_number': invoice.invoiceNumber,
@@ -131,7 +132,7 @@ class InvoiceService extends BaseService {
         vendorName: vendorName,
         amount: amount,
         description: description,
-        userId: BaseService.currentUserId!,
+        userId: BaseService.currentUserId,
       );
 
       final data = {
@@ -139,7 +140,9 @@ class InvoiceService extends BaseService {
         'vendor_id': vendorId,
         'vendor_name': vendorName,
         'amount': amount,
-        'due_date': invoice.dueDate.toIso8601String().split('T')[0], // Date only
+        'due_date': invoice.dueDate.toIso8601String().split(
+          'T',
+        )[0], // Date only
         'status': invoice.status.name,
         'description': invoice.description,
         'invoice_number': invoice.invoiceNumber,
@@ -156,7 +159,7 @@ class InvoiceService extends BaseService {
       throw BaseService.handleError(error);
     }
   }
-  
+
   /// Update an existing invoice
   static Future<Invoice> updateInvoice({
     required String invoiceId,
@@ -174,7 +177,9 @@ class InvoiceService extends BaseService {
       final data = <String, dynamic>{};
       if (vendorId != null) data['vendor_id'] = vendorId;
       if (amount != null) data['amount'] = amount;
-      if (dueDate != null) data['due_date'] = dueDate.toIso8601String().split('T')[0];
+      if (dueDate != null) {
+        data['due_date'] = dueDate.toIso8601String().split('T')[0];
+      }
       if (status != null) data['status'] = status.name;
       if (description != null) data['description'] = description;
       if (invoiceNumber != null) data['invoice_number'] = invoiceNumber;
@@ -196,7 +201,7 @@ class InvoiceService extends BaseService {
       throw BaseService.handleError(error);
     }
   }
-  
+
   /// Delete an invoice
   static Future<void> deleteInvoice(String invoiceId) async {
     try {
@@ -211,7 +216,7 @@ class InvoiceService extends BaseService {
       throw BaseService.handleError(error);
     }
   }
-  
+
   /// Get invoices by status
   static Future<List<Invoice>> getInvoicesByStatus(InvoiceStatus status) async {
     try {
@@ -227,18 +232,19 @@ class InvoiceService extends BaseService {
           .eq('status', status.name)
           .order('created_at', ascending: false);
 
-      return response.map((json) => _fromSupabaseJson(json)).toList();
+      return response.map(_fromSupabaseJson).toList();
     } catch (error) {
       throw BaseService.handleError(error);
     }
   }
-  
+
   /// Convert Supabase JSON to Invoice model with smart defaults
   static Invoice _fromSupabaseJson(Map<String, dynamic> json) {
     // Extract vendor name from nested vendor object or direct field
-    final vendorName = json['vendor_name'] as String? ??
-                      (json['vendors'] != null ? json['vendors']['name'] as String? : null) ??
-                      'Unknown Vendor';
+    final vendorName =
+        json['vendor_name'] as String? ??
+        (json['vendors'] != null ? json['vendors']['name'] as String? : null) ??
+        'Unknown Vendor';
 
     return Invoice(
       id: json['id'] as String,
@@ -252,19 +258,28 @@ class InvoiceService extends BaseService {
         orElse: () => InvoiceStatus.pending,
       ),
       description: json['description'] as String? ?? 'Payment to $vendorName',
-      invoiceNumber: json['invoice_number'] as String? ?? 'INV-${json['id']?.toString().substring(0, 8) ?? 'UNKNOWN'}',
+      invoiceNumber:
+          json['invoice_number'] as String? ??
+          'INV-${json['id']?.toString().substring(0, 8) ?? 'UNKNOWN'}',
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String)
           : DateTime.now(),
       pdfUrl: json['pdf_url'] as String?,
-      paidAt: json['paid_at'] != null ? DateTime.parse(json['paid_at'] as String) : null,
+      paidAt: json['paid_at'] != null
+          ? DateTime.parse(json['paid_at'] as String)
+          : null,
       transactionId: json['transaction_id'] as String?,
-      updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at'] as String) : null,
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'] as String)
+          : null,
     );
   }
 
   /// Update invoice status
-  static Future<void> updateInvoiceStatus(String invoiceId, InvoiceStatus status) async {
+  static Future<void> updateInvoiceStatus(
+    String invoiceId,
+    InvoiceStatus status,
+  ) async {
     try {
       BaseService.ensureAuthenticated();
 

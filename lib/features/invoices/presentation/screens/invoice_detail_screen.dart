@@ -8,12 +8,11 @@ import '../../../../core/providers/data_providers.dart';
 import '../../../../core/services/invoice_service.dart';
 
 class InvoiceDetailScreen extends ConsumerWidget {
-  final String invoiceId;
-
   const InvoiceDetailScreen({
-    super.key,
     required this.invoiceId,
+    super.key,
   });
+  final String invoiceId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -109,10 +108,11 @@ class InvoiceDetailScreen extends ConsumerWidget {
                           children: [
                             Text(
                               'Invoice #${invoice.invoiceNumber}',
-                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                color: AppTheme.primaryText,
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: Theme.of(context).textTheme.headlineSmall
+                                  ?.copyWith(
+                                    color: AppTheme.primaryText,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                             ),
                             const SizedBox(height: 8),
                             Text(
@@ -124,7 +124,10 @@ class InvoiceDetailScreen extends ConsumerWidget {
                           ],
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
                           decoration: BoxDecoration(
                             color: _getStatusColor(invoice.status),
                             borderRadius: BorderRadius.circular(20),
@@ -156,10 +159,13 @@ class InvoiceDetailScreen extends ConsumerWidget {
                               const SizedBox(height: 4),
                               Text(
                                 '₹${invoice.amount.toStringAsFixed(2)}',
-                                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                  color: AppTheme.primaryAccent,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineMedium
+                                    ?.copyWith(
+                                      color: AppTheme.primaryAccent,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                               ),
                             ],
                           ),
@@ -178,12 +184,15 @@ class InvoiceDetailScreen extends ConsumerWidget {
                               const SizedBox(height: 4),
                               Text(
                                 _formatDate(invoice.dueDate),
-                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                  color: invoice.status == InvoiceStatus.overdue
-                                      ? Colors.red 
-                                      : AppTheme.primaryText,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                                style: Theme.of(context).textTheme.titleLarge
+                                    ?.copyWith(
+                                      color:
+                                          invoice.status ==
+                                              InvoiceStatus.overdue
+                                          ? Colors.red
+                                          : AppTheme.primaryText,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                               ),
                             ],
                           ),
@@ -224,7 +233,9 @@ class InvoiceDetailScreen extends ConsumerWidget {
                           width: 48,
                           height: 48,
                           decoration: BoxDecoration(
-                            color: AppTheme.primaryAccent.withValues(alpha: 0.1),
+                            color: AppTheme.primaryAccent.withValues(
+                              alpha: 0.1,
+                            ),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Center(
@@ -245,10 +256,11 @@ class InvoiceDetailScreen extends ConsumerWidget {
                             children: [
                               Text(
                                 invoice.vendorName,
-                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                  color: AppTheme.primaryText,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                                style: Theme.of(context).textTheme.titleLarge
+                                    ?.copyWith(
+                                      color: AppTheme.primaryText,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                               ),
                               const SizedBox(height: 4),
                               Text(
@@ -434,12 +446,12 @@ void _showCancelDialog(BuildContext context, WidgetRef ref, Invoice invoice) {
                 invoice.id,
                 InvoiceStatus.cancelled,
               );
-              
+
               if (!context.mounted) return;
-              
+
               Navigator.pop(context);
               ref.invalidate(invoiceProvider(invoice.id));
-              
+
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Invoice cancelled successfully'),
@@ -448,7 +460,7 @@ void _showCancelDialog(BuildContext context, WidgetRef ref, Invoice invoice) {
               );
             } catch (error) {
               if (!context.mounted) return;
-              
+
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text('Failed to cancel invoice: $error'),

@@ -5,16 +5,17 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/constants/app_constants.dart';
 
 class PaymentSuccessScreen extends StatelessWidget {
-  final Map<String, dynamic>? paymentData;
-
   const PaymentSuccessScreen({super.key, this.paymentData});
+  final Map<String, dynamic>? paymentData;
 
   @override
   Widget build(BuildContext context) {
     // Extract payment data or use defaults
     final amount = paymentData?['amount'] ?? 50250.0;
     final vendorName = paymentData?['vendorName'] ?? 'Tech Solutions Pvt Ltd';
-    final rewards = paymentData?['rewards'] ?? (amount * AppConstants.defaultRewardsPercentage / 100);
+    final rewards =
+        paymentData?['rewards'] ??
+        (amount * AppConstants.defaultRewardsPercentage / 100);
     final transactionId = paymentData?['transactionId'] ?? 'TXN123456789';
     final paymentMethod = paymentData?['paymentMethod'] ?? 'HDFC **** 1234';
     return Scaffold(
@@ -35,34 +36,39 @@ class PaymentSuccessScreen extends StatelessWidget {
             child: Column(
               children: [
                 const Spacer(flex: 2),
-                
+
                 // Success Animation
                 Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    color: AppTheme.successColor,
-                    borderRadius: BorderRadius.circular(60),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppTheme.successColor.withValues(alpha: 0.3),
-                        blurRadius: 30,
-                        spreadRadius: 10,
+                      width: 120,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        color: AppTheme.successColor,
+                        borderRadius: BorderRadius.circular(60),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.successColor.withValues(alpha: 0.3),
+                            blurRadius: 30,
+                            spreadRadius: 10,
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.check,
-                    size: 60,
-                    color: Colors.white,
-                  ),
-                ).animate()
-                    .scale(delay: 300.ms, duration: 600.ms, curve: Curves.elasticOut)
+                      child: const Icon(
+                        Icons.check,
+                        size: 60,
+                        color: Colors.white,
+                      ),
+                    )
+                    .animate()
+                    .scale(
+                      delay: 300.ms,
+                      duration: 600.ms,
+                      curve: Curves.elasticOut,
+                    )
                     .then()
                     .shake(duration: 200.ms),
-                
+
                 const SizedBox(height: 40),
-                
+
                 // Success Title
                 Text(
                   'Payment Successful!',
@@ -72,9 +78,9 @@ class PaymentSuccessScreen extends StatelessWidget {
                   ),
                   textAlign: TextAlign.center,
                 ).animate().fadeIn(delay: 900.ms).slideY(begin: 0.3),
-                
+
                 const SizedBox(height: 16),
-                
+
                 // Payment Details
                 Container(
                   width: double.infinity,
@@ -88,10 +94,11 @@ class PaymentSuccessScreen extends StatelessWidget {
                       // Amount
                       Text(
                         '₹${amount.toStringAsFixed(2)}',
-                        style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                          color: AppTheme.primaryText,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: Theme.of(context).textTheme.displayLarge
+                            ?.copyWith(
+                              color: AppTheme.primaryText,
+                              fontWeight: FontWeight.bold,
+                            ),
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -100,16 +107,19 @@ class PaymentSuccessScreen extends StatelessWidget {
                           color: AppTheme.secondaryText,
                         ),
                       ),
-                      
+
                       const SizedBox(height: 24),
-                      
+
                       // Rewards Earned
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
-                            colors: [AppTheme.secondaryAccent, Color(0xFFD4AF37)],
+                            colors: [
+                              AppTheme.secondaryAccent,
+                              Color(0xFFD4AF37),
+                            ],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
@@ -146,25 +156,27 @@ class PaymentSuccessScreen extends StatelessWidget {
                           ],
                         ),
                       ).animate().fadeIn(delay: 1200.ms).scale(),
-                      
+
                       const SizedBox(height: 24),
-                      
+
                       // Transaction Details
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             'Transaction ID',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: AppTheme.secondaryText,
-                            ),
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(
+                                  color: AppTheme.secondaryText,
+                                ),
                           ),
                           Text(
                             transactionId?.toString() ?? 'N/A',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: AppTheme.primaryText,
-                              fontWeight: FontWeight.w500,
-                            ),
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(
+                                  color: AppTheme.primaryText,
+                                  fontWeight: FontWeight.w500,
+                                ),
                           ),
                         ],
                       ),
@@ -174,16 +186,18 @@ class PaymentSuccessScreen extends StatelessWidget {
                         children: [
                           Text(
                             'Payment Method',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: AppTheme.secondaryText,
-                            ),
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(
+                                  color: AppTheme.secondaryText,
+                                ),
                           ),
                           Text(
                             paymentMethod?.toString() ?? 'PhonePe',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: AppTheme.primaryText,
-                              fontWeight: FontWeight.w500,
-                            ),
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(
+                                  color: AppTheme.primaryText,
+                                  fontWeight: FontWeight.w500,
+                                ),
                           ),
                         ],
                       ),
@@ -193,25 +207,27 @@ class PaymentSuccessScreen extends StatelessWidget {
                         children: [
                           Text(
                             'Date & Time',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: AppTheme.secondaryText,
-                            ),
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(
+                                  color: AppTheme.secondaryText,
+                                ),
                           ),
                           Text(
                             '${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year} ${DateTime.now().hour}:${DateTime.now().minute.toString().padLeft(2, '0')}',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: AppTheme.primaryText,
-                              fontWeight: FontWeight.w500,
-                            ),
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(
+                                  color: AppTheme.primaryText,
+                                  fontWeight: FontWeight.w500,
+                                ),
                           ),
                         ],
                       ),
                     ],
                   ),
                 ).animate().fadeIn(delay: 1000.ms).slideY(begin: 0.3),
-                
+
                 const Spacer(flex: 3),
-                
+
                 // Action Buttons
                 Column(
                   children: [
@@ -236,9 +252,9 @@ class PaymentSuccessScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    
+
                     const SizedBox(height: 16),
-                    
+
                     SizedBox(
                       width: double.infinity,
                       height: 56,
@@ -249,7 +265,9 @@ class PaymentSuccessScreen extends StatelessWidget {
                         style: TextButton.styleFrom(
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
-                            side: const BorderSide(color: AppTheme.primaryAccent),
+                            side: const BorderSide(
+                              color: AppTheme.primaryAccent,
+                            ),
                           ),
                         ),
                         child: const Text(
@@ -264,7 +282,7 @@ class PaymentSuccessScreen extends StatelessWidget {
                     ),
                   ],
                 ).animate().fadeIn(delay: 1400.ms).slideY(begin: 0.5),
-                
+
                 const Spacer(),
               ],
             ),

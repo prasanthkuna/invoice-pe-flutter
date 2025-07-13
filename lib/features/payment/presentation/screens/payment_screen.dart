@@ -7,6 +7,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/providers/data_providers.dart';
 import '../../../../core/services/payment_service.dart';
+import '../../../../core/types/payment_types.dart' as payment_types;
 import '../../../../shared/models/vendor.dart';
 import '../../../../shared/models/invoice.dart';
 
@@ -14,20 +15,23 @@ final paymentAmountProvider = StateProvider<double>((ref) => 0.0);
 final selectedCardProvider = StateProvider<int>((ref) => 0);
 
 class PaymentScreen extends ConsumerWidget {
-  final String? vendorId;
-  final String? invoiceId;
-
   const PaymentScreen({
     super.key,
     this.vendorId,
     this.invoiceId,
   });
+  final String? vendorId;
+  final String? invoiceId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Watch for invoice or vendor data
-    final invoiceAsync = invoiceId != null ? ref.watch(invoiceProvider(invoiceId!)) : null;
-    final vendorAsync = vendorId != null ? ref.watch(vendorProvider(vendorId!)) : null;
+    final invoiceAsync = invoiceId != null
+        ? ref.watch(invoiceProvider(invoiceId!))
+        : null;
+    final vendorAsync = vendorId != null
+        ? ref.watch(vendorProvider(vendorId!))
+        : null;
 
     final amount = ref.watch(paymentAmountProvider);
     final fee = amount * AppConstants.defaultFeePercentage / 100;
@@ -111,17 +115,19 @@ class PaymentScreen extends ConsumerWidget {
                       children: [
                         Text(
                           _getVendorName(invoice, vendor),
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: AppTheme.primaryText,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(
+                                color: AppTheme.primaryText,
+                                fontWeight: FontWeight.w600,
+                              ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           _getVendorDetails(invoice, vendor),
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppTheme.secondaryText,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: AppTheme.secondaryText,
+                              ),
                         ),
                       ],
                     ),
@@ -129,9 +135,9 @@ class PaymentScreen extends ConsumerWidget {
                 ],
               ),
             ).animate().fadeIn(delay: 200.ms).slideY(begin: -0.3),
-            
+
             const SizedBox(height: 32),
-            
+
             // Amount Input
             Text(
               'Enter Amount',
@@ -140,9 +146,9 @@ class PaymentScreen extends ConsumerWidget {
                 fontWeight: FontWeight.bold,
               ),
             ).animate().fadeIn(delay: 400.ms),
-            
+
             const SizedBox(height: 16),
-            
+
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
@@ -166,11 +172,16 @@ class PaymentScreen extends ConsumerWidget {
                         child: TextField(
                           onChanged: (value) {
                             final parsedAmount = double.tryParse(value) ?? 0.0;
-                            ref.read(paymentAmountProvider.notifier).state = parsedAmount;
+                            ref.read(paymentAmountProvider.notifier).state =
+                                parsedAmount;
                           },
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
                           inputFormatters: [
-                            FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                            FilteringTextInputFormatter.allow(
+                              RegExp(r'^\d+\.?\d{0,2}'),
+                            ),
                           ],
                           style: const TextStyle(
                             fontSize: 32,
@@ -190,27 +201,29 @@ class PaymentScreen extends ConsumerWidget {
                       ),
                     ],
                   ),
-                  
+
                   if (amount > 0) ...[
                     const SizedBox(height: 24),
                     const Divider(color: AppTheme.secondaryText),
                     const SizedBox(height: 16),
-                    
+
                     // Fee Breakdown
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           'Amount',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppTheme.secondaryText,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: AppTheme.secondaryText,
+                              ),
                         ),
                         Text(
                           '₹${amount.toStringAsFixed(2)}',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppTheme.primaryText,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: AppTheme.primaryText,
+                              ),
                         ),
                       ],
                     ),
@@ -220,15 +233,17 @@ class PaymentScreen extends ConsumerWidget {
                       children: [
                         Text(
                           'Processing Fee (${AppConstants.defaultFeePercentage}%)',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppTheme.secondaryText,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: AppTheme.secondaryText,
+                              ),
                         ),
                         Text(
                           '₹${fee.toStringAsFixed(2)}',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppTheme.primaryText,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: AppTheme.primaryText,
+                              ),
                         ),
                       ],
                     ),
@@ -238,16 +253,18 @@ class PaymentScreen extends ConsumerWidget {
                       children: [
                         Text(
                           'Rewards Earned',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppTheme.secondaryAccent,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: AppTheme.secondaryAccent,
+                              ),
                         ),
                         Text(
                           '+₹${rewards.toStringAsFixed(2)}',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppTheme.secondaryAccent,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: AppTheme.secondaryAccent,
+                                fontWeight: FontWeight.bold,
+                              ),
                         ),
                       ],
                     ),
@@ -259,17 +276,19 @@ class PaymentScreen extends ConsumerWidget {
                       children: [
                         Text(
                           'Total',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: AppTheme.primaryText,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(
+                                color: AppTheme.primaryText,
+                                fontWeight: FontWeight.bold,
+                              ),
                         ),
                         Text(
                           '₹${total.toStringAsFixed(2)}',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: AppTheme.primaryText,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(
+                                color: AppTheme.primaryText,
+                                fontWeight: FontWeight.bold,
+                              ),
                         ),
                       ],
                     ),
@@ -277,10 +296,10 @@ class PaymentScreen extends ConsumerWidget {
                 ],
               ),
             ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.3),
-            
+
             if (amount > 0) ...[
               const SizedBox(height: 32),
-              
+
               // Payment Method
               Text(
                 'Payment Method',
@@ -289,9 +308,9 @@ class PaymentScreen extends ConsumerWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ).animate().fadeIn(delay: 800.ms),
-              
+
               const SizedBox(height: 16),
-              
+
               // Credit Card Selection
               SizedBox(
                 height: 200,
@@ -306,9 +325,15 @@ class PaymentScreen extends ConsumerWidget {
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: index == 0 
-                              ? [AppTheme.primaryAccent, const Color(0xFF1E3A8A)]
-                              : [AppTheme.secondaryAccent, const Color(0xFF92400E)],
+                          colors: index == 0
+                              ? [
+                                  AppTheme.primaryAccent,
+                                  const Color(0xFF1E3A8A),
+                                ]
+                              : [
+                                  AppTheme.secondaryAccent,
+                                  const Color(0xFF92400E),
+                                ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -376,20 +401,27 @@ class PaymentScreen extends ConsumerWidget {
                   },
                 ),
               ).animate().fadeIn(delay: 1000.ms).slideX(begin: 0.3),
-              
+
               const SizedBox(height: 32),
-              
+
               // Pay Button
               SizedBox(
                 width: double.infinity,
                 height: 56,
                 child: ElevatedButton(
                   onPressed: amount >= AppConstants.minPaymentAmount
-                      ? () => _processPayment(context, ref, amount, fee, rewards, total)
+                      ? () => _processPayment(
+                          context,
+                          ref,
+                          amount,
+                          fee,
+                          rewards,
+                          total,
+                        )
                       : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: amount >= AppConstants.minPaymentAmount 
-                        ? AppTheme.primaryAccent 
+                    backgroundColor: amount >= AppConstants.minPaymentAmount
+                        ? AppTheme.primaryAccent
                         : AppTheme.cardBackground,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
@@ -400,8 +432,8 @@ class PaymentScreen extends ConsumerWidget {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
-                      color: amount >= AppConstants.minPaymentAmount 
-                          ? Colors.white 
+                      color: amount >= AppConstants.minPaymentAmount
+                          ? Colors.white
                           : AppTheme.secondaryText,
                     ),
                   ),
@@ -414,9 +446,20 @@ class PaymentScreen extends ConsumerWidget {
     );
   }
 
-  void _processPayment(BuildContext context, WidgetRef ref, double amount, double fee, double rewards, double total) async {
-    final invoice = invoiceId != null ? ref.read(invoiceProvider(invoiceId!)).value : null;
-    final vendor = vendorId != null ? ref.read(vendorProvider(vendorId!)).value : null;
+  void _processPayment(
+    BuildContext context,
+    WidgetRef ref,
+    double amount,
+    double fee,
+    double rewards,
+    double total,
+  ) async {
+    final invoice = invoiceId != null
+        ? ref.read(invoiceProvider(invoiceId!)).value
+        : null;
+    final vendor = vendorId != null
+        ? ref.read(vendorProvider(vendorId!)).value
+        : null;
 
     // Show loading dialog
     showDialog<void>(

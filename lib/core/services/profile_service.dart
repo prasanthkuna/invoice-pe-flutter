@@ -1,10 +1,9 @@
-
 import '../../shared/models/user_profile.dart';
 import 'base_service.dart';
 
 class ProfileService extends BaseService {
   static const String _tableName = 'profiles';
-  
+
   /// Get the current user's profile
   static Future<UserProfile?> getCurrentProfile() async {
     try {
@@ -21,7 +20,7 @@ class ProfileService extends BaseService {
       throw BaseService.handleError(error);
     }
   }
-  
+
   /// Create a new profile (manual creation, no triggers)
   static Future<UserProfile> createProfile({
     required String phone,
@@ -51,7 +50,7 @@ class ProfileService extends BaseService {
       throw BaseService.handleError(error);
     }
   }
-  
+
   /// Update the current user's profile
   static Future<UserProfile> updateProfile({
     String? businessName,
@@ -84,7 +83,7 @@ class ProfileService extends BaseService {
       throw BaseService.handleError(error);
     }
   }
-  
+
   /// Get dashboard metrics for the current user
   static Future<Map<String, dynamic>> getDashboardMetrics() async {
     try {
@@ -96,16 +95,17 @@ class ProfileService extends BaseService {
           .select('amount, fee, rewards_earned, status')
           .eq('user_id', BaseService.currentUserId!);
 
-      double totalPayments = 0.0;
-      double totalRewards = 0.0;
-      double totalFees = 0.0;
-      int successfulTransactions = 0;
+      var totalPayments = 0.0;
+      var totalRewards = 0.0;
+      var totalFees = 0.0;
+      var successfulTransactions = 0;
 
       for (final transaction in transactionsResponse) {
         if (transaction['status'] == 'completed') {
           totalPayments += (transaction['amount'] as num).toDouble();
           totalFees += (transaction['fee'] as num).toDouble();
-          totalRewards += (transaction['rewards_earned'] as num?)?.toDouble() ?? 0.0;
+          totalRewards +=
+              (transaction['rewards_earned'] as num?)?.toDouble() ?? 0.0;
           successfulTransactions++;
         }
       }
@@ -135,7 +135,7 @@ class ProfileService extends BaseService {
       throw BaseService.handleError(error);
     }
   }
-  
+
   /// Convert Supabase JSON to UserProfile model
   static UserProfile _fromSupabaseJson(Map<String, dynamic> json) {
     return UserProfile(
@@ -148,8 +148,12 @@ class ProfileService extends BaseService {
       totalRewards: (json['total_rewards'] as num?)?.toDouble() ?? 0.0,
       totalPayments: (json['total_payments'] as num?)?.toDouble() ?? 0.0,
       totalTransactions: json['total_transactions'] as int? ?? 0,
-      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at'] as String) : null,
-      updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at'] as String) : null,
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : null,
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'] as String)
+          : null,
     );
   }
 }

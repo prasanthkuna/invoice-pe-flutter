@@ -9,9 +9,8 @@ import '../../../../core/services/vendor_service.dart';
 import '../../../../shared/models/vendor.dart';
 
 class VendorEditScreen extends ConsumerStatefulWidget {
+  const VendorEditScreen({required this.vendorId, super.key});
   final String vendorId;
-  
-  const VendorEditScreen({super.key, required this.vendorId});
 
   @override
   ConsumerState<VendorEditScreen> createState() => _VendorEditScreenState();
@@ -25,7 +24,7 @@ class _VendorEditScreenState extends ConsumerState<VendorEditScreen> {
   final _upiIdController = TextEditingController();
   final _accountNumberController = TextEditingController();
   final _ifscCodeController = TextEditingController();
-  
+
   bool _isLoading = false;
   bool _useUpi = true;
   Vendor? _vendor;
@@ -46,7 +45,7 @@ class _VendorEditScreenState extends ConsumerState<VendorEditScreen> {
     _nameController.text = vendor.name;
     _phoneController.text = vendor.phone ?? '';
     _emailController.text = vendor.email ?? '';
-    
+
     if (vendor.upiId != null) {
       _useUpi = true;
       _upiIdController.text = vendor.upiId!;
@@ -73,7 +72,7 @@ class _VendorEditScreenState extends ConsumerState<VendorEditScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.delete, color: AppTheme.errorColor),
-            onPressed: () => _showDeleteDialog(),
+            onPressed: _showDeleteDialog,
           ),
         ],
       ),
@@ -142,18 +141,18 @@ class _VendorEditScreenState extends ConsumerState<VendorEditScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ).animate().fadeIn(delay: 200.ms).slideY(begin: -0.3),
-                  
+
                   const SizedBox(height: 8),
-                  
+
                   Text(
                     'Update vendor details',
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       color: AppTheme.secondaryText,
                     ),
                   ).animate().fadeIn(delay: 400.ms),
-                  
+
                   const SizedBox(height: 32),
-                  
+
                   // Basic Information
                   Text(
                     'Basic Information',
@@ -162,9 +161,9 @@ class _VendorEditScreenState extends ConsumerState<VendorEditScreen> {
                       fontWeight: FontWeight.w600,
                     ),
                   ).animate().fadeIn(delay: 600.ms),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // Name Field
                   _buildTextField(
                     controller: _nameController,
@@ -181,9 +180,9 @@ class _VendorEditScreenState extends ConsumerState<VendorEditScreen> {
                       return null;
                     },
                   ).animate().fadeIn(delay: 800.ms).slideY(begin: 0.3),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // Phone Field
                   _buildTextField(
                     controller: _phoneController,
@@ -205,9 +204,9 @@ class _VendorEditScreenState extends ConsumerState<VendorEditScreen> {
                       return null;
                     },
                   ).animate().fadeIn(delay: 1000.ms).slideY(begin: 0.3),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // Email Field
                   _buildTextField(
                     controller: _emailController,
@@ -217,16 +216,18 @@ class _VendorEditScreenState extends ConsumerState<VendorEditScreen> {
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
                       if (value != null && value.trim().isNotEmpty) {
-                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value.trim())) {
+                        if (!RegExp(
+                          r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                        ).hasMatch(value.trim())) {
                           return 'Enter a valid email address';
                         }
                       }
                       return null;
                     },
                   ).animate().fadeIn(delay: 1200.ms).slideY(begin: 0.3),
-                  
+
                   const SizedBox(height: 32),
-                  
+
                   // Payment Method
                   Text(
                     'Payment Method',
@@ -235,9 +236,9 @@ class _VendorEditScreenState extends ConsumerState<VendorEditScreen> {
                       fontWeight: FontWeight.w600,
                     ),
                   ).animate().fadeIn(delay: 1400.ms),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // Payment Method Toggle
                   Container(
                     decoration: BoxDecoration(
@@ -252,14 +253,18 @@ class _VendorEditScreenState extends ConsumerState<VendorEditScreen> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               decoration: BoxDecoration(
-                                color: _useUpi ? AppTheme.primaryAccent : Colors.transparent,
+                                color: _useUpi
+                                    ? AppTheme.primaryAccent
+                                    : Colors.transparent,
                                 borderRadius: BorderRadius.circular(16),
                               ),
                               child: Text(
                                 'UPI ID',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  color: _useUpi ? Colors.white : AppTheme.secondaryText,
+                                  color: _useUpi
+                                      ? Colors.white
+                                      : AppTheme.secondaryText,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -272,14 +277,18 @@ class _VendorEditScreenState extends ConsumerState<VendorEditScreen> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               decoration: BoxDecoration(
-                                color: !_useUpi ? AppTheme.primaryAccent : Colors.transparent,
+                                color: !_useUpi
+                                    ? AppTheme.primaryAccent
+                                    : Colors.transparent,
                                 borderRadius: BorderRadius.circular(16),
                               ),
                               child: Text(
                                 'Bank Account',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  color: !_useUpi ? Colors.white : AppTheme.secondaryText,
+                                  color: !_useUpi
+                                      ? Colors.white
+                                      : AppTheme.secondaryText,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -289,9 +298,9 @@ class _VendorEditScreenState extends ConsumerState<VendorEditScreen> {
                       ],
                     ),
                   ).animate().fadeIn(delay: 1600.ms).slideY(begin: 0.3),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // Payment Details
                   if (_useUpi) ...[
                     _buildTextField(
@@ -326,9 +335,9 @@ class _VendorEditScreenState extends ConsumerState<VendorEditScreen> {
                         return null;
                       },
                     ).animate().fadeIn(delay: 1800.ms).slideY(begin: 0.3),
-                    
+
                     const SizedBox(height: 16),
-                    
+
                     _buildTextField(
                       controller: _ifscCodeController,
                       label: 'IFSC Code',
@@ -346,9 +355,9 @@ class _VendorEditScreenState extends ConsumerState<VendorEditScreen> {
                       },
                     ).animate().fadeIn(delay: 2000.ms).slideY(begin: 0.3),
                   ],
-                  
+
                   const SizedBox(height: 32),
-                  
+
                   // Update Button
                   SizedBox(
                     width: double.infinity,
@@ -363,7 +372,9 @@ class _VendorEditScreenState extends ConsumerState<VendorEditScreen> {
                       ),
                       child: _isLoading
                           ? const CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
                             )
                           : const Text(
                               'Update Vendor',
@@ -458,9 +469,13 @@ class _VendorEditScreenState extends ConsumerState<VendorEditScreen> {
         vendorId: widget.vendorId,
         name: _nameController.text.trim(),
         phone: _phoneController.text.trim(),
-        email: _emailController.text.trim().isEmpty ? null : _emailController.text.trim(),
+        email: _emailController.text.trim().isEmpty
+            ? null
+            : _emailController.text.trim(),
         upiId: _useUpi ? _upiIdController.text.trim() : null,
-        accountNumber: _useUpi ? 'UPI_ACCOUNT' : _accountNumberController.text.trim(),
+        accountNumber: _useUpi
+            ? 'UPI_ACCOUNT'
+            : _accountNumberController.text.trim(),
         ifscCode: _useUpi ? 'UPI_IFSC' : _ifscCodeController.text.trim(),
       );
 

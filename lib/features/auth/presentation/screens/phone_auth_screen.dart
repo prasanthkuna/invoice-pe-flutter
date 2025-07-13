@@ -37,7 +37,7 @@ class PhoneAuthScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 60),
-              
+
               // Logo and Title
               const Text(
                 'InvoicePe',
@@ -55,9 +55,9 @@ class PhoneAuthScreen extends ConsumerWidget {
                   color: Color(0xFF888888),
                 ),
               ),
-              
+
               const SizedBox(height: 80),
-              
+
               // Welcome Text
               Text(
                 showOtpField ? 'Verify OTP' : 'Welcome Back',
@@ -69,7 +69,7 @@ class PhoneAuthScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                showOtpField 
+                showOtpField
                     ? 'Enter the 6-digit code sent to your phone'
                     : 'Enter your phone number to continue',
                 style: const TextStyle(
@@ -77,9 +77,9 @@ class PhoneAuthScreen extends ConsumerWidget {
                   color: Color(0xFF888888),
                 ),
               ),
-              
+
               const SizedBox(height: 40),
-              
+
               // Phone Number Field
               if (!showOtpField) ...[
                 TextField(
@@ -104,7 +104,7 @@ class PhoneAuthScreen extends ConsumerWidget {
                   ),
                 ),
               ],
-              
+
               // OTP Field
               if (showOtpField) ...[
                 TextField(
@@ -137,9 +137,9 @@ class PhoneAuthScreen extends ConsumerWidget {
                   ),
                 ),
               ],
-              
+
               const SizedBox(height: 24),
-              
+
               // Error Message
               if (errorMessage != null) ...[
                 Container(
@@ -147,7 +147,9 @@ class PhoneAuthScreen extends ConsumerWidget {
                   decoration: BoxDecoration(
                     color: Colors.red.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
+                    border: Border.all(
+                      color: Colors.red.withValues(alpha: 0.3),
+                    ),
                   ),
                   child: Text(
                     errorMessage,
@@ -156,13 +158,15 @@ class PhoneAuthScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 24),
               ],
-              
+
               // Continue Button
               SizedBox(
                 width: double.infinity,
                 height: 56,
                 child: ElevatedButton(
-                  onPressed: isLoading ? null : () => _handleContinue(context, ref),
+                  onPressed: isLoading
+                      ? null
+                      : () => _handleContinue(context, ref),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF00D4FF),
                     foregroundColor: Colors.black,
@@ -177,7 +181,9 @@ class PhoneAuthScreen extends ConsumerWidget {
                           width: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.black,
+                            ),
                           ),
                         )
                       : Text(
@@ -189,9 +195,9 @@ class PhoneAuthScreen extends ConsumerWidget {
                         ),
                 ),
               ),
-              
+
               const Spacer(),
-              
+
               // Terms and Privacy
               const Text(
                 'By continuing, you agree to our Terms of Service and Privacy Policy',
@@ -212,10 +218,10 @@ class PhoneAuthScreen extends ConsumerWidget {
     final phoneController = ref.read(phoneControllerProvider);
     final otpController = ref.read(otpControllerProvider);
     final showOtpField = ref.read(showOtpFieldProvider);
-    
+
     ref.read(isLoadingProvider.notifier).state = true;
     ref.read(errorMessageProvider.notifier).state = null;
-    
+
     try {
       if (!showOtpField) {
         // Send OTP
@@ -223,7 +229,7 @@ class PhoneAuthScreen extends ConsumerWidget {
         if (phone.length < 13) {
           throw Exception('Please enter a valid phone number');
         }
-        
+
         final otpResult = await AuthService.sendOtpSmart(phone);
 
         switch (otpResult) {
@@ -233,10 +239,10 @@ class PhoneAuthScreen extends ConsumerWidget {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(message),
-              backgroundColor: const Color(0xFF00D4FF),
-            ),
-          );
-        }
+                  backgroundColor: const Color(0xFF00D4FF),
+                ),
+              );
+            }
           case app_auth.OtpFailed(error: final error):
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -251,11 +257,11 @@ class PhoneAuthScreen extends ConsumerWidget {
         // Verify OTP
         final phone = '+91${phoneController.text.trim()}';
         final otp = otpController.text.trim();
-        
+
         if (otp.length != 6) {
           throw Exception('Please enter a valid 6-digit OTP');
         }
-        
+
         final result = await AuthService.verifyOtp(phone: phone, otp: otp);
 
         switch (result) {
@@ -273,7 +279,7 @@ class PhoneAuthScreen extends ConsumerWidget {
       ref.read(isLoadingProvider.notifier).state = false;
     }
   }
-  
+
   Future<void> _resendOtp(BuildContext context, WidgetRef ref) async {
     final phoneController = ref.read(phoneControllerProvider);
     final phone = '+91${phoneController.text.trim()}';
@@ -291,7 +297,8 @@ class PhoneAuthScreen extends ConsumerWidget {
         );
       }
     } catch (error) {
-      ref.read(errorMessageProvider.notifier).state = 'Failed to resend OTP: $error';
+      ref.read(errorMessageProvider.notifier).state =
+          'Failed to resend OTP: $error';
     }
   }
 }

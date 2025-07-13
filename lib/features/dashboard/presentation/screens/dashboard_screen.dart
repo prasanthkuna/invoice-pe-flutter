@@ -48,24 +48,27 @@ class DashboardScreen extends ConsumerWidget {
                       currentProfile.when(
                         data: (profile) => Text(
                           profile?.businessName ?? 'Business Owner',
-                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            color: AppTheme.primaryText,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: Theme.of(context).textTheme.headlineMedium
+                              ?.copyWith(
+                                color: AppTheme.primaryText,
+                                fontWeight: FontWeight.bold,
+                              ),
                         ),
                         loading: () => Text(
                           'Loading...',
-                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            color: AppTheme.primaryText,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: Theme.of(context).textTheme.headlineMedium
+                              ?.copyWith(
+                                color: AppTheme.primaryText,
+                                fontWeight: FontWeight.bold,
+                              ),
                         ),
                         error: (error, stackTrace) => Text(
                           'Business Owner',
-                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            color: AppTheme.primaryText,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: Theme.of(context).textTheme.headlineMedium
+                              ?.copyWith(
+                                color: AppTheme.primaryText,
+                                fontWeight: FontWeight.bold,
+                              ),
                         ),
                       ),
                     ],
@@ -104,9 +107,9 @@ class DashboardScreen extends ConsumerWidget {
                   ),
                 ],
               ).animate().fadeIn(delay: 200.ms).slideY(begin: -0.3),
-              
+
               const SizedBox(height: 32),
-              
+
               // Rewards Card (Hero Metric)
               Container(
                 width: double.infinity,
@@ -141,7 +144,10 @@ class DashboardScreen extends ConsumerWidget {
                           ),
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.white.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(12),
@@ -196,62 +202,69 @@ class DashboardScreen extends ConsumerWidget {
                   ],
                 ),
               ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.3),
-              
+
               const SizedBox(height: 24),
-              
+
               // Metrics Grid
-              dashboardMetrics.when(
-                data: (metrics) => Row(
-                  children: [
-                    Expanded(
-                      child: _MetricCard(
-                        title: 'Total Payments',
-                        value: '₹${((metrics['totalPayments'] ?? 0.0) / 1000).toStringAsFixed(0)}K',
-                        subtitle: 'This month',
-                        icon: Icons.payment,
-                        color: AppTheme.primaryAccent,
-                      ),
+              dashboardMetrics
+                  .when(
+                    data: (metrics) => Row(
+                      children: [
+                        Expanded(
+                          child: _MetricCard(
+                            title: 'Total Payments',
+                            value:
+                                '₹${((metrics['totalPayments'] ?? 0.0) / 1000).toStringAsFixed(0)}K',
+                            subtitle: 'This month',
+                            icon: Icons.payment,
+                            color: AppTheme.primaryAccent,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: _MetricCard(
+                            title: 'Transactions',
+                            value: (metrics['monthlyTransactions'] ?? 0)
+                                .toString(),
+                            subtitle: 'Completed',
+                            icon: Icons.receipt_long,
+                            color: AppTheme.successColor,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _MetricCard(
-                        title: 'Transactions',
-                        value: (metrics['monthlyTransactions'] ?? 0).toString(),
-                        subtitle: 'Completed',
-                        icon: Icons.receipt_long,
-                        color: AppTheme.successColor,
-                      ),
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
+                    error: (error, stackTrace) => const Row(
+                      children: [
+                        Expanded(
+                          child: _MetricCard(
+                            title: 'Total Payments',
+                            value: '₹0K',
+                            subtitle: 'This month',
+                            icon: Icons.payment,
+                            color: AppTheme.primaryAccent,
+                          ),
+                        ),
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: _MetricCard(
+                            title: 'Transactions',
+                            value: '0',
+                            subtitle: 'Completed',
+                            icon: Icons.receipt_long,
+                            color: AppTheme.successColor,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (error, stackTrace) => const Row(
-                  children: [
-                    Expanded(
-                      child: _MetricCard(
-                        title: 'Total Payments',
-                        value: '₹0K',
-                        subtitle: 'This month',
-                        icon: Icons.payment,
-                        color: AppTheme.primaryAccent,
-                      ),
-                    ),
-                    SizedBox(width: 16),
-                    Expanded(
-                      child: _MetricCard(
-                        title: 'Transactions',
-                        value: '0',
-                        subtitle: 'Completed',
-                        icon: Icons.receipt_long,
-                        color: AppTheme.successColor,
-                      ),
-                    ),
-                  ],
-                ),
-              ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.3),
-              
+                  )
+                  .animate()
+                  .fadeIn(delay: 600.ms)
+                  .slideY(begin: 0.3),
+
               const SizedBox(height: 32),
-              
+
               // Quick Actions
               Text(
                 'Quick Actions',
@@ -260,9 +273,9 @@ class DashboardScreen extends ConsumerWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ).animate().fadeIn(delay: 800.ms),
-              
+
               const SizedBox(height: 16),
-              
+
               Row(
                 children: [
                   Expanded(
@@ -308,9 +321,9 @@ class DashboardScreen extends ConsumerWidget {
                   ),
                 ],
               ).animate().fadeIn(delay: 1200.ms).slideY(begin: 0.3),
-              
+
               const SizedBox(height: 24),
-              
+
               // Recent Activity
               Text(
                 'Recent Activity',
@@ -319,69 +332,77 @@ class DashboardScreen extends ConsumerWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ).animate().fadeIn(delay: 1200.ms),
-              
+
               const SizedBox(height: 16),
-              
+
               // Activity List
               ...List.generate(3, (index) {
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppTheme.cardBackground,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: AppTheme.primaryAccent.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(
-                          Icons.check_circle,
-                          color: AppTheme.successColor,
-                        ),
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: AppTheme.cardBackground,
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Payment to Vendor ${index + 1}',
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                color: AppTheme.primaryText,
-                                fontWeight: FontWeight.w500,
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 48,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              color: AppTheme.primaryAccent.withValues(
+                                alpha: 0.1,
                               ),
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                            Text(
-                              '₹${(5000 + index * 1000).toStringAsFixed(0)} • 2 hours ago',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: AppTheme.secondaryText,
-                              ),
+                            child: const Icon(
+                              Icons.check_circle,
+                              color: AppTheme.successColor,
                             ),
-                          ],
-                        ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Payment to Vendor ${index + 1}',
+                                  style: Theme.of(context).textTheme.titleMedium
+                                      ?.copyWith(
+                                        color: AppTheme.primaryText,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                ),
+                                Text(
+                                  '₹${(5000 + index * 1000).toStringAsFixed(0)} • 2 hours ago',
+                                  style: Theme.of(context).textTheme.bodySmall
+                                      ?.copyWith(
+                                        color: AppTheme.secondaryText,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Text(
+                            '+₹${50 + index * 10}',
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
+                                  color: AppTheme.secondaryAccent,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                        ],
                       ),
-                      Text(
-                        '+₹${(50 + index * 10)}',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: AppTheme.secondaryAccent,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }).animate(interval: 200.ms).fadeIn(delay: 1400.ms).slideX(begin: 0.3),
+                    );
+                  })
+                  .animate(interval: 200.ms)
+                  .fadeIn(delay: 1400.ms)
+                  .slideX(begin: 0.3),
             ],
           ),
         ),
       ),
-      
+
       // Floating Action Button
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.go('/quick-pay'),
@@ -452,12 +473,6 @@ class DashboardScreen extends ConsumerWidget {
 }
 
 class _MetricCard extends StatelessWidget {
-  final String title;
-  final String value;
-  final String subtitle;
-  final IconData icon;
-  final Color color;
-
   const _MetricCard({
     required this.title,
     required this.value,
@@ -465,6 +480,11 @@ class _MetricCard extends StatelessWidget {
     required this.icon,
     required this.color,
   });
+  final String title;
+  final String value;
+  final String subtitle;
+  final IconData icon;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
@@ -506,17 +526,16 @@ class _MetricCard extends StatelessWidget {
 }
 
 class _ActionCard extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final IconData icon;
-  final VoidCallback onTap;
-
   const _ActionCard({
     required this.title,
     required this.subtitle,
     required this.icon,
     required this.onTap,
   });
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {

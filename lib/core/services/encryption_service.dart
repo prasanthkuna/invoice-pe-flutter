@@ -26,7 +26,9 @@ class EncryptionService {
   /// Initialize encryption service with AES-256 encryption (PCC compliant)
   static Future<Result<void>> initialize() async {
     try {
-      DebugService.logSecurity('Initializing AES-256 encryption service for PCC compliance');
+      DebugService.logSecurity(
+        'Initializing AES-256 encryption service for PCC compliance',
+      );
 
       // Try to load existing encryption key
       _encryptionKey = await _secureStorage.read(key: _keyStorageKey);
@@ -34,7 +36,7 @@ class EncryptionService {
       if (_encryptionKey == null) {
         // Generate new secure key
         _encryptionKey = _generateSecureKey();
-        await _secureStorage.write(key: _keyStorageKey, value: _encryptionKey!);
+        await _secureStorage.write(key: _keyStorageKey, value: _encryptionKey);
         DebugService.logSecurity('Generated new AES-256 encryption key');
       } else {
         DebugService.logSecurity('Loaded existing AES-256 encryption key');
@@ -43,10 +45,15 @@ class EncryptionService {
       final key = Key.fromBase64(_encryptionKey!);
       _encrypter = Encrypter(AES(key));
 
-      DebugService.logSecurity('✅ AES-256 encryption service initialized successfully');
+      DebugService.logSecurity(
+        '✅ AES-256 encryption service initialized successfully',
+      );
       return const Success(null);
     } catch (error) {
-      DebugService.logError('Failed to initialize encryption service', error: error);
+      DebugService.logError(
+        'Failed to initialize encryption service',
+        error: error,
+      );
       return Failure('Encryption initialization failed: $error');
     }
   }
@@ -59,12 +66,16 @@ class EncryptionService {
   }
 
   /// Encrypt sensitive data (card details, PII) with AES-256-GCM
-  static Future<Result<String>> encryptSensitiveData(Map<String, dynamic> data) async {
+  static Future<Result<String>> encryptSensitiveData(
+    Map<String, dynamic> data,
+  ) async {
     try {
       if (_encrypter == null) {
         final initResult = await initialize();
         if (initResult is Failure) {
-          return Failure('Encryption service not initialized: ${initResult.error}');
+          return Failure(
+            'Encryption service not initialized: ${initResult.error}',
+          );
         }
       }
 
@@ -75,10 +86,13 @@ class EncryptionService {
       // Combine IV and encrypted data for storage
       final combined = '${iv.base64}:${encrypted.base64}';
 
-      DebugService.logSecurity('Sensitive data encrypted successfully', data: {
-        'data_size': jsonData.length,
-        'encrypted_size': combined.length,
-      });
+      DebugService.logSecurity(
+        'Sensitive data encrypted successfully',
+        data: {
+          'data_size': jsonData.length,
+          'encrypted_size': combined.length,
+        },
+      );
 
       return Success(combined);
     } catch (error) {
@@ -88,12 +102,16 @@ class EncryptionService {
   }
 
   /// Decrypt sensitive data
-  static Future<Result<Map<String, dynamic>>> decryptSensitiveData(String encryptedData) async {
+  static Future<Result<Map<String, dynamic>>> decryptSensitiveData(
+    String encryptedData,
+  ) async {
     try {
       if (_encrypter == null) {
         final initResult = await initialize();
         if (initResult is Failure) {
-          return Failure('Encryption service not initialized: ${initResult.error}');
+          return Failure(
+            'Encryption service not initialized: ${initResult.error}',
+          );
         }
       }
 
@@ -137,7 +155,7 @@ class EncryptionService {
       if (result is Success) {
         DebugService.logSecurity('Card data encrypted for PCC compliance');
       }
-      
+
       return result;
     } catch (error) {
       DebugService.logError('Failed to encrypt card data', error: error);
@@ -146,13 +164,17 @@ class EncryptionService {
   }
 
   /// Decrypt card data (for authorized operations only)
-  static Future<Result<Map<String, dynamic>>> decryptCardData(String encryptedCardData) async {
+  static Future<Result<Map<String, dynamic>>> decryptCardData(
+    String encryptedCardData,
+  ) async {
     try {
       final result = await decryptSensitiveData(encryptedCardData);
       if (result is Success) {
-        DebugService.logSecurity('Card data decrypted for authorized operation');
+        DebugService.logSecurity(
+          'Card data decrypted for authorized operation',
+        );
       }
-      
+
       return result;
     } catch (error) {
       DebugService.logError('Failed to decrypt card data', error: error);

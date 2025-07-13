@@ -150,7 +150,7 @@ class _DefaultErrorWidget extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Error: ${error.toString()}',
+                            'Error: $error',
                             style: theme.textTheme.bodySmall?.copyWith(
                               fontFamily: 'monospace',
                             ),
@@ -158,7 +158,7 @@ class _DefaultErrorWidget extends StatelessWidget {
                           if (stackTrace != null) ...[
                             const SizedBox(height: 8),
                             Text(
-                              'Stack Trace:\n${stackTrace.toString()}',
+                              'Stack Trace:\n$stackTrace',
                               style: theme.textTheme.bodySmall?.copyWith(
                                 fontFamily: 'monospace',
                               ),
@@ -243,7 +243,7 @@ mixin ErrorHandlerMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
   /// Handle errors with user-friendly messages
   void handleError(Object error, [StackTrace? stackTrace]) {
     final appError = ErrorHandler.fromException(error, stackTrace);
-    
+
     // Log the error
     DebugService.logError(
       'Widget error: ${widget.runtimeType}',
@@ -277,11 +277,12 @@ mixin ErrorHandlerMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
   }) {
     return asyncValue.when(
       data: (_) => dataBuilder(),
-      loading: () => loadingWidget ?? const Center(child: CircularProgressIndicator()),
+      loading: () =>
+          loadingWidget ?? const Center(child: CircularProgressIndicator()),
       error: (error, stackTrace) {
         handleError(error, stackTrace);
-        return errorBuilder?.call(error, stackTrace) ?? 
-               _DefaultErrorWidget(error: error, stackTrace: stackTrace);
+        return errorBuilder?.call(error, stackTrace) ??
+            _DefaultErrorWidget(error: error, stackTrace: stackTrace);
       },
     );
   }
