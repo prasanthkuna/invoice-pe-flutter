@@ -4,6 +4,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:invoice_pe_app/core/services/auth_service.dart';
 import 'package:invoice_pe_app/core/services/debug_service.dart';
 import 'package:invoice_pe_app/core/types/auth_types.dart' as auth_types;
@@ -16,7 +17,7 @@ void main() {
     late MockSupabaseClient mockSupabase;
     late MockGoTrueClient mockAuth;
 
-    setUpAll(() {
+    setUpAll(() async {
       TestHelpers.initializeTestEnvironment();
       DebugService.initialize();
     });

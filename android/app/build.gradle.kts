@@ -31,10 +31,25 @@ android {
     }
 
     buildTypes {
+        debug {
+            applicationIdSuffix = ".staging"
+            versionNameSuffix = "-staging"
+            isDebuggable = true
+            isMinifyEnabled = false
+            // Enhanced logging for real device testing
+            buildConfigField("boolean", "ENABLE_SMART_LOGGING", "true")
+            buildConfigField("String", "LOG_LEVEL", "\"debug\"")
+        }
+
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
+            isMinifyEnabled = true
+            isDebuggable = false
+            // Smart logging for production
+            buildConfigField("boolean", "ENABLE_SMART_LOGGING", "true")
+            buildConfigField("String", "LOG_LEVEL", "\"warning\"")
         }
     }
 }

@@ -5,13 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:invoice_pe_app/main.dart';
 import 'package:invoice_pe_app/core/providers/data_providers.dart';
 import 'package:invoice_pe_app/core/services/debug_service.dart';
+import 'mock_factories.dart';
 
 /// InvoicePe's Test Philosophy: "Setup once, test everything"
 class TestHelpers {
   static late ProviderContainer _container;
+  static late MockSupabaseClient _mockSupabase;
 
   /// Initialize test environment with mocked dependencies
   static void initializeTestEnvironment() {
@@ -20,6 +23,17 @@ class TestHelpers {
     // Register fallback values for Mocktail
     registerFallbackValue(Uri.parse('https://test.com'));
     registerFallbackValue(const Duration(seconds: 1));
+
+    // Initialize Supabase with test credentials (will be mocked in individual tests)
+    try {
+      Supabase.initialize(
+        url: 'https://test.supabase.co',
+        anonKey: 'test-anon-key',
+        debug: false,
+      );
+    } catch (e) {
+      // Already initialized, ignore
+    }
   }
 
   /// Create test app with mocked providers

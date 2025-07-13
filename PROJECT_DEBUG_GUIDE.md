@@ -115,7 +115,7 @@ git config --global --add safe.directory C:/tools/flutter
 ### **🚀 InvoicePe's PATH Management (Foundation Fix)**
 ```powershell
 # STEP 1: Diagnose PATH issues
-$env:PATH -split ';' | Where-Object { $_ -like '*flutter*' -or $_ -like '*dart*' -or $_ -like '*git*' }
+$env:PATH -split ';' | Where-Object { $_ -like '*flutter*' -or $_ -like '*dart*' -or $_ -like '*git*' -or $_ -like '*android*' -or $_ -like '*platform-tools*' }
 
 # STEP 2: Verify Flutter installation
 Test-Path "C:\tools\flutter\bin\flutter.bat"
@@ -130,6 +130,28 @@ git --version
 
 # STEP 5: Check Scoop path (if using Scoop)
 $env:PATH -split ';' | Where-Object { $_ -like '*scoop*' }
+
+# STEP 6: Fix ADB PATH (Android SDK platform-tools)
+# Find Android SDK location
+$androidSdkPaths = @(
+    "$env:LOCALAPPDATA\Android\Sdk\platform-tools",
+    "$env:USERPROFILE\AppData\Local\Android\Sdk\platform-tools",
+    "C:\Android\Sdk\platform-tools",
+    "C:\Users\$env:USERNAME\AppData\Local\Android\Sdk\platform-tools"
+)
+
+# Check which path exists
+foreach ($path in $androidSdkPaths) {
+    if (Test-Path "$path\adb.exe") {
+        Write-Host "✅ Found Android SDK at: $path" -ForegroundColor Green
+        $env:PATH = "$path;" + $env:PATH
+        break
+    }
+}
+
+# STEP 7: Verify ADB works
+adb --version
+adb devices
 ```
 
 ## 🎯 **InvoicePe's Dart Tooling Mastery**
