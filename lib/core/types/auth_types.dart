@@ -1,3 +1,4 @@
+import 'package:meta/meta.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'result.dart';
 
@@ -8,6 +9,7 @@ import 'result.dart';
 typedef AuthResult = Result<AuthData>;
 
 /// Authentication data container
+@immutable
 class AuthData {
   const AuthData({
     required this.user,

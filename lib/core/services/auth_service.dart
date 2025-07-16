@@ -27,8 +27,14 @@ class AuthService extends BaseService {
         phone: phone,
         message: 'OTP sent to $phone',
       );
+    } on AuthException catch (e) {
+      DebugService.logAuth('Auth error during OTP send', error: e);
+      return app_auth.OtpFailed(
+        error: _parseAuthError(e),
+        phone: phone,
+      );
     } catch (error) {
-      DebugService.logAuth('OTP sending failed', error: error);
+      DebugService.logAuth('Unexpected error during OTP send', error: error);
       return app_auth.OtpFailed(
         error: _parseAuthError(error),
         phone: phone,
@@ -74,10 +80,10 @@ class AuthService extends BaseService {
         phone: phone,
         message: 'Welcome back! OTP sent to $phone',
       );
-    } catch (error) {
-      DebugService.logAuth('Signin failed, analyzing error', error: error);
+    } on AuthException catch (e) {
+      DebugService.logAuth('Auth error during signin', error: e);
 
-      final errorMessage = error.toString().toLowerCase();
+      final errorMessage = e.message.toLowerCase();
 
       if (errorMessage.contains('user not found') ||
           errorMessage.contains('invalid login') ||
@@ -95,8 +101,17 @@ class AuthService extends BaseService {
             phone: phone,
             message: 'Account created! OTP sent to $phone',
           );
+        } on AuthException catch (signupError) {
+          DebugService.logAuth('Auth error during signup', error: signupError);
+          return app_auth.OtpFailed(
+            error: _parseAuthError(signupError),
+            phone: phone,
+          );
         } catch (signupError) {
-          DebugService.logAuth('Signup failed', error: signupError);
+          DebugService.logAuth(
+            'Unexpected error during signup',
+            error: signupError,
+          );
           return app_auth.OtpFailed(
             error: _parseAuthError(signupError),
             phone: phone,
@@ -104,7 +119,13 @@ class AuthService extends BaseService {
         }
       }
 
-      // Handle other errors
+      // Handle other auth errors
+      return app_auth.OtpFailed(
+        error: _parseAuthError(e),
+        phone: phone,
+      );
+    } catch (error) {
+      DebugService.logAuth('Unexpected error during smart OTP', error: error);
       return app_auth.OtpFailed(
         error: _parseAuthError(error),
         phone: phone,
@@ -162,8 +183,14 @@ class AuthService extends BaseService {
 
       DebugService.logWarning('OTP verification returned null user or session');
       return const Failure('Authentication failed - invalid response');
+    } on AuthException catch (e) {
+      DebugService.logAuth('Auth error during OTP verification', error: e);
+      return Failure(_parseAuthError(e));
     } catch (error) {
-      DebugService.logAuth('OTP verification failed', error: error);
+      DebugService.logAuth(
+        'Unexpected error during OTP verification',
+        error: error,
+      );
       return Failure(_parseAuthError(error));
     }
   }
