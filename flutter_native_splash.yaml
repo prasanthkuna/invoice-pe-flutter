@@ -1,0 +1,41 @@
+# flutter_native_splash configuration
+# Matches InvoicePe branding
+
+flutter_native_splash:
+  # Background color
+  color: "#FFFFFF"
+  
+  # App icon
+  image: assets/icons/splash_logo.png
+  
+  # Branding (Android 12+)
+  branding: assets/icons/branding.png
+  
+  # Dark mode
+  color_dark: "#1A1A1A"
+  image_dark: assets/icons/splash_logo_dark.png
+  branding_dark: assets/icons/branding_dark.png
+  
+  # Android 12+ splash
+  android_12:
+    color: "#FFFFFF"
+    icon_background_color: "#FFFFFF"
+    image: assets/icons/splash_logo.png
+    branding: assets/icons/branding.png
+    
+    # Dark mode
+    color_dark: "#1A1A1A"
+    icon_background_color_dark: "#1A1A1A"
+    image_dark: assets/icons/splash_logo_dark.png
+    branding_dark: assets/icons/branding_dark.png
+  
+  # Platform specific
+  android: true
+  ios: true
+  web: true
+  
+  # iOS specific
+  ios_content_mode: center
+  
+  # Full screen
+  fullscreen: true

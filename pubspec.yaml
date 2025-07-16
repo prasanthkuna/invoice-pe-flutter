@@ -89,6 +89,9 @@ dev_dependencies:
   # Code Generation - dart_mappable for Flutter 3.32/Dart 3.8 compatibility
   build_runner: ^2.5.4
   dart_mappable_builder: ^4.5.0
+  
+  # App Icon Generation
+  flutter_launcher_icons: ^0.13.1
 
   # Isar Code Generation (DEFERRED to Phase 2 - version conflict with dart_mappable)
   # isar_generator: ^3.1.0
@@ -172,3 +175,30 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+# App Icon Configuration
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/app_icon.png"
+  min_sdk_android: 21
+  # Android Adaptive Icons
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/icons/app_icon_square.png"
+  # iOS
+  remove_alpha_ios: true
+  # Web
+  web:
+    generate: true
+    image_path: "assets/icons/app_icon.png"
+    background_color: "#FFFFFF"
+    theme_color: "#FF6B35"
+  # Windows
+  windows:
+    generate: true
+    image_path: "assets/icons/app_icon.png"
+    icon_size: 256
+  # macOS
+  macos:
+    generate: true
+    image_path: "assets/icons/app_icon.png"

@@ -1,0 +1,31 @@
+# flutter_launcher_icons configuration
+# This config generates all necessary app icons for all platforms
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/app_icon.png"
+  min_sdk_android: 21
+  remove_alpha_ios: true
+  
+  # Android Adaptive Icon
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/icons/app_icon_square.png"
+  
+  # Web icons
+  web:
+    generate: true
+    image_path: "assets/icons/app_icon.png"
+    background_color: "#FFFFFF"
+    theme_color: "#FF6B35"
+  
+  # Windows icon
+  windows:
+    generate: true
+    image_path: "assets/icons/app_icon.png"
+    icon_size: 256
+  
+  # macOS icon
+  macos:
+    generate: true
+    image_path: "assets/icons/app_icon.png"
