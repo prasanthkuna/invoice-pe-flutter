@@ -18,7 +18,10 @@ class InvoiceService extends BaseService {
           .eq('user_id', BaseService.currentUserId!)
           .order('created_at', ascending: false);
 
-      return response.map(_fromSupabaseJson).toList();
+      final responseList = response as List<dynamic>;
+      return responseList
+          .map((item) => _fromSupabaseJson(item as Map<String, dynamic>))
+          .toList();
     } catch (error) {
       throw BaseService.handleError(error);
     }
@@ -232,7 +235,10 @@ class InvoiceService extends BaseService {
           .eq('status', status.name)
           .order('created_at', ascending: false);
 
-      return response.map(_fromSupabaseJson).toList();
+      final responseList = response as List<dynamic>;
+      return responseList
+          .map((item) => _fromSupabaseJson(item as Map<String, dynamic>))
+          .toList();
     } catch (error) {
       throw BaseService.handleError(error);
     }

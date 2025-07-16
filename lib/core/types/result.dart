@@ -11,6 +11,8 @@
 /// ```
 library;
 
+import 'package:meta/meta.dart';
+
 /// Base sealed class for Result pattern
 sealed class Result<T> {
   const Result();
@@ -50,6 +52,7 @@ sealed class Result<T> {
 }
 
 /// Success case with data
+@immutable
 final class Success<T> extends Result<T> {
   const Success(this.data);
   final T data;
@@ -69,6 +72,7 @@ final class Success<T> extends Result<T> {
 }
 
 /// Failure case with error message
+@immutable
 final class Failure<T> extends Result<T> {
   const Failure(this.error);
   final String error;
