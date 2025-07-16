@@ -6,6 +6,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/providers/data_providers.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../shared/models/transaction.dart';
+import '../../../../core/constants/app_constants.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -116,6 +117,54 @@ class DashboardScreen extends ConsumerWidget {
               ).animate().fadeIn(delay: 200.ms).slideY(begin: -0.3),
 
               const SizedBox(height: 32),
+
+              // Beta Mode Banner
+              if (AppConstants.mockPaymentMode)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  margin: const EdgeInsets.only(bottom: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: Colors.orange.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.rocket_launch_rounded,
+                        color: Colors.orange,
+                        size: 24,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Beta Mode Active',
+                              style: TextStyle(
+                                color: Colors.orange,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              'Payments are in test mode. Real transactions coming soon!',
+                              style: TextStyle(
+                                color: Colors.orange.shade700,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ).animate().fadeIn(delay: 300.ms).slideY(begin: -0.2),
 
               // Rewards Card (Hero Metric)
               Container(

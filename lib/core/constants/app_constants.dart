@@ -60,4 +60,8 @@ class AppConstants {
   static const double defaultRewardsPercentage = 1.0; // 1.0%
   static const double minPaymentAmount = 1.0;
   static const double maxPaymentAmount = 1000000.0;
+  
+  // Mock Payment Mode - Ship fast, test with real users
+  static bool get mockPaymentMode =>
+      dotenv.env['MOCK_PAYMENT_MODE']?.toLowerCase() == 'true' ?? true;
 }

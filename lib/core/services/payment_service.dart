@@ -68,17 +68,45 @@ _log.error('PhonePe SDK initialization failed', error: error);
           invoiceId ??
           await _createInvoiceForPayment(vendorId, amount, description);
 
-      // Local testing mode - skip PhonePe integration
-      if (isLocalTesting) {
-        _log.info(
-          'Ã°Å¸â€œÂ± Local testing mode - simulating successful payment',
+      // Mock payment mode - skip PhonePe integration
+      if (AppConstants.mockPaymentMode || isLocalTesting) {
+        _log.info('🚀 Mock payment mode - simulating payment');
+        
+        // Simulate realistic payment delay
+        await Future.delayed(const Duration(seconds: 2));
+        
+        // Create mock transaction record for proper data flow
+        final mockTransactionId = 'MOCK_TXN_${DateTime.now().millisecondsSinceEpoch}';
+        
+        // Still call backend to create transaction record
+        final mockResponse = await BaseService.supabase.functions.invoke(
+          'initiate-payment',
+          body: {
+            'invoice_id': finalInvoiceId,
+            'amount': amount,
+            'mock_mode': true, // Signal backend to handle as mock
+          },
         );
+        
+        // Update invoice status to paid
+        await BaseService.supabase
+            .from('invoices')
+            .update({'status': 'paid', 'paid_at': DateTime.now().toIso8601String()})
+            .eq('id', finalInvoiceId);
+        
+        // Log mock payment for transparency
+        _log.info('✅ Mock payment completed', {
+          'transaction_id': mockTransactionId,
+          'invoice_id': finalInvoiceId,
+          'amount': amount,
+        });
+        
         return payment_types.PaymentSuccess(
-          transactionId: 'MOCK_${DateTime.now().millisecondsSinceEpoch}',
+          transactionId: mockTransactionId,
           invoiceId: finalInvoiceId,
           amount: amount,
           rewards: payment_types.PaymentFeeCalculator.calculateRewards(amount),
-          message: 'Mock payment successful (local testing)',
+          message: 'Payment completed (Beta Mode)',
         );
       }
 

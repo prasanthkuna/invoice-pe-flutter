@@ -5,6 +5,7 @@ import { corsHeaders } from '../_shared/cors.ts'
 interface PaymentRequest {
   invoice_id: string
   amount: number
+  mock_mode?: boolean
 }
 
 Deno.serve(async (req) => {
@@ -38,7 +39,7 @@ Deno.serve(async (req) => {
       throw new Error('Unauthorized')
     }
 
-    const { invoice_id, amount }: PaymentRequest = await req.json()
+    const { invoice_id, amount, mock_mode }: PaymentRequest = await req.json()
 
     // Validate invoice belongs to user and is pending
     const { data: invoice, error: invoiceError } = await supabaseUser
@@ -55,6 +56,16 @@ Deno.serve(async (req) => {
 
     if (invoice.amount !== amount) {
       throw new Error('Amount mismatch')
+    }
+
+    // If in mock mode, skip actual PhonePe and return fake success
+    if (mock_mode) {
+      return new Response(JSON.stringify({
+        success: true,
+        body: 'MOCK_PAYLOAD',
+        checksum: 'MOCK_CHECKSUM',
+        merchantTransactionId: `MOCK_${Date.now()}`
+      }))
     }
 
     // PhonePe Configuration (YOUR_MERCHANT_ID - UAT Credentials)
