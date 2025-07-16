@@ -5,7 +5,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:crypto/crypto.dart';
 import '../constants/app_constants.dart';
 import '../types/result.dart';
-import 'debug_service.dart';
+import 'logger.dart';
+
+final _log = Log.component('security');
 
 /// RSA 4096 Encryption Service for PCC Compliance
 /// Implements enterprise-grade encryption for sensitive data
@@ -26,7 +28,7 @@ class EncryptionService {
   /// Initialize encryption service with AES-256 encryption (PCC compliant)
   static Future<Result<void>> initialize() async {
     try {
-      DebugService.logSecurity(
+      _log.info(
         'Initializing AES-256 encryption service for PCC compliance',
       );
 
@@ -37,23 +39,20 @@ class EncryptionService {
         // Generate new secure key
         _encryptionKey = _generateSecureKey();
         await _secureStorage.write(key: _keyStorageKey, value: _encryptionKey);
-        DebugService.logSecurity('Generated new AES-256 encryption key');
+        _log.info('Generated new AES-256 encryption key');
       } else {
-        DebugService.logSecurity('Loaded existing AES-256 encryption key');
+        _log.info('Loaded existing AES-256 encryption key');
       }
 
       final key = Key.fromBase64(_encryptionKey!);
       _encrypter = Encrypter(AES(key));
 
-      DebugService.logSecurity(
-        '✅ AES-256 encryption service initialized successfully',
+      _log.info(
+        'Ã¢Å“â€¦ AES-256 encryption service initialized successfully',
       );
       return const Success(null);
     } catch (error) {
-      DebugService.logError(
-        'Failed to initialize encryption service',
-        error: error,
-      );
+      _log.info('api_call', {'method': 'Failed to initialize encryption service', 'endpoint': error: error});
       return Failure('Encryption initialization failed: $error');
     }
   }
@@ -86,7 +85,7 @@ class EncryptionService {
       // Combine IV and encrypted data for storage
       final combined = '${iv.base64}:${encrypted.base64}';
 
-      DebugService.logSecurity(
+      _log.info(
         'Sensitive data encrypted successfully',
         data: {
           'data_size': jsonData.length,
@@ -96,7 +95,7 @@ class EncryptionService {
 
       return Success(combined);
     } catch (error) {
-      DebugService.logError('Failed to encrypt sensitive data', error: error);
+      _log.info('Failed to encrypt sensitive data'.error(_log.info('Failed to encrypt sensitive data', error: error$(if () { ", stackTrace: " } else { "" }));
       return Failure('Encryption failed: $error');
     }
   }
@@ -126,11 +125,15 @@ class EncryptionService {
       final decrypted = _encrypter!.decrypt(encrypted, iv: iv);
       final data = jsonDecode(decrypted) as Map<String, dynamic>;
 
-      DebugService.logSecurity('Sensitive data decrypted successfully');
+      _log.info('Sensitive data decrypted successfully');
 
       return Success(data);
     } catch (error) {
-      DebugService.logError('Failed to decrypt sensitive data', error: error);
+      _log.info('Failed to decrypt sensitive data'.error(_log.info('Sensitive data decrypted successfully');
+
+      return Success(data);
+    } catch (error) {
+      _log.info('Failed to decrypt sensitive data', error: error$(if () { ", stackTrace: " } else { "" }));
       return Failure('Decryption failed: $error');
     }
   }
@@ -153,12 +156,17 @@ class EncryptionService {
 
       final result = await encryptSensitiveData(cardData);
       if (result is Success) {
-        DebugService.logSecurity('Card data encrypted for PCC compliance');
+        _log.info('Card data encrypted for PCC compliance');
       }
 
       return result;
     } catch (error) {
-      DebugService.logError('Failed to encrypt card data', error: error);
+      _log.info('Failed to encrypt card data'.error(_log.info('Card data encrypted for PCC compliance');
+      }
+
+      return result;
+    } catch (error) {
+      _log.info('Failed to encrypt card data', error: error$(if () { ", stackTrace: " } else { "" }));
       return Failure('Card encryption failed: $error');
     }
   }
@@ -170,14 +178,14 @@ class EncryptionService {
     try {
       final result = await decryptSensitiveData(encryptedCardData);
       if (result is Success) {
-        DebugService.logSecurity(
+        _log.info(
           'Card data decrypted for authorized operation',
         );
       }
 
       return result;
     } catch (error) {
-      DebugService.logError('Failed to decrypt card data', error: error);
+      _log.info('Failed to decrypt card data'.error(_log.info('Failed to decrypt card data', error: error$(if () { ", stackTrace: " } else { "" }));
       return Failure('Card decryption failed: $error');
     }
   }
@@ -201,9 +209,11 @@ class EncryptionService {
       await _secureStorage.delete(key: _keyStorageKey);
       _encryptionKey = null;
       _encrypter = null;
-      DebugService.logSecurity('Encryption keys cleared for security');
+      _log.info('Encryption keys cleared for security');
     } catch (error) {
-      DebugService.logError('Failed to clear encryption keys', error: error);
+      _log.info('Failed to clear encryption keys'.error(_log.info('Encryption keys cleared for security');
+    } catch (error) {
+      _log.info('Failed to clear encryption keys', error: error$(if () { ", stackTrace: " } else { "" }));
     }
   }
 
@@ -224,7 +234,7 @@ class EncryptionService {
 
       return Success(status);
     } catch (error) {
-      DebugService.logError('Failed to get encryption status', error: error);
+      _log.info('Failed to get encryption status'.error(_log.info('Failed to get encryption status', error: error$(if () { ", stackTrace: " } else { "" }));
       return Failure('Encryption status check failed: $error');
     }
   }

@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/providers/data_providers.dart';
 import '../../../../core/services/vendor_service.dart';
+import '../../../../core/utils/navigation_helper.dart';
+import '../../../../core/utils/error_handler.dart';
 
 class VendorCreateScreen extends ConsumerStatefulWidget {
   const VendorCreateScreen({super.key});
@@ -46,7 +47,7 @@ class _VendorCreateScreenState extends ConsumerState<VendorCreateScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
-          onPressed: () => context.pop(),
+          onPressed: () => NavigationHelper.safePop(context),
         ),
       ),
       body: SingleChildScrollView(
@@ -403,22 +404,12 @@ class _VendorCreateScreenState extends ConsumerState<VendorCreateScreen> {
       ref.invalidate(vendorsProvider);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Vendor added successfully!'),
-            backgroundColor: AppTheme.successColor,
-          ),
-        );
-        context.pop();
+        ErrorHandler.showSuccess(context, 'Vendor added successfully!');
+        NavigationHelper.safePop(context, true);
       }
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to add vendor: $error'),
-            backgroundColor: AppTheme.errorColor,
-          ),
-        );
+        ErrorHandler.showError(context, 'Failed to add vendor');
       }
     } finally {
       if (mounted) {

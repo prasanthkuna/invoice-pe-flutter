@@ -1,0 +1,50 @@
+# InvoicePe Automated Fix Configuration
+# Elon principle: "Automate everything that can be automated"
+
+# These fixes will be automatically applied with `dart fix --apply`
+fixes:
+  # Remove unused imports automatically
+  - unused_import
+  
+  # Remove unused local variables
+  - unused_local_variable
+  
+  # Remove dead code
+  - dead_code
+  
+  # Add missing required parameters
+  - missing_required_param
+  
+  # Add missing return statements
+  - missing_return
+  
+  # Convert to preferred syntax
+  - prefer_final_locals
+  - prefer_final_fields
+  - prefer_collection_literals
+  - prefer_is_empty
+  - prefer_is_not_empty
+  
+  # Remove unnecessary code
+  - unnecessary_new
+  - unnecessary_const
+  - unnecessary_this
+  - unnecessary_null_comparison
+  - unnecessary_parenthesis
+  - unnecessary_string_interpolations
+  
+  # Fix type issues
+  - avoid_init_to_null
+  - avoid_null_checks_in_equality_operators
+  - null_closures
+  
+  # Fix async issues  
+  - avoid_returning_null_for_future
+  - avoid_returning_null_for_void
+  
+# Exclude paths from fixes
+exclude:
+  - "**/*.g.dart"
+  - "**/*.freezed.dart"
+  - "build/**"
+  - ".dart_tool/**"

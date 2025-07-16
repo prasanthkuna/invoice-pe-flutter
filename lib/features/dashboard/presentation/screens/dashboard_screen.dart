@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/providers/data_providers.dart';
 import '../../../../core/services/auth_service.dart';
+import '../../../../shared/models/transaction.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -26,6 +27,12 @@ class DashboardScreen extends ConsumerWidget {
     }
 
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        title: const Text('Dashboard'),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
@@ -191,13 +198,17 @@ class DashboardScreen extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      '+₹2,450 from last month',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
+                    dashboardMetrics.when(
+                      data: (metrics) => Text(
+                        '${((metrics['monthlyChange'] as num?) ?? 0.0) >= 0 ? '+' : ''}₹${((metrics['monthlyChange'] as num?) ?? 0.0).abs().toStringAsFixed(0)} from last month',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
+                      loading: () => const SizedBox.shrink(),
+                      error: (_, __) => const SizedBox.shrink(),
                     ),
                   ],
                 ),
@@ -284,7 +295,7 @@ class DashboardScreen extends ConsumerWidget {
                       title: 'Quick Pay',
                       subtitle: 'Instant payment',
                       icon: Icons.flash_on,
-                      onTap: () => context.go('/quick-pay'),
+                      onTap: () => context.push('/quick-pay'),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -293,7 +304,7 @@ class DashboardScreen extends ConsumerWidget {
                       title: 'Transactions',
                       subtitle: 'View history',
                       icon: Icons.history,
-                      onTap: () => context.go('/transactions'),
+                      onTap: () => context.push('/transactions'),
                     ),
                   ),
                 ],
@@ -305,19 +316,19 @@ class DashboardScreen extends ConsumerWidget {
                 children: [
                   Expanded(
                     child: _ActionCard(
-                      title: 'Cards',
-                      subtitle: 'Manage cards',
-                      icon: Icons.credit_card,
-                      onTap: () => context.go('/cards'),
+                      title: 'Vendors',
+                      subtitle: 'Manage vendors',
+                      icon: Icons.business,
+                      onTap: () => context.push('/vendors'),
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: _ActionCard(
-                      title: 'Invoice Create',
-                      subtitle: 'Create invoice',
-                      icon: Icons.receipt_long,
-                      onTap: () => context.go('/invoices/create'),
+                      title: 'Cards',
+                      subtitle: 'Payment cards',
+                      icon: Icons.credit_card,
+                      onTap: () => context.push('/cards'),
                     ),
                   ),
                 ],
@@ -337,68 +348,152 @@ class DashboardScreen extends ConsumerWidget {
               const SizedBox(height: 16),
 
               // Activity List
-              ...List.generate(3, (index) {
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      padding: const EdgeInsets.all(16),
+              Consumer(
+                builder: (context, ref, _) {
+                  final recentTransactions = ref.watch(
+                    recentTransactionsProvider,
+                  );
+                  return recentTransactions.when(
+                    data: (transactions) => transactions.isEmpty
+                        ? Container(
+                            padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              color: AppTheme.cardBackground,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Center(
+                              child: Column(
+                                children: [
+                                  Icon(
+                                    Icons.history,
+                                    size: 48,
+                                    color: AppTheme.secondaryText.withValues(
+                                      alpha: 0.5,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  const Text(
+                                    'No recent activity',
+                                    style: TextStyle(
+                                      color: AppTheme.secondaryText,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ).animate().fadeIn(delay: 1400.ms)
+                        : Column(
+                            children: transactions.take(3).map((
+                              transaction,
+                            ) {
+                              return Container(
+                                margin: const EdgeInsets.only(bottom: 12),
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.cardBackground,
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 48,
+                                      height: 48,
+                                      decoration: BoxDecoration(
+                                        color: AppTheme.primaryAccent
+                                            .withValues(
+                                              alpha: 0.1,
+                                            ),
+                                        borderRadius: BorderRadius.circular(
+                                          12,
+                                        ),
+                                      ),
+                                      child: Icon(
+                                        transaction.status ==
+                                                TransactionStatus.success
+                                            ? Icons.check_circle
+                                            : transaction.status ==
+                                                  TransactionStatus.failure
+                                            ? Icons.error
+                                            : Icons.schedule,
+                                        color:
+                                            transaction.status ==
+                                                TransactionStatus.success
+                                            ? AppTheme.successColor
+                                            : transaction.status ==
+                                                  TransactionStatus.failure
+                                            ? AppTheme.errorColor
+                                            : AppTheme.warningColor,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Payment to ${transaction.vendorName ?? "Unknown"}',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .titleMedium
+                                                ?.copyWith(
+                                                  color: AppTheme.primaryText,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                          ),
+                                          Text(
+                                            '₹${transaction.amount.toStringAsFixed(0)} • ${_getRelativeTime(transaction.createdAt)}',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall
+                                                ?.copyWith(
+                                                  color: AppTheme.secondaryText,
+                                                ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    if (transaction.rewardsEarned > 0)
+                                      Text(
+                                        '+₹${transaction.rewardsEarned.toStringAsFixed(0)}',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleMedium
+                                            ?.copyWith(
+                                              color: AppTheme.secondaryAccent,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                      ),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                          ).animate().fadeIn(delay: 1400.ms).slideX(begin: 0.3),
+                    loading: () => const Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          AppTheme.primaryAccent,
+                        ),
+                      ),
+                    ).animate().fadeIn(delay: 1400.ms),
+                    error: (_, __) => Container(
+                      padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
                         color: AppTheme.cardBackground,
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 48,
-                            height: 48,
-                            decoration: BoxDecoration(
-                              color: AppTheme.primaryAccent.withValues(
-                                alpha: 0.1,
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Icon(
-                              Icons.check_circle,
-                              color: AppTheme.successColor,
-                            ),
+                      child: const Center(
+                        child: Text(
+                          'Unable to load recent activity',
+                          style: TextStyle(
+                            color: AppTheme.secondaryText,
                           ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Payment to Vendor ${index + 1}',
-                                  style: Theme.of(context).textTheme.titleMedium
-                                      ?.copyWith(
-                                        color: AppTheme.primaryText,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                ),
-                                Text(
-                                  '₹${(5000 + index * 1000).toStringAsFixed(0)} • 2 hours ago',
-                                  style: Theme.of(context).textTheme.bodySmall
-                                      ?.copyWith(
-                                        color: AppTheme.secondaryText,
-                                      ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Text(
-                            '+₹${50 + index * 10}',
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(
-                                  color: AppTheme.secondaryAccent,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                        ],
+                        ),
                       ),
-                    );
-                  })
-                  .animate(interval: 200.ms)
-                  .fadeIn(delay: 1400.ms)
-                  .slideX(begin: 0.3),
+                    ).animate().fadeIn(delay: 1400.ms),
+                  );
+                },
+              ),
             ],
           ),
         ),
@@ -406,7 +501,7 @@ class DashboardScreen extends ConsumerWidget {
 
       // Floating Action Button
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.go('/quick-pay'),
+        onPressed: () => context.push('/quick-pay'),
         backgroundColor: AppTheme.primaryAccent,
         icon: const Icon(Icons.flash_on, color: Colors.white),
         label: const Text(
@@ -418,6 +513,22 @@ class DashboardScreen extends ConsumerWidget {
         ),
       ).animate().scale(delay: 1600.ms),
     );
+  }
+
+  String _getRelativeTime(DateTime? dateTime) {
+    if (dateTime == null) return 'Unknown time';
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+
+    if (difference.inDays > 0) {
+      return '${difference.inDays} ${difference.inDays == 1 ? 'day' : 'days'} ago';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours} ${difference.inHours == 1 ? 'hour' : 'hours'} ago';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes} ${difference.inMinutes == 1 ? 'minute' : 'minutes'} ago';
+    } else {
+      return 'Just now';
+    }
   }
 
   void _showLogoutDialog(BuildContext context, WidgetRef ref) {

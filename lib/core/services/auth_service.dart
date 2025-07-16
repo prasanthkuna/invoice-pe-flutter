@@ -1,8 +1,11 @@
+import 'dart:async';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'base_service.dart';
-import 'debug_service.dart';
+import 'logger.dart';
 import '../types/result.dart';
 import '../types/auth_types.dart' as app_auth;
+
+final _log = Log.component('auth');
 
 class AuthService extends BaseService {
   /// Auth state stream for providers
@@ -15,26 +18,32 @@ class AuthService extends BaseService {
   /// Send OTP to phone number (modern Result<T> pattern)
   static Future<app_auth.OtpResult> sendOtp(String phone) async {
     try {
-      DebugService.logAuth('Sending OTP to phone', data: {'phone': phone});
+      _log.info('Sending OTP to phone', {'phone': phone});
 
       await BaseService.supabase.auth.signInWithOtp(
         phone: phone,
         shouldCreateUser: true,
       );
 
-      DebugService.logAuth('OTP sent successfully');
+      _log.info('OTP sent successfully');
       return app_auth.OtpSent(
-        phone: phone,
+        phone: phone, 
         message: 'OTP sent to $phone',
       );
     } on AuthException catch (e) {
-      DebugService.logAuth('Auth error during OTP send', error: e);
+_log.error('Auth error during OTP send', error: e);
       return app_auth.OtpFailed(
         error: _parseAuthError(e),
         phone: phone,
       );
+    } on TimeoutException catch (e) {
+_log.error('Timeout occurred during OTP send', error: e);
+      return app_auth.OtpFailed(
+        error: 'Request timed out. Please try again.',
+        phone: phone,
+      );
     } catch (error) {
-      DebugService.logAuth('Unexpected error during OTP send', error: error);
+_log.error('Unexpected error during OTP send', error: error);
       return app_auth.OtpFailed(
         error: _parseAuthError(error),
         phone: phone,
@@ -66,22 +75,22 @@ class AuthService extends BaseService {
 
   /// Smart OTP sending with automatic retry logic (modern Result<T> pattern)
   static Future<app_auth.OtpResult> sendOtpSmart(String phone) async {
-    DebugService.logAuth('Starting smart OTP send', data: {'phone': phone});
+    _log.info('Starting smart OTP send', {'phone': phone});
 
     try {
       // First attempt: try signin (existing user)
-      DebugService.logAuth('Attempting signin for existing user');
+      _log.info('Attempting signin for existing user');
       await BaseService.supabase.auth.signInWithOtp(
-        phone: phone,
+        phone: phone, 
         shouldCreateUser: false,
       );
-      DebugService.logAuth('Signin successful - existing user');
+      _log.info('Signin successful - existing user');
       return app_auth.OtpSent(
-        phone: phone,
+        phone: phone, 
         message: 'Welcome back! OTP sent to $phone',
       );
     } on AuthException catch (e) {
-      DebugService.logAuth('Auth error during signin', error: e);
+_log.error('Auth error during signin', error: e);
 
       final errorMessage = e.message.toLowerCase();
 
@@ -90,28 +99,31 @@ class AuthService extends BaseService {
           errorMessage.contains('signups not allowed') ||
           errorMessage.contains('invalid phone')) {
         // User doesn't exist, try signup
-        DebugService.logAuth('User not found, attempting signup');
+        _log.info('User not found, attempting signup');
         try {
           await BaseService.supabase.auth.signInWithOtp(
             phone: phone,
             shouldCreateUser: true,
           );
-          DebugService.logAuth('Signup successful - new user created');
+          _log.info('Signup successful - new user created');
           return app_auth.OtpSent(
-            phone: phone,
+            phone: phone, 
             message: 'Account created! OTP sent to $phone',
           );
         } on AuthException catch (signupError) {
-          DebugService.logAuth('Auth error during signup', error: signupError);
+_log.error('Auth error during signup', error: signupError);
           return app_auth.OtpFailed(
             error: _parseAuthError(signupError),
             phone: phone,
           );
-        } catch (signupError) {
-          DebugService.logAuth(
-            'Unexpected error during signup',
-            error: signupError,
+        } on TimeoutException catch (e) {
+_log.error('Timeout occurred during signup', error: e);
+          return app_auth.OtpFailed(
+            error: 'Signup request timed out. Please try again.',
+            phone: phone,
           );
+        } catch (signupError) {
+          _log.error('Unexpected error during signup', error: signupError);
           return app_auth.OtpFailed(
             error: _parseAuthError(signupError),
             phone: phone,
@@ -125,7 +137,7 @@ class AuthService extends BaseService {
         phone: phone,
       );
     } catch (error) {
-      DebugService.logAuth('Unexpected error during smart OTP', error: error);
+_log.error('Unexpected error during smart OTP', error: error);
       return app_auth.OtpFailed(
         error: _parseAuthError(error),
         phone: phone,
@@ -138,9 +150,9 @@ class AuthService extends BaseService {
     required String phone,
     required String otp,
   }) async {
-    DebugService.logAuth(
+    _log.info(
       'Starting OTP verification',
-      data: {'phone': phone, 'otp_length': otp.length},
+      {'phone': phone, 'otp_length': otp.length},
     );
 
     try {
@@ -151,9 +163,9 @@ class AuthService extends BaseService {
       );
 
       if (response.user != null && response.session != null) {
-        DebugService.logAuth(
+        _log.info(
           'OTP verification successful',
-          data: {
+          {
             'user_id': response.user!.id,
             'phone': response.user!.phone,
             'created_at': response.user!.createdAt,
@@ -163,12 +175,9 @@ class AuthService extends BaseService {
         // Check if profile exists, create if not
         try {
           await _ensureProfileExists();
-          DebugService.logAuth('Profile creation/verification completed');
+          _log.info('Profile creation/verification completed');
         } catch (profileError) {
-          DebugService.logWarning(
-            'Profile creation failed but auth succeeded',
-            error: profileError,
-          );
+          _log.error('Profile creation failed but auth succeeded', error: profileError);
           // Continue with auth success even if profile creation fails
         }
 
@@ -181,16 +190,16 @@ class AuthService extends BaseService {
         );
       }
 
-      DebugService.logWarning('OTP verification returned null user or session');
+      _log.info('OTP verification returned null user or session');
       return const Failure('Authentication failed - invalid response');
     } on AuthException catch (e) {
-      DebugService.logAuth('Auth error during OTP verification', error: e);
+_log.error('Auth error during OTP verification', error: e);
+      return const Failure('Authentication failed - invalid response');
+    } on AuthException catch (e) {
+      _log.error('Auth error during OTP verification', error: e);
       return Failure(_parseAuthError(e));
     } catch (error) {
-      DebugService.logAuth(
-        'Unexpected error during OTP verification',
-        error: error,
-      );
+      _log.error('Unexpected error during OTP verification', error: error);
       return Failure(_parseAuthError(error));
     }
   }
@@ -215,13 +224,13 @@ class AuthService extends BaseService {
     try {
       final session = BaseService.supabase.auth.currentSession;
       if (session != null && !session.isExpired) {
-        DebugService.logAuth('Session restored successfully');
+        _log.info('Session restored successfully');
         return true;
       }
-      DebugService.logAuth('No valid session to restore');
+      _log.info('No valid session to restore');
       return false;
     } catch (error) {
-      DebugService.logAuth('Session restoration failed', error: error);
+      _log.error('Session restoration failed', error: error);
       return false;
     }
   }
@@ -231,14 +240,11 @@ class AuthService extends BaseService {
     try {
       final user = getCurrentUser();
       if (user == null) {
-        DebugService.logWarning('No current user found for profile creation');
+        _log.info('No current user found for profile creation');
         return;
       }
 
-      DebugService.logDatabase(
-        'Starting profile existence check',
-        data: {'user_id': user.id},
-      );
+      _log.info('Starting profile existence check', {'user_id': user.id});
 
       // Check if profile already exists (manual creation, no triggers)
       final profileResponse = await BaseService.supabase
@@ -248,9 +254,8 @@ class AuthService extends BaseService {
           .maybeSingle();
 
       if (profileResponse == null) {
-        DebugService.logDatabase(
+        _log.info(
           'Profile not found, creating new profile',
-          table: 'profiles',
         );
         // Create profile manually with user ID as primary key
         try {
@@ -260,31 +265,23 @@ class AuthService extends BaseService {
             'business_name': 'My Business', // Default name
             'email': user.email,
           });
-          DebugService.logDatabase(
-            'Profile created successfully',
-            table: 'profiles',
-          );
+          _log.info('Profile created successfully');
         } catch (insertError) {
-          DebugService.logWarning(
+          _log.info(
             'Profile insert failed - might already exist',
-            error: insertError,
-            operation: 'profile_insert',
           );
           // Profile might have been created between check and insert
           // This is fine, just ignore the error
         }
       } else {
-        DebugService.logDatabase(
+        _log.info(
           'Profile already exists',
-          table: 'profiles',
-          data: {'profile_id': profileResponse['id']},
+          {'profile_id': profileResponse['id']},
         );
       }
     } catch (error) {
-      DebugService.logError(
+      _log.info(
         'Profile creation/check failed',
-        error: error,
-        operation: 'profile_check',
       );
       // Log error but don't throw - profile creation can be done later
       // Profile creation is handled by database triggers, so this is not critical
@@ -378,7 +375,7 @@ class AuthService extends BaseService {
           ? app_auth.ProfileComplete(response)
           : app_auth.ProfileIncomplete(missingFields);
     } catch (error) {
-      DebugService.logError('Profile status check failed', error: error);
+_log.error('Profile status check failed', error: error);
       return const app_auth.ProfileIncomplete(['business_name', 'gstin']);
     }
   }

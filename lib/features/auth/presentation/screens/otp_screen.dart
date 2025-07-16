@@ -1,3 +1,5 @@
+import 'dart:async' as async;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -5,9 +7,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/services/auth_service.dart';
-import '../../../../core/services/debug_service.dart';
+import '../../../../core/services/logger.dart';
 import '../../../../core/types/auth_types.dart' as app_auth;
 import '../../../../core/types/result.dart';
+
+final _log = Log.component('auth');
 
 final otpProvider = StateProvider<String>((ref) => '');
 final timerProvider = StateProvider<int>((ref) => 60);
@@ -30,6 +34,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     (_) => TextEditingController(),
   );
   final List<FocusNode> focusNodes = List.generate(6, (_) => FocusNode());
+  async.Timer? _timer;
 
   Future<void> _verifyOtp(
     BuildContext context,
@@ -39,8 +44,6 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     try {
       ref.read(isVerifyingProvider.notifier).state = true;
 
-      DebugService.logInfo('🔐 Verifying OTP: $otp');
-
       final result = await AuthService.verifyOtp(
         phone: widget.phone,
         otp: otp,
@@ -48,8 +51,6 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
 
       switch (result) {
         case Success():
-          DebugService.logInfo('✅ OTP verified successfully');
-
           // Check profile completion status
           final profileStatus = await AuthService.checkProfileStatus();
 
@@ -60,12 +61,11 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
               }
             case app_auth.ProfileIncomplete():
               if (context.mounted) {
-                context.go('/business-info');
+                context.go('/setup-profile');
               }
           }
 
         case Failure(error: final error):
-          DebugService.logError('❌ OTP verification failed', error: error);
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -76,7 +76,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
           }
       }
     } catch (error) {
-      DebugService.logError('OTP verification error', error: error);
+      _log.error('OTP verification error', error: error);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -91,7 +91,26 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _startTimer();
+  }
+
+  void _startTimer() {
+    _timer?.cancel();
+    _timer = async.Timer.periodic(const Duration(seconds: 1), (timer) {
+      final currentTimer = ref.read(timerProvider);
+      if (currentTimer > 0) {
+        ref.read(timerProvider.notifier).state = currentTimer - 1;
+      } else {
+        timer.cancel();
+      }
+    });
+  }
+
+  @override
   void dispose() {
+    _timer?.cancel();
     for (final controller in controllers) {
       controller.dispose();
     }
@@ -106,8 +125,8 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     ref.read(otpProvider.notifier).state = otp;
 
     if (otp.length == 6) {
-      // Auto-submit when OTP is complete
-      context.push('/setup-profile');
+      // Auto-verify when OTP is complete
+      _verifyOtp(context, ref, otp);
     }
   }
 
@@ -123,13 +142,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
-          onPressed: () {
-            if (context.canPop()) {
-              context.pop();
-            } else {
-              context.go('/login');
-            }
-          },
+          onPressed: () => context.pop(),
         ),
       ),
       body: Padding(
@@ -226,9 +239,29 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                       ),
                     )
                   : TextButton(
-                      onPressed: () {
-                        ref.read(timerProvider.notifier).state = 60;
-                        // Implement resend logic
+                      onPressed: () async {
+                        try {
+                          await AuthService.sendOtpSmart(widget.phone);
+                          ref.read(timerProvider.notifier).state = 60;
+                          _startTimer();
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('OTP sent successfully'),
+                                backgroundColor: AppTheme.primaryAccent,
+                              ),
+                            );
+                          }
+                        } catch (error) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Failed to resend OTP: $error'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        }
                       },
                       child: const Text('Resend Code'),
                     ),

@@ -1,575 +1,311 @@
-import 'package:logger/logger.dart';
-import 'package:flutter/foundation.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'dart:io' show Platform;
+import 'logger.dart';
 
-/// InvoicePe Physics Way Debug Service: Minimal but Comprehensive Logging
-/// First Principles: What's the minimum data needed to solve maximum problems?
+/// Adapter for gradual migration from DebugService to new Logger
+/// This allows existing code to work while we migrate
 class DebugService {
-  static late Logger _logger;
   static bool _initialized = false;
-  static String? _sessionId;
-  static final List<Map<String, dynamic>> _logBuffer = [];
-  static bool _dbLoggingEnabled = true;
-
-  /// Initialize the debug service with session tracking
+  
   static void initialize() {
     if (_initialized) return;
-
-    _logger = Logger(
-      filter: ProductionFilter(),
-      printer: PrettyPrinter(
-        methodCount: 2,
-        errorMethodCount: 8,
-        lineLength: 120,
-        colors: true,
-        printEmojis: true,
-        dateTimeFormat: DateTimeFormat.onlyTimeAndSinceStart,
-      ),
-      output: ConsoleOutput(),
-    );
-
-    // Generate unique session ID for correlation
-    _sessionId = DateTime.now().millisecondsSinceEpoch.toString();
-
     _initialized = true;
-    logInfo('🚀 DebugService initialized', context: {'session_id': _sessionId});
+    Log.init();
   }
-
-  /// Log info messages
-  static void logInfo(
-    String message, {
+  
+  static void logInfo(String message, {
     dynamic error,
     StackTrace? stackTrace,
     Map<String, dynamic>? context,
   }) {
-    if (!_initialized) initialize();
-    _logger.i(message, error: error, stackTrace: stackTrace);
-    // Info logs stay local only for performance
+    Log.component('legacy').info(_extractOperation(message), {
+      'message': message,
+      ...?context,
+      if (error != null) 'error': error.toString(),
+    });
   }
-
-  /// Log debug messages (only in debug mode)
-  static void logDebug(
-    String message, [
+  
+  static void logDebug(String message, [
     dynamic error,
     StackTrace? stackTrace,
   ]) {
-    if (!_initialized) initialize();
-    if (kDebugMode) {
-      _logger.d(message, error: error, stackTrace: stackTrace);
-    }
+    Log.component('legacy').debug(_extractOperation(message), {
+      'message': message,
+      if (error != null) 'error': error.toString(),
+    });
   }
-
-  /// Log warning messages (also logs to database)
-  static void logWarning(
-    String message, {
+  
+  static void logWarning(String message, {
     dynamic error,
     StackTrace? stackTrace,
     Map<String, dynamic>? context,
     String? operation,
   }) {
-    if (!_initialized) initialize();
-    _logger.w(message, error: error, stackTrace: stackTrace);
-
-    // Log warnings to database for monitoring
-    _logToDatabase(
-      level: 'WARN',
-      category: 'GENERAL',
-      operation: operation ?? 'unknown',
-      message: message,
-      context: context,
-      error: error,
+    Log.component('legacy').warn(
+      operation ?? _extractOperation(message),
+      {
+        'message': message,
+        ...?context,
+      },
+      suggestion: 'Check the warning context for potential issues',
     );
   }
-
-  /// Log error messages (also logs to database)
-  static void logError(
-    String message, {
+  
+  static void logError(String message, {
     dynamic error,
     StackTrace? stackTrace,
     Map<String, dynamic>? context,
     String? operation,
   }) {
-    if (!_initialized) initialize();
-    _logger.e(message, error: error, stackTrace: stackTrace);
-
-    // Log errors to database for immediate attention
-    _logToDatabase(
-      level: 'ERROR',
-      category: 'GENERAL',
-      operation: operation ?? 'unknown',
-      message: message,
-      context: context,
-      error: error,
+    Log.component('legacy').error(
+      operation ?? _extractOperation(message),
+      error: error ?? message,
+      stackTrace: stackTrace,
+      data: {
+        'message': message,
+        ...?context,
+      },
     );
   }
-
-  /// Log Supabase authentication events with detailed error analysis
-  static void logAuth(
-    String event, {
+  
+  static void logAuth(String event, {
     Map<String, dynamic>? data,
     dynamic error,
     int? performanceMs,
   }) {
-    if (!_initialized) initialize();
-    final message = '🔐 AUTH: $event';
-
+    final logger = Log.component('auth');
+    
     if (error != null) {
-      final errorDetails = _extractDetailedError(error);
-      _logger.e(message, error: errorDetails);
-
-      // Log auth errors to database
-      _logToDatabase(
-        level: 'ERROR',
-        category: 'AUTH',
-        operation: event,
-        message: message,
-        context: data,
+      logger.error(event, 
         error: error,
-        performanceMs: performanceMs,
+        data: {
+          ...?data,
+          if (performanceMs != null) 'performance_ms': performanceMs,
+        },
+        suggestedFixes: [
+          'Check network connectivity',
+          'Verify auth credentials',
+          'Check Supabase configuration',
+        ],
       );
     } else {
-      _logger.i('$message ${data != null ? '- Data: $data' : ''}');
-
-      // Log successful auth events to database for monitoring
-      _logToDatabase(
-        level: 'INFO',
-        category: 'AUTH',
-        operation: event,
-        message: message,
-        context: data,
-        performanceMs: performanceMs,
-      );
+      logger.info(event, {
+        ...?data,
+        if (performanceMs != null) 'performance_ms': performanceMs,
+      });
     }
   }
-
-  /// Log Supabase database operations with database logging for errors
-  static void logDatabase(
-    String operation, {
+  
+  static void logDatabase(String operation, {
     String? table,
     Map<String, dynamic>? data,
     dynamic error,
     int? performanceMs,
   }) {
-    if (!_initialized) initialize();
-    final message = '🗄️ DB: $operation${table != null ? ' on $table' : ''}';
-
+    final logger = Log.component('database');
+    
     if (error != null) {
-      _logger.e(message, error: error);
-
-      // Log database errors to database
-      _logToDatabase(
-        level: 'ERROR',
-        category: 'DB',
-        operation: operation,
-        message: message,
-        context: {'table': table, ...?data},
+      logger.error(operation,
         error: error,
-        performanceMs: performanceMs,
+        data: {
+          if (table != null) 'table': table,
+          ...?data,
+          if (performanceMs != null) 'performance_ms': performanceMs,
+        },
+        suggestedFixes: [
+          'Check database connection',
+          'Verify table exists: $table',
+          'Check query syntax',
+        ],
+        relatedFiles: [
+          'lib/core/services/base_service.dart',
+          'supabase/migrations/',
+        ],
       );
     } else {
-      _logger.i('$message ${data != null ? '- Data: $data' : ''}');
-
-      // Log slow database operations (>1 second)
+      logger.info(operation, {
+        if (table != null) 'table': table,
+        ...?data,
+        if (performanceMs != null) 'performance_ms': performanceMs,
+      });
+      
+      // Log slow queries
       if (performanceMs != null && performanceMs > 1000) {
-        _logToDatabase(
-          level: 'WARN',
-          category: 'DB',
-          operation: operation,
-          message: 'Slow DB operation: $message',
-          context: {'table': table, ...?data},
-          performanceMs: performanceMs,
-        );
+        logger.warn(operation, {
+          'table': table,
+          'performance_ms': performanceMs,
+          'threshold_ms': 1000,
+        }, suggestion: 'Consider adding indexes or optimizing query');
       }
     }
   }
-
-  /// Log API calls with database logging for errors
-  static void logApi(
-    String method,
-    String endpoint, {
+  
+  static void logApi(String method, String endpoint, {
     Map<String, dynamic>? data,
     dynamic error,
     int? statusCode,
   }) {
-    if (!_initialized) initialize();
-    final message =
-        '🌐 API: $method $endpoint${statusCode != null ? ' ($statusCode)' : ''}';
-
+    final logger = Log.component('api');
+    final operation = '${method.toLowerCase()}_${endpoint.replaceAll('/', '_')}';
+    
     if (error != null) {
-      _logger.e(message, error: error);
-
-      // Log API errors to database
-      _logToDatabase(
-        level: 'ERROR',
-        category: 'API',
-        operation: '$method $endpoint',
-        message: message,
-        context: data,
+      logger.error(operation,
         error: error,
-        performanceMs: data?['duration_ms'] as int?,
+        data: {
+          'method': method,
+          'endpoint': endpoint,
+          if (statusCode != null) 'status_code': statusCode,
+          ...?data,
+        },
+        suggestedFixes: [
+          'Check network connectivity',
+          'Verify API endpoint: $endpoint',
+          'Check authentication headers',
+          if (statusCode == 401) 'Token may be expired - refresh auth',
+          if (statusCode == 429) 'Rate limit exceeded - implement backoff',
+        ],
       );
     } else {
-      _logger.i('$message ${data != null ? '- Data: $data' : ''}');
-
-      // Log slow API calls to database (>2 seconds)
-      final duration = data?['duration_ms'] as int?;
-      if (duration != null && duration > 2000) {
-        _logToDatabase(
-          level: 'WARN',
-          category: 'API',
-          operation: '$method $endpoint',
-          message: 'Slow API call: $message',
-          context: data,
-          performanceMs: duration,
-        );
-      }
+      logger.info(operation, {
+        'method': method,
+        'endpoint': endpoint,
+        if (statusCode != null) 'status_code': statusCode,
+        ...?data,
+      });
     }
   }
-
-  /// Log navigation events (critical routes logged to database)
-  static void logNavigation(String route, {Map<String, dynamic>? params}) {
-    if (!_initialized) initialize();
-    _logger.i(
-      '🧭 NAVIGATION: $route ${params != null ? '- Params: $params' : ''}',
-    );
-
-    // Log critical navigation events to database
-    final criticalRoutes = [
-      '/login',
-      '/dashboard',
-      '/payment',
-      '/payment-success',
-    ];
-    if (criticalRoutes.any((r) => route.contains(r))) {
-      _logToDatabase(
-        level: 'INFO',
-        category: 'NAVIGATION',
-        operation: 'route_change',
-        message: 'Navigation to $route',
-        context: params,
-      );
-    }
-  }
-
-  /// Log user actions (important actions logged to database)
-  static void logUserAction(String action, {Map<String, dynamic>? context}) {
-    if (!_initialized) initialize();
-    _logger.i(
-      '👤 USER: $action ${context != null ? '- Context: $context' : ''}',
-    );
-
-    // Log important user actions to database
-    final importantActions = [
-      'payment_initiated',
-      'vendor_selected',
-      'logout',
-      'profile_updated',
-    ];
-    if (importantActions.contains(action)) {
-      _logToDatabase(
-        level: 'INFO',
-        category: 'USER_ACTION',
-        operation: action,
-        message: 'User action: $action',
-        context: context,
-      );
-    }
-  }
-
-  /// Log performance metrics
-  static void logPerformance(
-    String operation,
-    Duration duration, {
-    Map<String, dynamic>? metrics,
-  }) {
-    if (!_initialized) initialize();
-    _logger.i(
-      '⚡ PERFORMANCE: $operation took ${duration.inMilliseconds}ms ${metrics != null ? '- Metrics: $metrics' : ''}',
-    );
-  }
-
-  /// Log network connectivity
-  static void logNetwork(String status, {Map<String, dynamic>? details}) {
-    if (!_initialized) initialize();
-    _logger.i(
-      '📶 NETWORK: $status ${details != null ? '- Details: $details' : ''}',
-    );
-  }
-
-  /// Log session events
-  static void logSession(
-    String event, {
-    String? userId,
-    Map<String, dynamic>? sessionData,
-  }) {
-    if (!_initialized) initialize();
-    _logger.i(
-      '🎫 SESSION: $event${userId != null ? ' for user $userId' : ''} ${sessionData != null ? '- Data: $sessionData' : ''}',
-    );
-  }
-
-  /// Log security events (PCC compliance - all security events logged to database)
-  static void logSecurity(
-    String event, {
-    Map<String, dynamic>? data,
-    String? userId,
-  }) {
-    if (!_initialized) initialize();
-    _logger.i(
-      '🔐 SECURITY: $event${userId != null ? ' for user $userId' : ''} ${data != null ? '- Data: $data' : ''}',
-    );
-
-    // All security events are logged to database for PCC compliance
-    _logToDatabase(
-      level: 'INFO',
-      category: 'SECURITY',
-      operation: event,
-      message: 'Security event: $event',
-      context: {
-        if (userId != null) 'user_id': userId,
-        if (data != null) ...data,
-        'timestamp': DateTime.now().toIso8601String(),
-      },
-    );
-  }
-
-  /// Log security violations (critical - always logged to database)
-  static void logSecurityViolation(
-    String violation, {
-    Map<String, dynamic>? context,
-    String? userId,
-  }) {
-    if (!_initialized) initialize();
-    _logger.e(
-      '🚨 SECURITY VIOLATION: $violation${userId != null ? ' by user $userId' : ''} ${context != null ? '- Context: $context' : ''}',
-    );
-
-    // Critical security violations always logged to database
-    _logToDatabase(
-      level: 'ERROR',
-      category: 'SECURITY_VIOLATION',
-      operation: violation,
-      message: 'Security violation: $violation',
-      context: {
-        if (userId != null) 'user_id': userId,
-        if (context != null) ...context,
-        'timestamp': DateTime.now().toIso8601String(),
-        'severity': 'CRITICAL',
-      },
-    );
-  }
-
-  /// Log audit trail for PCC compliance
-  static void logAuditTrail(
-    String action, {
-    required String userId,
-    Map<String, dynamic>? details,
-  }) {
-    if (!_initialized) initialize();
-    _logger.i(
-      '📋 AUDIT: $action by user $userId ${details != null ? '- Details: $details' : ''}',
-    );
-
-    // All audit events logged to database for compliance
-    _logToDatabase(
-      level: 'INFO',
-      category: 'AUDIT',
-      operation: action,
-      message: 'Audit trail: $action',
-      context: {
-        'user_id': userId,
-        if (details != null) ...details,
-        'timestamp': DateTime.now().toIso8601String(),
-        'session_id': _sessionId,
-      },
-    );
-  }
-
-  /// Log payment events (all payment events logged to database)
-  static void logPayment(
-    String event, {
+  
+  static void logPayment(String event, {
     String? transactionId,
     double? amount,
     dynamic error,
     int? performanceMs,
   }) {
-    if (!_initialized) initialize();
-    final message =
-        '💳 PAYMENT: $event${transactionId != null ? ' ($transactionId)' : ''}${amount != null ? ' - ₹$amount' : ''}';
-
+    final logger = Log.component('payment');
+    
     if (error != null) {
-      _logger.e(message, error: error);
-
-      // Log payment errors to database (critical)
-      _logToDatabase(
-        level: 'ERROR',
-        category: 'PAYMENT',
-        operation: event,
-        message: message,
-        context: {
-          'transaction_id': transactionId,
-          'amount': amount,
-        },
+      logger.error(event,
         error: error,
-        performanceMs: performanceMs,
-      );
-    } else {
-      _logger.i(message);
-
-      // Log all payment events to database for audit trail
-      _logToDatabase(
-        level: 'INFO',
-        category: 'PAYMENT',
-        operation: event,
-        message: message,
-        context: {
-          'transaction_id': transactionId,
-          'amount': amount,
+        data: {
+          if (transactionId != null) 'transaction_id': transactionId,
+          if (amount != null) 'amount': amount,
+          if (performanceMs != null) 'performance_ms': performanceMs,
         },
-        performanceMs: performanceMs,
+        suggestedFixes: [
+          'Check PhonePe SDK initialization',
+          'Verify payment gateway configuration',
+          'Check network connectivity',
+          'Verify transaction amount is valid',
+        ],
+        relatedFiles: [
+          'lib/core/services/payment_service.dart',
+          'lib/core/types/payment_types.dart',
+        ],
       );
-    }
-  }
-
-  /// Log file operations
-  static void logFile(
-    String operation,
-    String path, {
-    int? size,
-    dynamic error,
-  }) {
-    if (!_initialized) initialize();
-    final message =
-        '📁 FILE: $operation $path${size != null ? ' (${size}B)' : ''}';
-    if (error != null) {
-      _logger.e(message, error: error);
     } else {
-      _logger.i(message);
+      logger.info(event, {
+        if (transactionId != null) 'transaction_id': transactionId,
+        if (amount != null) 'amount': amount,
+        if (performanceMs != null) 'performance_ms': performanceMs,
+      });
     }
   }
-
-  /// Log critical errors that need immediate attention with detailed analysis
-  static void logCritical(
-    String message,
-    dynamic error, [
-    StackTrace? stackTrace,
-  ]) {
-    if (!_initialized) initialize();
-    final errorDetails = _extractDetailedError(error);
-    _logger.f(
-      '🚨 CRITICAL: $message',
-      error: errorDetails,
-      stackTrace: stackTrace,
+  
+  static void logNavigation(String route, {Map<String, dynamic>? params}) {
+    Log.component('navigation').info('route_change', {
+      'route': route,
+      ...?params,
+    });
+    
+    // Add to breadcrumbs for error context
+    Log.addBreadcrumb('nav:$route');
+  }
+  
+  static void logUserAction(String action, {Map<String, dynamic>? context}) {
+    Log.component('user').info(action, context ?? {});
+    
+    // Add to breadcrumbs
+    Log.addBreadcrumb('user:$action');
+  }
+  
+  static void logPerformance(String operation, Duration duration, {
+    Map<String, dynamic>? metrics,
+  }) {
+    Log.component('performance').info(operation, {
+      'duration_ms': duration.inMilliseconds,
+      ...?metrics,
+    });
+  }
+  
+  static void logSecurity(String event, {
+    Map<String, dynamic>? data,
+    String? userId,
+  }) {
+    Log.component('security').info(event, {
+      if (userId != null) 'user_id': userId,
+      ...?data,
+    });
+  }
+  
+  static void logSecurityViolation(String violation, {
+    Map<String, dynamic>? context,
+    String? userId,
+  }) {
+    Log.component('security').error(
+      violation,
+      error: 'Security violation detected',
+      data: {
+        if (userId != null) 'user_id': userId,
+        ...?context,
+        'severity': 'CRITICAL',
+      },
+      suggestedFixes: [
+        'Review security logs immediately',
+        'Check for unauthorized access attempts',
+        'Verify user permissions',
+        'Consider blocking the user/IP',
+      ],
     );
   }
-
-  /// Get formatted timestamp
-  static String get timestamp => DateTime.now().toIso8601String();
-
-  /// Check if debug mode is enabled
-  static bool get isDebugMode => kDebugMode;
-
-  /// Extract ONLY the critical error details - minimal but precise
-  static String _extractDetailedError(dynamic error) {
-    if (error == null) return 'NULL_ERROR';
-
-    final errorStr = error.toString();
-
-    // For database errors, extract the core issue
-    if (errorStr.contains('Database error saving new user')) {
-      // This is the key error - let's see if we can get more from the error object
-      if (error.runtimeType.toString().contains(
-        'AuthRetryableFetchException',
-      )) {
-        return 'DB_SAVE_FAILED: AuthRetryableFetchException - Check trigger function permissions';
-      }
-    }
-
-    // Extract just the essential parts
-    if (errorStr.contains('message:')) {
-      final start = errorStr.indexOf('message:') + 8;
-      final end = errorStr.indexOf(',', start);
-      if (end > start) {
-        return errorStr.substring(start, end).trim().replaceAll('"', '');
-      }
-    }
-
-    return errorStr.length > 100
-        ? '${errorStr.substring(0, 100)}...'
-        : errorStr;
+  
+  // Utility methods
+  static String _extractOperation(String message) {
+    // Try to extract operation from emoji messages
+    if (message.contains('🚀')) return 'startup';
+    if (message.contains('🔐')) return 'auth';
+    if (message.contains('💳')) return 'payment';
+    if (message.contains('🗄️')) return 'database';
+    if (message.contains('🌐')) return 'api';
+    if (message.contains('📱')) return 'mobile';
+    if (message.contains('✅')) return 'success';
+    if (message.contains('❌')) return 'failure';
+    if (message.contains('⚠️')) return 'warning';
+    
+    // Extract first few words as operation
+    final words = message.split(' ').take(3).join('_').toLowerCase();
+    return words.replaceAll(RegExp(r'[^a-z0-9_]'), '');
   }
-
-  /// Log to database for critical events (ERROR, WARN)
-  static Future<void> _logToDatabase({
-    required String level,
-    required String category,
-    required String operation,
-    required String message,
-    Map<String, dynamic>? context,
-    dynamic error,
-    int? performanceMs,
-  }) async {
-    if (!_dbLoggingEnabled || !_initialized) return;
-
-    try {
-      final userId = Supabase.instance.client.auth.currentUser?.id;
-
-      final logData = {
-        'user_id': userId,
-        'session_id': _sessionId,
-        'level': level,
-        'category': category,
-        'operation': operation,
-        'message': message,
-        'context': context ?? {},
-        'error_details': error != null
-            ? {
-                'error': _extractDetailedError(error),
-                'type': error.runtimeType.toString(),
-              }
-            : <String, dynamic>{},
-        'performance_ms': performanceMs,
-        'device_info': {
-          'platform': kIsWeb ? 'web' : Platform.operatingSystem,
-          'debug_mode': kDebugMode,
-          'timestamp': DateTime.now().toIso8601String(),
-        },
-      };
-
-      // Add to buffer for batch processing
-      _logBuffer.add(logData);
-
-      // Flush buffer if it gets too large or for critical errors
-      if (_logBuffer.length >= 10 || level == 'ERROR') {
-        await _flushLogBuffer();
-      }
-    } catch (e) {
-      // Don't let logging errors crash the app
-      _logger.e('Failed to log to database: $e');
-    }
-  }
-
-  /// Flush log buffer to database
-  static Future<void> _flushLogBuffer() async {
-    if (_logBuffer.isEmpty) return;
-
-    try {
-      final logsToFlush = List<Map<String, dynamic>>.from(_logBuffer);
-      _logBuffer.clear();
-
-      await Supabase.instance.client.from('logs').insert(logsToFlush);
-    } catch (e) {
-      // Don't let logging errors crash the app
-      _logger.e('Failed to flush log buffer: $e');
-    }
-  }
-
-  /// Enable/disable database logging
+  
+  // Legacy compatibility
   static void setDatabaseLogging(bool enabled) {
-    _dbLoggingEnabled = enabled;
+    // No-op for compatibility
   }
-
-  /// Get current session ID
-  static String? get sessionId => _sessionId;
+  
+  static String? get sessionId => null; // Deprecated
+  
+  static void logAuditTrail(String event, {
+    String? userId,
+    String? action,
+    Map<String, dynamic>? metadata,
+    String? ipAddress,
+    String? userAgent,
+  }) {
+    final logger = Log.component('audit');
+    logger.info(event, {
+      if (userId != null) 'user_id': userId,
+      if (action != null) 'action': action,
+      if (metadata != null) ...metadata,
+      if (ipAddress != null) 'ip_address': ipAddress,
+      if (userAgent != null) 'user_agent': userAgent,
+      'timestamp': DateTime.now().toIso8601String(),
+    });
+  }
 }

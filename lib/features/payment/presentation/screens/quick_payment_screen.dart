@@ -190,54 +190,103 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
                   ),
                 ),
                 child: vendors.when(
-                  data: (vendorList) => ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: vendorList.length,
-                    itemBuilder: (context, index) {
-                      final vendor = vendorList[index];
-                      return ListTile(
-                        leading: Container(
-                          width: 32,
-                          height: 32,
-                          decoration: BoxDecoration(
-                            color: AppTheme.primaryAccent.withValues(
-                              alpha: 0.1,
-                            ),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Center(
-                            child: Text(
-                              vendor.name.substring(0, 1).toUpperCase(),
-                              style: const TextStyle(
-                                color: AppTheme.primaryAccent,
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
+                  data: (vendorList) => vendorList.isEmpty
+                      ? Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            children: [
+                              const Icon(
+                                Icons.business_outlined,
+                                size: 48,
+                                color: AppTheme.secondaryText,
                               ),
-                            ),
+                              const SizedBox(height: 16),
+                              const Text(
+                                'No vendors yet',
+                                style: TextStyle(
+                                  color: AppTheme.primaryText,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              TextButton(
+                                onPressed: () => context.go('/vendors/create'),
+                                child: const Text('Add Your First Vendor'),
+                              ),
+                            ],
                           ),
+                        )
+                      : ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: vendorList.length + 1,
+                          itemBuilder: (context, index) {
+                            if (index == vendorList.length) {
+                              return ListTile(
+                                leading: const Icon(
+                                  Icons.add_circle_outline,
+                                  color: AppTheme.primaryAccent,
+                                ),
+                                title: const Text(
+                                  'Add New Vendor',
+                                  style: TextStyle(
+                                    color: AppTheme.primaryAccent,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                onTap: () {
+                                  setState(() => _showVendorDropdown = false);
+                                  context.go('/vendors/create');
+                                },
+                              );
+                            }
+                            final vendor = vendorList[index];
+                            return ListTile(
+                              leading: Container(
+                                width: 32,
+                                height: 32,
+                                decoration: BoxDecoration(
+                                  color: AppTheme.primaryAccent.withValues(
+                                    alpha: 0.1,
+                                  ),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    vendor.name.substring(0, 1).toUpperCase(),
+                                    style: const TextStyle(
+                                      color: AppTheme.primaryAccent,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              title: Text(
+                                vendor.name,
+                                style: const TextStyle(
+                                  color: AppTheme.primaryText,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              subtitle: Text(
+                                vendor.phone ?? 'No phone',
+                                style: const TextStyle(
+                                  color: AppTheme.secondaryText,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              onTap: () {
+                                ref
+                                        .read(
+                                          quickPaymentVendorProvider.notifier,
+                                        )
+                                        .state =
+                                    vendor;
+                                setState(() => _showVendorDropdown = false);
+                              },
+                            );
+                          },
                         ),
-                        title: Text(
-                          vendor.name,
-                          style: const TextStyle(
-                            color: AppTheme.primaryText,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        subtitle: Text(
-                          vendor.phone ?? 'No phone',
-                          style: const TextStyle(
-                            color: AppTheme.secondaryText,
-                            fontSize: 12,
-                          ),
-                        ),
-                        onTap: () {
-                          ref.read(quickPaymentVendorProvider.notifier).state =
-                              vendor;
-                          setState(() => _showVendorDropdown = false);
-                        },
-                      );
-                    },
-                  ),
                   loading: () => const Center(
                     child: Padding(
                       padding: EdgeInsets.all(20),
@@ -438,6 +487,21 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
     double amount,
     double total,
   ) async {
+    // Validate session before payment
+    final isAuthenticated = ref.read(isAuthenticatedProvider);
+    if (!isAuthenticated) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Session expired. Please login again.'),
+            backgroundColor: AppTheme.errorColor,
+          ),
+        );
+        context.go('/auth');
+      }
+      return;
+    }
+
     // Show loading dialog
     showDialog<void>(
       context: context,

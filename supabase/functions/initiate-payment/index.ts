@@ -40,10 +40,10 @@ Deno.serve(async (req) => {
 
     const { invoice_id, amount }: PaymentRequest = await req.json()
 
-    // Validate invoice bInvoicePegs to user and is pending
+    // Validate invoice belongs to user and is pending
     const { data: invoice, error: invoiceError } = await supabaseUser
       .from('invoices')
-      .select('id, user_id, amount, status')
+      .select('id, user_id, vendor_id, amount, status')
       .eq('id', invoice_id)
       .eq('user_id', user.id)
       .eq('status', 'pending')
@@ -100,9 +100,11 @@ Deno.serve(async (req) => {
       .insert({
         invoice_id,
         user_id: user.id,
+        vendor_id: invoice.vendor_id,
         status: 'initiated',
-        amount_paid: amount,
-        fees_charged: Math.round(amount * 0.02 * 100) / 100, // 2% fee
+        amount: amount,
+        fee: Math.round(amount * 0.02 * 100) / 100, // 2% fee
+        rewards_earned: Math.round(amount * 0.015 * 100) / 100, // 1.5% rewards
         payment_gateway_ref: paymentRef,
         phonepe_transaction_id: paymentRef
       })

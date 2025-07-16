@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../shared/models/vendor.dart';
 import '../../../../core/providers/data_providers.dart';
+import '../../../../core/utils/navigation_helper.dart';
 
 class VendorListScreen extends ConsumerWidget {
   const VendorListScreen({super.key});
@@ -57,6 +58,7 @@ class VendorListScreen extends ConsumerWidget {
         title: const Text('Vendors'),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        automaticallyImplyLeading: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
@@ -183,7 +185,7 @@ class VendorListScreen extends ConsumerWidget {
                               margin: const EdgeInsets.only(bottom: 12),
                               child: _VendorCard(
                                 vendor: vendor,
-                                onTap: () => context.go('/pay/${vendor.id}'),
+                                onTap: () => context.push('/pay/${vendor.id}'),
                               ),
                             )
                             .animate(delay: Duration(milliseconds: 100 * index))
@@ -198,7 +200,15 @@ class VendorListScreen extends ConsumerWidget {
 
       // Add Vendor FAB
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.go('/vendors/create'),
+        onPressed: () async {
+          final result = await NavigationHelper.safePush<bool>(
+            context,
+            '/vendors/create',
+          );
+          if (result == true) {
+            ref.invalidate(vendorsProvider);
+          }
+        },
         backgroundColor: AppTheme.primaryAccent,
         icon: const Icon(Icons.add, color: Colors.white),
         label: const Text(
@@ -290,7 +300,7 @@ class _VendorCard extends StatelessWidget {
                   children: [
                     // Edit Button
                     GestureDetector(
-                      onTap: () => context.go('/vendors/${vendor.id}/edit'),
+                      onTap: () => context.push('/vendors/${vendor.id}/edit'),
                       child: Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(

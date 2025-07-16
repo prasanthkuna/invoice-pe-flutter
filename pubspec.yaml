@@ -73,6 +73,7 @@ dependencies:
 
   # Utilities
   cupertino_icons: ^1.0.8
+  share_plus: ^10.0.0  # For sharing PDFs
 
 dev_dependencies:
   flutter_test:
@@ -131,7 +132,7 @@ flutter:
     - assets/
     - assets/images/
     - assets/icons/
-    - .env
+    # NOTE: Never include .env in assets - it exposes secrets
 
   # Fonts (UX Requirements: Inter/SF Pro)
   # TODO: Add Inter font files to assets/fonts/ directory

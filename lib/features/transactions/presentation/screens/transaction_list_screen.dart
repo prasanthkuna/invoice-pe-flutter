@@ -57,6 +57,7 @@ class TransactionListScreen extends ConsumerWidget {
         title: const Text('Transactions'),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        automaticallyImplyLeading: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.filter_list),

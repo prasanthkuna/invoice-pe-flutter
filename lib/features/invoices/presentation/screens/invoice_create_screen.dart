@@ -4,9 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../shared/models/vendor.dart';
-
 import '../../../../core/providers/data_providers.dart';
 import '../../../../core/services/invoice_service.dart';
+import '../../../../core/utils/navigation_helper.dart';
+import '../../../../core/utils/error_handler.dart';
 
 class InvoiceCreateScreen extends ConsumerStatefulWidget {
   const InvoiceCreateScreen({super.key});
@@ -57,7 +58,7 @@ class _InvoiceCreateScreenState extends ConsumerState<InvoiceCreateScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
+          onPressed: () => NavigationHelper.safePop(context),
         ),
       ),
       body: SingleChildScrollView(
@@ -438,14 +439,8 @@ class _InvoiceCreateScreenState extends ConsumerState<InvoiceCreateScreen> {
       ref.invalidate(filteredInvoicesProvider);
 
       // Show success and navigate back
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Invoice created successfully!'),
-          backgroundColor: Colors.green,
-        ),
-      );
-
-      context.pop();
+      ErrorHandler.showSuccess(context, 'Invoice created successfully!');
+      NavigationHelper.safePop(context, true);
     } catch (error) {
       if (!mounted) return;
 

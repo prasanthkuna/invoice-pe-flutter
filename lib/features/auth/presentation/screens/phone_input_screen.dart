@@ -5,8 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/services/auth_service.dart';
-import '../../../../core/services/debug_service.dart';
+import '../../../../core/services/logger.dart';
 import '../../../../core/types/auth_types.dart' as app_auth;
+
+final _log = Log.component('auth');
 
 final phoneNumberProvider = StateProvider<String>((ref) => '');
 final isLoadingProvider = StateProvider<bool>((ref) => false);
@@ -22,18 +24,18 @@ class PhoneInputScreen extends ConsumerWidget {
     try {
       ref.read(isLoadingProvider.notifier).state = true;
 
-      DebugService.logInfo('🚀 Sending OTP to +91$phoneNumber');
+      _log.info('Ã°Å¸Å¡â‚¬ Sending OTP to +91$phoneNumber');
 
       final result = await AuthService.sendOtpSmart('+91$phoneNumber');
 
       switch (result) {
         case app_auth.OtpSent(phone: final phone):
-          DebugService.logInfo('✅ OTP sent successfully to $phone');
+          _log.info('Ã¢Å“â€¦ OTP sent successfully to $phone');
           if (context.mounted) {
             context.push('/otp', extra: phone);
           }
         case app_auth.OtpFailed(error: final error):
-          DebugService.logError('❌ OTP sending failed', error: error);
+          _log.error('❌ OTP sending failed', error: error);
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -44,7 +46,7 @@ class PhoneInputScreen extends ConsumerWidget {
           }
       }
     } catch (error) {
-      DebugService.logError('OTP sending error', error: error);
+      _log.error('OTP sending error', error: error);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

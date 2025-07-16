@@ -14,6 +14,7 @@ import '../../features/vendors/presentation/screens/vendor_list_screen.dart';
 import '../../features/vendors/presentation/screens/vendor_create_screen.dart';
 import '../../features/vendors/presentation/screens/vendor_edit_screen.dart';
 import '../../features/transactions/presentation/screens/transaction_list_screen.dart';
+import '../../features/transactions/presentation/screens/transaction_detail_screen.dart';
 import '../../features/invoices/presentation/screens/invoice_create_screen.dart';
 import '../../features/cards/presentation/screens/card_list_screen.dart';
 import '../../features/payment/presentation/screens/payment_screen.dart';
@@ -55,7 +56,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final isAuthenticated = ref.read(isAuthenticatedProvider);
       final isAuthRoute =
           state.matchedLocation.startsWith('/auth') ||
-          state.matchedLocation == '/welcome';
+          state.matchedLocation == '/welcome' ||
+          state.matchedLocation == '/login' ||
+          state.matchedLocation == '/otp' ||
+          state.matchedLocation == '/setup-profile';
       final isSplashRoute = state.matchedLocation == '/splash';
 
       // Allow splash screen to handle initial routing
@@ -76,6 +80,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       return null; // No redirect needed
     },
     routes: [
+      // Root redirect
+      GoRoute(
+        path: '/',
+        redirect: (_, state) => '/dashboard',
+      ),
+
       // Splash Screen
       GoRoute(
         path: '/splash',
@@ -145,6 +155,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
+        path: '/payment/:invoiceId',
+        name: 'invoice-payment',
+        builder: (context, state) {
+          final invoiceId = state.pathParameters['invoiceId']!;
+          return PaymentScreen(invoiceId: invoiceId);
+        },
+      ),
+      GoRoute(
         path: '/quick-pay',
         name: 'quick-payment',
         builder: (context, state) => const QuickPaymentScreen(),
@@ -153,6 +171,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/transactions',
         name: 'transactions',
         builder: (context, state) => const TransactionListScreen(),
+      ),
+      GoRoute(
+        path: '/transactions/:id',
+        name: 'transaction-detail',
+        builder: (context, state) {
+          final transactionId = state.pathParameters['id']!;
+          return TransactionDetailScreen(transactionId: transactionId);
+        },
       ),
       GoRoute(
         path: '/invoices/create',

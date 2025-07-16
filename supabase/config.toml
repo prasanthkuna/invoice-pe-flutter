@@ -192,9 +192,8 @@ template = "Your code is {{ .Code }}"
 max_frequency = "5s"
 
 # Use pre-defined map of phone number to OTP for testing.
-# Commented out to use real Twilio Verify OTP
-# [auth.sms.test_otp]
-# "+919008393030" = "123456"
+[auth.sms.test_otp]
+"+919008393030" = "123456"
 
 # Configure logged in session timeouts.
 # [auth.sessions]

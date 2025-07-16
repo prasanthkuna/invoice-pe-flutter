@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/providers/data_providers.dart';
 import '../../../../core/services/vendor_service.dart';
 import '../../../../shared/models/vendor.dart';
+import '../../../../core/utils/navigation_helper.dart';
+import '../../../../core/utils/error_handler.dart';
 
 class VendorEditScreen extends ConsumerStatefulWidget {
   const VendorEditScreen({required this.vendorId, super.key});
@@ -67,7 +68,7 @@ class _VendorEditScreenState extends ConsumerState<VendorEditScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
-          onPressed: () => context.pop(),
+          onPressed: () => NavigationHelper.safePop(context),
         ),
         actions: [
           IconButton(
@@ -108,7 +109,7 @@ class _VendorEditScreenState extends ConsumerState<VendorEditScreen> {
               ),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () => context.pop(),
+                onPressed: () => NavigationHelper.safePop(context),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primaryAccent,
                   foregroundColor: Colors.white,
@@ -484,13 +485,8 @@ class _VendorEditScreenState extends ConsumerState<VendorEditScreen> {
       ref.invalidate(vendorProvider(widget.vendorId));
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Vendor updated successfully!'),
-            backgroundColor: AppTheme.successColor,
-          ),
-        );
-        context.pop();
+        ErrorHandler.showSuccess(context, 'Vendor updated successfully!');
+        NavigationHelper.safePop(context, true);
       }
     } catch (error) {
       if (mounted) {
@@ -554,13 +550,8 @@ class _VendorEditScreenState extends ConsumerState<VendorEditScreen> {
       ref.invalidate(vendorsProvider);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Vendor deleted successfully!'),
-            backgroundColor: AppTheme.successColor,
-          ),
-        );
-        context.pop();
+        ErrorHandler.showSuccess(context, 'Vendor deleted successfully!');
+        NavigationHelper.safePop(context, true);
       }
     } catch (error) {
       if (mounted) {

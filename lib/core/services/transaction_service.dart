@@ -11,13 +11,7 @@ class TransactionService extends BaseService {
 
       final response = await BaseService.supabase
           .from(_tableName)
-          .select('''
-            *,
-            invoices!inner(
-              vendor_id,
-              vendors!inner(name)
-            )
-          ''')
+          .select('*')
           .eq('user_id', BaseService.currentUserId!)
           .order('created_at', ascending: false);
 
@@ -34,13 +28,7 @@ class TransactionService extends BaseService {
 
       final response = await BaseService.supabase
           .from(_tableName)
-          .select('''
-            *,
-            invoices!inner(
-              vendor_id,
-              vendors!inner(name)
-            )
-          ''')
+          .select('*')
           .eq('id', transactionId)
           .eq('user_id', BaseService.currentUserId!)
           .maybeSingle();
@@ -60,13 +48,7 @@ class TransactionService extends BaseService {
 
       final response = await BaseService.supabase
           .from(_tableName)
-          .select('''
-            *,
-            invoices!inner(
-              vendor_id,
-              vendors!inner(name)
-            )
-          ''')
+          .select('*')
           .eq('user_id', BaseService.currentUserId!)
           .eq('status', _mapStatusToBackend(status))
           .order('created_at', ascending: false);
@@ -86,13 +68,7 @@ class TransactionService extends BaseService {
 
       final response = await BaseService.supabase
           .from(_tableName)
-          .select('''
-            *,
-            invoices!inner(
-              vendor_id,
-              vendors!inner(name)
-            )
-          ''')
+          .select('*')
           .eq('invoice_id', invoiceId)
           .eq('user_id', BaseService.currentUserId!)
           .order('created_at', ascending: false);
@@ -112,13 +88,7 @@ class TransactionService extends BaseService {
 
       final response = await BaseService.supabase
           .from(_tableName)
-          .select('''
-            *,
-            invoices!inner(
-              vendor_id,
-              vendors!inner(name)
-            )
-          ''')
+          .select('*')
           .eq('user_id', BaseService.currentUserId!)
           .order('created_at', ascending: false)
           .limit(limit);

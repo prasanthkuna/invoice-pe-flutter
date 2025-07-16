@@ -3,13 +3,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/theme/app_theme.dart';
 import '../../../../core/constants/app_constants.dart';
-import '../../../../core/providers/data_providers.dart';
+// Payment providers not needed - using local state
 import '../../../../core/services/payment_service.dart';
-import '../../../../core/types/payment_types.dart' as payment_types;
-import '../../../../shared/models/vendor.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../shared/models/invoice.dart';
+import '../../../../shared/models/vendor.dart';
+import '../../../../core/providers/data_providers.dart';
+import '../../../../core/utils/navigation_helper.dart';
+import '../../../../core/utils/display_helper.dart';
+import '../../../../core/types/payment_types.dart';
 
 final paymentAmountProvider = StateProvider<double>((ref) => 0.0);
 final selectedCardProvider = StateProvider<int>((ref) => 0);
@@ -39,7 +42,7 @@ class PaymentScreen extends ConsumerWidget {
     final rewards = amount * AppConstants.defaultRewardsPercentage / 100;
 
     // Handle loading states
-    if (invoiceAsync?.isLoading == true || vendorAsync?.isLoading == true) {
+    if ((invoiceAsync?.isLoading ?? false) || (vendorAsync?.isLoading ?? false)) {
       return Scaffold(
         appBar: AppBar(
           title: const Text('Make Payment'),
@@ -71,8 +74,8 @@ class PaymentScreen extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios),
-          onPressed: () => context.pop(),
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => NavigationHelper.safePop(context),
         ),
       ),
       body: SingleChildScrollView(
@@ -311,11 +314,43 @@ class PaymentScreen extends ConsumerWidget {
 
               const SizedBox(height: 16),
 
+              // Demo Mode Notice
+              Container(
+                padding: const EdgeInsets.all(12),
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.orange.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      color: Colors.orange.shade700,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Demo Mode: Using mock cards. Real payment cards will be available after PhonePe merchant approval.',
+                        style: TextStyle(
+                          color: Colors.orange.shade700,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ).animate().fadeIn(delay: 900.ms),
+
               // Credit Card Selection
               SizedBox(
                 height: 200,
                 child: PageView.builder(
-                  itemCount: 2, // Mock cards
+                  itemCount: 2, // Mock cards for UI only
                   onPageChanged: (index) {
                     ref.read(selectedCardProvider.notifier).state = index;
                   },
@@ -491,7 +526,9 @@ class PaymentScreen extends ConsumerWidget {
           'vendorId': vendorId ?? invoice?.vendorId ?? '',
           'invoiceId': invoiceId,
           'rewards': rewards,
-          'transactionId': 'TXN${DateTime.now().millisecondsSinceEpoch}',
+          'transactionId':
+              result.transactionId ??
+              'TXN${DateTime.now().millisecondsSinceEpoch}',
           'paymentMethod': 'Credit Card **** 1234',
           'fee': fee,
           'total': total,
@@ -540,17 +577,16 @@ class PaymentScreen extends ConsumerWidget {
   }
 
   String _getVendorInitial(Invoice? invoice, Vendor? vendor) {
-    final name = invoice?.vendorName ?? vendor?.name ?? 'Unknown';
-    return name.isNotEmpty ? name.substring(0, 1).toUpperCase() : 'U';
+    return DisplayHelper.getVendorInitial(invoice, vendor);
   }
 
   String _getVendorName(Invoice? invoice, Vendor? vendor) {
-    return invoice?.vendorName ?? vendor?.name ?? 'Unknown Vendor';
+    return DisplayHelper.getVendorName(invoice, vendor);
   }
 
   String _getVendorDetails(Invoice? invoice, Vendor? vendor) {
     if (vendor != null) {
-      return 'Phone: ${vendor.phone} • ${vendor.email}';
+      return DisplayHelper.formatVendorInfo(vendor);
     }
     if (invoice != null) {
       return 'Invoice #${invoice.invoiceNumber}';

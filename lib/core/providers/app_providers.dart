@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:dio/dio.dart';
-import '../services/debug_service.dart';
+import '../services/logger.dart';
+
+final _log = Log.component('app');
 
 // Supabase Client Provider
 final supabaseClientProvider = Provider<SupabaseClient>((ref) {
@@ -19,10 +21,9 @@ final dioProvider = Provider<Dio>((ref) {
         final stopwatch = Stopwatch()..start();
         options.extra['_start_time'] = stopwatch;
 
-        DebugService.logApi(
-          options.method,
-          options.path,
-          data: {
+        _log.info(
+          '${options.method} ${options.path}',
+          {
             'headers': options.headers,
             'query_params': options.queryParameters,
             'request_data': options.data?.toString().length ?? 0,
@@ -35,11 +36,9 @@ final dioProvider = Provider<Dio>((ref) {
             response.requestOptions.extra['_start_time'] as Stopwatch?;
         final duration = stopwatch?.elapsedMilliseconds;
 
-        DebugService.logApi(
-          response.requestOptions.method,
-          response.requestOptions.path,
-          statusCode: response.statusCode,
-          data: {
+        _log.info(
+          '${response.requestOptions.method} ${response.requestOptions.path}',
+          {
             'response_size': response.data?.toString().length ?? 0,
             'duration_ms': duration,
           },
@@ -51,11 +50,9 @@ final dioProvider = Provider<Dio>((ref) {
             error.requestOptions.extra['_start_time'] as Stopwatch?;
         final duration = stopwatch?.elapsedMilliseconds;
 
-        DebugService.logApi(
-          error.requestOptions.method,
-          error.requestOptions.path,
+        _log.error(
+          '${error.requestOptions.method} ${error.requestOptions.path}',
           error: error,
-          statusCode: error.response?.statusCode,
           data: {
             'duration_ms': duration,
             'error_type': error.type.toString(),

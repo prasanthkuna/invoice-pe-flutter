@@ -3,26 +3,21 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 // Core application constants
 class AppConstants {
   // App Info
-  static String get appName => dotenv.env['APP_NAME'] ?? 'InvoicePe';
-  static String get appVersion => dotenv.env['APP_VERSION'] ?? '1.0.0';
-  static String get environment => dotenv.env['ENVIRONMENT'] ?? 'UAT';
+  static String get appName => dotenv.env['APP_NAME'] ?? 'InvoicePe Staging';
+  static String get appVersion => dotenv.env['APP_VERSION'] ?? '1.0.0-staging';
+  static String get environment => dotenv.env['ENVIRONMENT'] ?? 'STAGING';
 
-  // Supabase Configuration
+  // Supabase Configuration - Real staging values
   static String get supabaseUrl =>
-      dotenv.env['SUPABASE_URL'] ?? 'https://your-project-id.supabase.co';
+      dotenv.env['SUPABASE_URL'] ?? 'https://ixwwtabatwskafyvlwnm.supabase.co';
   static String get supabaseAnonKey =>
-      dotenv.env['SUPABASE_ANON_KEY'] ?? 'your-anon-key-here';
-  static String get supabaseServiceRoleKey =>
-      dotenv.env['SUPABASE_SERVICE_ROLE_KEY'] ?? 'your-service-role-key-here';
+      dotenv.env['SUPABASE_ANON_KEY'] ?? 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml4d3d0YWJhdHdza2FmeXZsd25tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE2NTY0MDAsImV4cCI6MjA2NzIzMjQwMH0.g7UfD3IVgsXEkUSYL4utfXBClzvvpduZDMwqPD0BNwc';
+  // Service role key removed - should only exist on backend
 
-  // PhonePe Configuration
-  static String get phonePeMerchantId =>
-      dotenv.env['PHONEPE_MERCHANT_ID'] ?? 'YOUR_MERCHANT_ID';
-  static String get phonePeSaltKey =>
-      dotenv.env['PHONEPE_SALT_KEY'] ?? 'your-salt-key-here';
-  static String get phonePeSaltIndex => dotenv.env['PHONEPE_SALT_INDEX'] ?? '1';
+  // PhonePe Configuration - Moved to backend for security
   static String get phonePeEnvironment =>
       dotenv.env['PHONEPE_ENVIRONMENT'] ?? 'UAT';
+  // PhonePe credentials removed - handled by backend Edge Functions
 
   // API Endpoints
   static String get processPaymentFunction =>
@@ -35,17 +30,16 @@ class AppConstants {
       dotenv.env['INITIATE_PAYMENT_FUNCTION'] ?? 'initiate-payment';
 
   // Security Configuration
-  static String get encryptionKey =>
-      dotenv.env['ENCRYPTION_KEY'] ?? 'your-encryption-key-here';
-  static String get jwtSecret =>
-      dotenv.env['JWT_SECRET'] ?? 'your-jwt-secret-here';
+  static String get encryptionKey => 
+      dotenv.env['ENCRYPTION_KEY'] ?? 'InvoicePe2025AES256SecureKey4PCI';
+  // JWT secret removed - backend only
 
   // Development Configuration
   static bool get debugMode =>
-      dotenv.env['DEBUG_MODE']?.toLowerCase() == 'true';
-  static String get logLevel => dotenv.env['LOG_LEVEL'] ?? 'info';
+      dotenv.env['DEBUG_MODE']?.toLowerCase() == 'true' ?? true;
+  static String get logLevel => dotenv.env['LOG_LEVEL'] ?? 'debug';
   static bool get enableAnalytics =>
-      dotenv.env['ENABLE_ANALYTICS']?.toLowerCase() == 'true';
+      dotenv.env['ENABLE_ANALYTICS']?.toLowerCase() == 'true' ?? true;
 
   // Storage Buckets
   static const String invoicesBucket = 'invoices';

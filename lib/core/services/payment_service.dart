@@ -4,24 +4,33 @@ import '../../shared/models/transaction.dart';
 import '../constants/app_constants.dart';
 import '../types/payment_types.dart' as payment_types;
 import 'base_service.dart';
-import 'debug_service.dart';
+import 'logger.dart';
 
-enum PaymentResult { success, failure, cancelled }
+final _log = Log.component('payment');
 
 class PaymentService extends BaseService {
-  /// Initialize PhonePe SDK
+  /// Track if PhonePe SDK is initialized
+  static bool _phonePeInitialized = false;
+  
+  /// Check if running in local testing mode
+  static bool get isLocalTesting =>
+      const String.fromEnvironment('LOCAL_TESTING', defaultValue: 'false') ==
+          'true' ||
+      const String.fromEnvironment('FLUTTER_TEST', defaultValue: 'false') ==
+          'true';
+
+  /// Initialize PhonePe SDK (lazy - only when needed)
   static Future<void> initializePhonePe() async {
+    if (_phonePeInitialized) return; // Already initialized
     try {
-      DebugService.logInfo('🚀 Initializing PhonePe SDK');
+      _log.info('💀 Initializing PhonePe SDK');
 
       // Use string-based environment configuration (PhonePe SDK 2.0.3 pattern)
       final environment =
           AppConstants.phonePeEnvironment; // 'PRODUCTION' or 'UAT'
-      final merchantId = AppConstants.phonePeMerchantId;
+      const merchantId = 'DEMOUAT'; // Moved to backend for security
 
-      DebugService.logInfo(
-        '📱 PhonePe Config: Environment=$environment, MerchantId=$merchantId',
-      );
+      _log.info('📱 PhonePe Config: Environment=$environment, MerchantId=$merchantId');
 
       // PhonePe SDK 2.0.3 initialization pattern
       await PhonePePaymentSdk.init(
@@ -31,9 +40,13 @@ class PaymentService extends BaseService {
         AppConstants.debugMode, // Enable logging based on environment
       );
 
-      DebugService.logInfo('✅ PhonePe SDK initialized successfully');
+      _log.info('Ã¢Å“â€¦ PhonePe SDK initialized successfully');
+      _phonePeInitialized = true;
     } catch (error) {
-      DebugService.logError('PhonePe SDK initialization failed', error: error);
+_log.error('PhonePe SDK initialization failed', error: error);
+      _phonePeInitialized = true;
+    } catch (error) {
+_log.error('PhonePe SDK initialization failed', error: error);
       rethrow;
     }
   }
@@ -48,12 +61,26 @@ class PaymentService extends BaseService {
     try {
       BaseService.ensureAuthenticated();
 
-      DebugService.logInfo('🚀 Starting PhonePe payment process');
+      _log.info('Ã°Å¸Å¡â‚¬ Starting PhonePe payment process');
 
       // Create invoice if not provided
       final finalInvoiceId =
           invoiceId ??
           await _createInvoiceForPayment(vendorId, amount, description);
+
+      // Local testing mode - skip PhonePe integration
+      if (isLocalTesting) {
+        _log.info(
+          'Ã°Å¸â€œÂ± Local testing mode - simulating successful payment',
+        );
+        return payment_types.PaymentSuccess(
+          transactionId: 'MOCK_${DateTime.now().millisecondsSinceEpoch}',
+          invoiceId: finalInvoiceId,
+          amount: amount,
+          rewards: payment_types.PaymentFeeCalculator.calculateRewards(amount),
+          message: 'Mock payment successful (local testing)',
+        );
+      }
 
       // Call initiate-payment Edge Function
       final response = await BaseService.supabase.functions.invoke(
@@ -72,13 +99,18 @@ class PaymentService extends BaseService {
 
       final paymentData = response.data as Map<String, dynamic>;
 
+      // Initialize PhonePe SDK if not already done (lazy loading)
+      if (!_phonePeInitialized) {
+        await initializePhonePe();
+      }
+
       // Start PhonePe transaction (PhonePe SDK 3.0.0 API)
       final result = await PhonePePaymentSdk.startTransaction(
         paymentData['body'] as String,
         paymentData['checksum'] as String,
       );
 
-      DebugService.logInfo('PhonePe transaction result: $result');
+      _log.info('PhonePe transaction result: $result');
 
       // Handle PhonePe response with modern pattern matching
       if (result != null) {
@@ -97,7 +129,7 @@ class PaymentService extends BaseService {
             },
           );
 
-          DebugService.logInfo('✅ Payment successful');
+          _log.info('Ã¢Å“â€¦ Payment successful');
           return payment_types.PaymentSuccess(
             transactionId: paymentData['merchantTransactionId'] as String,
             invoiceId: finalInvoiceId,
@@ -108,13 +140,13 @@ class PaymentService extends BaseService {
             message: 'Payment completed successfully',
           );
         } else if (phonePeResponse.isCancelled) {
-          DebugService.logInfo('⚠️ Payment cancelled by user');
+          _log.info('❡ ️ Payment cancelled by user');
           return payment_types.PaymentCancelled(
             transactionId: paymentData['merchantTransactionId'] as String,
             reason: phonePeResponse.message ?? 'Payment cancelled by user',
           );
         } else {
-          DebugService.logWarning('❌ Payment failed');
+          _log.info('Ã¢ÂÅ’ Payment failed');
           return payment_types.PaymentFailure(
             error: phonePeResponse.message ?? 'Payment failed',
             transactionId: paymentData['merchantTransactionId'] as String,
@@ -122,13 +154,13 @@ class PaymentService extends BaseService {
           );
         }
       } else {
-        DebugService.logWarning('❌ Payment failed - null response');
+        _log.info('Ã¢ÂÅ’ Payment failed - null response');
         return const payment_types.PaymentFailure(
           error: 'Payment failed - no response received',
         );
       }
     } catch (error) {
-      DebugService.logError('Payment processing error', error: error);
+_log.error('Payment processing error', error: error);
       return payment_types.PaymentFailure(
         error: 'Payment processing failed: $error',
       );

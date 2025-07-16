@@ -1,0 +1,46 @@
+name: Flutter CI - InvoicePe
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  analyze-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.32.6'
+        channel: 'stable'
+    
+    - name: Install dependencies
+      run: flutter pub get
+    
+    - name: Generate code
+      run: flutter pub run build_runner build --delete-conflicting-outputs
+    
+    - name: Apply automated fixes
+      run: dart fix --apply
+    
+    - name: Format code
+      run: dart format --set-exit-if-changed .
+    
+    - name: Analyze code
+      run: flutter analyze --no-fatal-infos
+    
+    - name: Run tests
+      run: flutter test
+    
+    - name: Check for unused imports
+      run: |
+        if flutter analyze | grep -q "unused_import"; then
+          echo "❌ Found unused imports!"
+          exit 1
+        fi
+        echo "✅ No unused imports found"

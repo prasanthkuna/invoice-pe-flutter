@@ -234,7 +234,6 @@ class PhoneAuthScreen extends ConsumerWidget {
 
         switch (otpResult) {
           case app_auth.OtpSent(message: final message):
-            ref.read(showOtpFieldProvider.notifier).state = true;
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -242,6 +241,8 @@ class PhoneAuthScreen extends ConsumerWidget {
                   backgroundColor: const Color(0xFF00D4FF),
                 ),
               );
+              // Navigate to OTP screen with phone number
+              context.push('/otp', extra: phone);
             }
           case app_auth.OtpFailed(error: final error):
             if (context.mounted) {

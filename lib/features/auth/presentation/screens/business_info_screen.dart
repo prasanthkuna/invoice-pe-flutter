@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/services/profile_service.dart';
 
 final businessNameProvider = StateProvider<String>((ref) => '');
 final gstinProvider = StateProvider<String>((ref) => '');
@@ -160,7 +161,7 @@ class BusinessInfoScreen extends ConsumerWidget {
               width: double.infinity,
               height: 56,
               child: ElevatedButton(
-                onPressed: isValid ? () => context.go('/') : null,
+                onPressed: isValid ? () => _completeSetup(context, ref) : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: isValid
                       ? AppTheme.primaryAccent
@@ -185,5 +186,30 @@ class BusinessInfoScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _completeSetup(BuildContext context, WidgetRef ref) async {
+    final businessName = ref.read(businessNameProvider);
+    final gstin = ref.read(gstinProvider);
+
+    try {
+      await ProfileService.updateProfile(
+        businessName: businessName.trim(),
+        gstin: gstin.trim().isEmpty ? null : gstin.trim(),
+      );
+
+      if (context.mounted) {
+        context.go('/dashboard');
+      }
+    } catch (error) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to save profile: $error'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 }

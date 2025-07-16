@@ -20,30 +20,33 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   }
 
   Future<void> _checkAuthStatus() async {
-    // Enhanced session restoration with proper timing
-    await Future<void>.delayed(const Duration(milliseconds: 500));
+    // NO DELAYS - Check auth immediately
+    if (!mounted) return;
 
-    if (mounted) {
-      try {
-        // Try to restore session first
-        final sessionRestored = await AuthService.restoreSession();
+    try {
+      // Check current auth state first (instant)
+      final isAuthenticated = ref.read(isAuthenticatedProvider);
+      
+      if (isAuthenticated) {
+        // Already authenticated, go immediately
+        if (mounted) context.go('/dashboard');
+        return;
+      }
 
-        // Wait a bit more for auth state to propagate
-        await Future<void>.delayed(const Duration(milliseconds: 1000));
+      // Try to restore session (async, but don't block)
+      final sessionRestored = await AuthService.restoreSession();
 
-        if (mounted) {
-          final isAuthenticated = ref.read(isAuthenticatedProvider);
-          if (isAuthenticated || sessionRestored) {
-            context.go('/dashboard');
-          } else {
-            context.go('/auth');
-          }
-        }
-      } catch (e) {
-        // If session restoration fails, go to auth
-        if (mounted) {
+      if (mounted) {
+        if (sessionRestored) {
+          context.go('/dashboard');
+        } else {
           context.go('/auth');
         }
+      }
+    } catch (e) {
+      // If anything fails, go to auth
+      if (mounted) {
+        context.go('/auth');
       }
     }
   }

@@ -1,6 +1,8 @@
 import 'dart:convert';
 import '../types/result.dart';
-import 'debug_service.dart';
+import 'logger.dart';
+
+final _log = Log.component('validation');
 
 /// Enhanced Input Validation Service for PCC Compliance
 /// Implements XSS protection, SQL injection prevention, and security hardening
@@ -66,7 +68,7 @@ class ValidationService {
 
     // Log if sanitization occurred
     if (sanitized != input) {
-      DebugService.logSecurityViolation(
+      _log.info(
         'XSS attempt detected and sanitized',
         context: {
           'original_length': input.length,
@@ -99,7 +101,7 @@ class ValidationService {
 
       // Check for SQL injection attempts
       if (_sqlInjectionPattern.hasMatch(validatedInput)) {
-        DebugService.logSecurityViolation(
+        _log.info(
           'SQL injection attempt detected',
           context: {
             'field': fieldName,
@@ -120,7 +122,7 @@ class ValidationService {
 
       return Success(validatedInput);
     } catch (error) {
-      DebugService.logError('Text validation failed', error: error);
+      _log.info('Text validation failed'.error(_log.info('Text validation failed', error: error$(if () { ", stackTrace: " } else { "" }));
       return Failure('Validation error for $fieldName');
     }
   }
@@ -195,11 +197,11 @@ class ValidationService {
     }
 
     if (minAmount != null && parsedAmount < minAmount) {
-      return Failure('Amount must be at least ₹$minAmount');
+      return Failure('Amount must be at least Ã¢â€šÂ¹$minAmount');
     }
 
     if (maxAmount != null && parsedAmount > maxAmount) {
-      return Failure('Amount cannot exceed ₹$maxAmount');
+      return Failure('Amount cannot exceed Ã¢â€šÂ¹$maxAmount');
     }
 
     return Success(parsedAmount);
@@ -264,7 +266,7 @@ class ValidationService {
 
     // Check for malicious file types
     if (_maliciousFilePattern.hasMatch(sanitized)) {
-      DebugService.logSecurityViolation(
+      _log.info(
         'Malicious file upload attempt',
         context: {
           'filename': sanitized,
@@ -306,7 +308,7 @@ class ValidationService {
 
       return Success(data);
     } catch (error) {
-      DebugService.logError('JSON validation failed', error: error);
+      _log.info('JSON validation failed'.error(_log.info('JSON validation failed', error: error$(if () { ", stackTrace: " } else { "" }));
       return const Failure('Invalid JSON format');
     }
   }
@@ -317,7 +319,7 @@ class ValidationService {
       if (value is String) {
         // Check for XSS in string values
         if (_xssPattern.hasMatch(value)) {
-          DebugService.logSecurityViolation(
+          _log.info(
             'XSS attempt in JSON data',
             context: {
               'field': key,
@@ -328,7 +330,7 @@ class ValidationService {
 
         // Check for SQL injection in string values
         if (_sqlInjectionPattern.hasMatch(value)) {
-          DebugService.logSecurityViolation(
+          _log.info(
             'SQL injection attempt in JSON data',
             context: {
               'field': key,
@@ -365,7 +367,7 @@ class ValidationService {
     attempts.removeWhere((attempt) => now.difference(attempt) > timeWindow);
 
     if (attempts.length >= maxAttempts) {
-      DebugService.logSecurityViolation(
+      _log.info(
         'Rate limit exceeded',
         context: {
           'identifier': identifier,

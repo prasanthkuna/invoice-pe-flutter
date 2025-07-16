@@ -324,7 +324,7 @@ class InvoiceDetailScreen extends ConsumerWidget {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
-                          context.go('/payment/${invoice.id}');
+                          context.push('/payment/${invoice.id}');
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.primaryAccent,

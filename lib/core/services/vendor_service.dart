@@ -1,6 +1,8 @@
 import '../../shared/models/vendor.dart';
 import 'base_service.dart';
-import 'debug_service.dart';
+import 'logger.dart';
+
+final _log = Log.component('vendor');
 
 class VendorService extends BaseService {
   static const String _tableName = 'vendors';
@@ -67,7 +69,10 @@ class VendorService extends BaseService {
     try {
       BaseService.ensureAuthenticated();
 
-      DebugService.logDatabase('Creating vendor', table: 'vendors', data: data);
+      _log.info('Creating vendor', {
+        'table': 'vendors',
+        'data': data,
+      });
 
       final response = await BaseService.supabase
           .from(_tableName)
@@ -75,18 +80,19 @@ class VendorService extends BaseService {
           .select()
           .single();
 
-      DebugService.logDatabase(
-        'Vendor created successfully',
-        table: 'vendors',
-        data: {'vendor_id': response['id']},
-      );
+      _log.info('Vendor created successfully', {
+        'table': 'vendors',
+        'vendor_id': response['id'],
+      });
       return _fromSupabaseJson(response);
     } catch (error) {
-      DebugService.logDatabase(
+      _log.error(
         'Failed to create vendor',
-        table: 'vendors',
-        data: data,
         error: error,
+        data: {
+          'table': 'vendors',
+          'data': data,
+        },
       );
       throw BaseService.handleError(error);
     }
