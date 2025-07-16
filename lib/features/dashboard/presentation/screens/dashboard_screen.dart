@@ -166,7 +166,7 @@ class DashboardScreen extends ConsumerWidget {
                     const SizedBox(height: 16),
                     dashboardMetrics.when(
                       data: (metrics) => Text(
-                        '₹${(metrics['totalRewards'] ?? 0.0).toStringAsFixed(2)}',
+                        '₹${((metrics['totalRewards'] as num?) ?? 0.0).toStringAsFixed(2)}',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 36,
@@ -214,7 +214,7 @@ class DashboardScreen extends ConsumerWidget {
                           child: _MetricCard(
                             title: 'Total Payments',
                             value:
-                                '₹${((metrics['totalPayments'] ?? 0.0) / 1000).toStringAsFixed(0)}K',
+                                '₹${(((metrics['totalPayments'] as num?) ?? 0.0) / 1000).toStringAsFixed(0)}K',
                             subtitle: 'This month',
                             icon: Icons.payment,
                             color: AppTheme.primaryAccent,
@@ -224,8 +224,9 @@ class DashboardScreen extends ConsumerWidget {
                         Expanded(
                           child: _MetricCard(
                             title: 'Transactions',
-                            value: (metrics['monthlyTransactions'] ?? 0)
-                                .toString(),
+                            value:
+                                ((metrics['monthlyTransactions'] as int?) ?? 0)
+                                    .toString(),
                             subtitle: 'Completed',
                             icon: Icons.receipt_long,
                             color: AppTheme.successColor,

@@ -27,6 +27,9 @@ dependencies:
 
   # Data Classes
   dart_mappable: ^4.5.0
+  
+  # Meta annotations
+  meta: ^1.17.0
 
   # Animations
   flutter_animate: ^4.5.0
