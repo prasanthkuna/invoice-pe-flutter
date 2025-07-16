@@ -32,28 +32,36 @@ void main() {
         } catch (e) {
           print('ℹ️ OTP test result: $e');
           // Even if it fails, we know the connection works
-          expect(e.toString().contains('supabase') || e.toString().contains('phone'), isTrue,
-            reason: 'Should connect to real Supabase');
+          expect(
+            e.toString().contains('supabase') || e.toString().contains('phone'),
+            isTrue,
+            reason: 'Should connect to real Supabase',
+          );
         }
       }, timeout: const Timeout(Duration(seconds: 10)));
 
-      test('✅ Real database connection works', () async {
-        try {
-          // Test basic database connectivity
-          await supabase
-              .from('profiles')
-              .select('id')
-              .limit(1);
+      test(
+        '✅ Real database connection works',
+        () async {
+          try {
+            // Test basic database connectivity
+            await supabase.from('profiles').select('id').limit(1);
 
-          print('✅ Real Supabase database: CONNECTED');
-          expect(true, isTrue); // Test passed
-        } catch (e) {
-          print('ℹ️ Database test result: $e');
-          // Even if it fails, we know the connection works
-          expect(e.toString().contains('supabase') || e.toString().contains('relation'), isTrue,
-            reason: 'Should connect to real Supabase');
-        }
-      }, timeout: const Timeout(Duration(seconds: 10)));
+            print('✅ Real Supabase database: CONNECTED');
+            expect(true, isTrue); // Test passed
+          } catch (e) {
+            print('ℹ️ Database test result: $e');
+            // Even if it fails, we know the connection works
+            expect(
+              e.toString().contains('supabase') ||
+                  e.toString().contains('relation'),
+              isTrue,
+              reason: 'Should connect to real Supabase',
+            );
+          }
+        },
+        timeout: const Timeout(Duration(seconds: 10)),
+      );
     });
 
     group('⚡ Real Edge Functions', () {
@@ -61,15 +69,21 @@ void main() {
         try {
           // Test edge function connectivity (without calling)
           final functions = supabase.functions;
-          expect(functions, isNotNull,
-            reason: 'Edge functions should be accessible');
+          expect(
+            functions,
+            isNotNull,
+            reason: 'Edge functions should be accessible',
+          );
 
           print('✅ Real Supabase edge functions: ACCESSIBLE');
         } catch (e) {
           print('ℹ️ Edge functions test result: $e');
           // Even if it fails, we know the connection works
-          expect(e.toString().contains('supabase'), isTrue,
-            reason: 'Should connect to real Supabase');
+          expect(
+            e.toString().contains('supabase'),
+            isTrue,
+            reason: 'Should connect to real Supabase',
+          );
         }
       });
     });

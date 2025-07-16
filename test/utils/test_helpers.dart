@@ -9,12 +9,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:invoice_pe_app/main.dart';
 import 'package:invoice_pe_app/core/providers/data_providers.dart';
 import 'package:invoice_pe_app/core/services/debug_service.dart';
-import 'mock_factories.dart';
 
 /// InvoicePe's Test Philosophy: "Setup once, test everything"
 class TestHelpers {
   static late ProviderContainer _container;
-  static late MockSupabaseClient _mockSupabase;
 
   /// Initialize test environment with mocked dependencies
   static void initializeTestEnvironment() {
