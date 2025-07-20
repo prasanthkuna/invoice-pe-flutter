@@ -6,7 +6,7 @@ import 'app_error.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/logger.dart';
 
-final _log = Log.component('error');
+final ComponentLogger _log = Log.component('error');
 
 /// Error boundary widget that catches and displays errors gracefully
 class ErrorBoundary extends ConsumerWidget {
@@ -25,10 +25,10 @@ class ErrorBoundary extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     ErrorWidget.builder = (FlutterErrorDetails details) {
       // Log the error
-      _log.info(
+      _log.error(
         'Error boundary caught error',
-        details.exception,
-        details.stack,
+        error: details.exception,
+        stackTrace: details.stack,
       );
 
       // Call custom error handler if provided
@@ -198,13 +198,10 @@ class _DefaultErrorWidget extends StatelessWidget {
           ElevatedButton(
             onPressed: () {
               // Log the error report
-              _log.info(
-                'error_reported',
-                context: {
-                  'error_code': error.code,
-                  'error_message': error.message,
-                },
-              );
+              _log.info('error_reported', {
+                'error_code': error.code,
+                'error_message': error.message,
+              });
 
               Navigator.of(context).pop();
 
@@ -247,10 +244,10 @@ mixin ErrorHandlerMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
     final appError = ErrorHandler.fromException(error, stackTrace);
 
     // Log the error
-    _log.info(
+    _log.error(
       'Widget error: ${widget.runtimeType}',
       error: error,
-      context: {'widget': widget.runtimeType.toString()},
+      data: {'widget': widget.runtimeType.toString()},
     );
 
     // Show user-friendly message

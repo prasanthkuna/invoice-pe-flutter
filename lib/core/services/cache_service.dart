@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'logger.dart';
 
-final _log = Log.component('cache');
+final ComponentLogger _log = Log.component('cache');
 
 /// Cache service for offline support and performance
 class CacheService {
@@ -42,7 +42,7 @@ class CacheService {
 
       return cacheData['data'] as T;
     } catch (e) {
-_log.error('Cache read failed', error: e);
+      _log.error('Cache read failed', error: e);
       return null;
     }
   }

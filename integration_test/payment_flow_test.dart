@@ -242,7 +242,7 @@ void main() {
           DebugService.logAuditTrail(
             'Payment initiated',
             userId: 'test-user-id',
-            details: {
+            metadata: {
               'amount': 1000.0,
               'vendor_id': 'test-vendor-id',
             },

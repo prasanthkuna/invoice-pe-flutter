@@ -26,7 +26,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     try {
       // Check current auth state first (instant)
       final isAuthenticated = ref.read(isAuthenticatedProvider);
-      
+
       if (isAuthenticated) {
         // Already authenticated, go immediately
         if (mounted) context.go('/dashboard');

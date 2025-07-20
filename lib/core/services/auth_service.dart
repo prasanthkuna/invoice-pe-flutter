@@ -5,7 +5,7 @@ import 'logger.dart';
 import '../types/result.dart';
 import '../types/auth_types.dart' as app_auth;
 
-final _log = Log.component('auth');
+final ComponentLogger _log = Log.component('auth');
 
 class AuthService extends BaseService {
   /// Auth state stream for providers
@@ -27,23 +27,23 @@ class AuthService extends BaseService {
 
       _log.info('OTP sent successfully');
       return app_auth.OtpSent(
-        phone: phone, 
+        phone: phone,
         message: 'OTP sent to $phone',
       );
     } on AuthException catch (e) {
-_log.error('Auth error during OTP send', error: e);
+      _log.error('Auth error during OTP send', error: e);
       return app_auth.OtpFailed(
         error: _parseAuthError(e),
         phone: phone,
       );
     } on TimeoutException catch (e) {
-_log.error('Timeout occurred during OTP send', error: e);
+      _log.error('Timeout occurred during OTP send', error: e);
       return app_auth.OtpFailed(
         error: 'Request timed out. Please try again.',
         phone: phone,
       );
     } catch (error) {
-_log.error('Unexpected error during OTP send', error: error);
+      _log.error('Unexpected error during OTP send', error: error);
       return app_auth.OtpFailed(
         error: _parseAuthError(error),
         phone: phone,
@@ -81,16 +81,16 @@ _log.error('Unexpected error during OTP send', error: error);
       // First attempt: try signin (existing user)
       _log.info('Attempting signin for existing user');
       await BaseService.supabase.auth.signInWithOtp(
-        phone: phone, 
+        phone: phone,
         shouldCreateUser: false,
       );
       _log.info('Signin successful - existing user');
       return app_auth.OtpSent(
-        phone: phone, 
+        phone: phone,
         message: 'Welcome back! OTP sent to $phone',
       );
     } on AuthException catch (e) {
-_log.error('Auth error during signin', error: e);
+      _log.error('Auth error during signin', error: e);
 
       final errorMessage = e.message.toLowerCase();
 
@@ -107,17 +107,17 @@ _log.error('Auth error during signin', error: e);
           );
           _log.info('Signup successful - new user created');
           return app_auth.OtpSent(
-            phone: phone, 
+            phone: phone,
             message: 'Account created! OTP sent to $phone',
           );
         } on AuthException catch (signupError) {
-_log.error('Auth error during signup', error: signupError);
+          _log.error('Auth error during signup', error: signupError);
           return app_auth.OtpFailed(
             error: _parseAuthError(signupError),
             phone: phone,
           );
         } on TimeoutException catch (e) {
-_log.error('Timeout occurred during signup', error: e);
+          _log.error('Timeout occurred during signup', error: e);
           return app_auth.OtpFailed(
             error: 'Signup request timed out. Please try again.',
             phone: phone,
@@ -137,7 +137,7 @@ _log.error('Timeout occurred during signup', error: e);
         phone: phone,
       );
     } catch (error) {
-_log.error('Unexpected error during smart OTP', error: error);
+      _log.error('Unexpected error during smart OTP', error: error);
       return app_auth.OtpFailed(
         error: _parseAuthError(error),
         phone: phone,
@@ -177,7 +177,10 @@ _log.error('Unexpected error during smart OTP', error: error);
           await _ensureProfileExists();
           _log.info('Profile creation/verification completed');
         } catch (profileError) {
-          _log.error('Profile creation failed but auth succeeded', error: profileError);
+          _log.error(
+            'Profile creation failed but auth succeeded',
+            error: profileError,
+          );
           // Continue with auth success even if profile creation fails
         }
 
@@ -193,7 +196,7 @@ _log.error('Unexpected error during smart OTP', error: error);
       _log.info('OTP verification returned null user or session');
       return const Failure('Authentication failed - invalid response');
     } on AuthException catch (e) {
-_log.error('Auth error during OTP verification', error: e);
+      _log.error('Auth error during OTP verification', error: e);
       return const Failure('Authentication failed - invalid response');
     } on AuthException catch (e) {
       _log.error('Auth error during OTP verification', error: e);
@@ -375,7 +378,7 @@ _log.error('Auth error during OTP verification', error: e);
           ? app_auth.ProfileComplete(response)
           : app_auth.ProfileIncomplete(missingFields);
     } catch (error) {
-_log.error('Profile status check failed', error: error);
+      _log.error('Profile status check failed', error: error);
       return const app_auth.ProfileIncomplete(['business_name', 'gstin']);
     }
   }

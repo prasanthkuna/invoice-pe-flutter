@@ -6,12 +6,12 @@ import '../types/payment_types.dart' as payment_types;
 import 'base_service.dart';
 import 'logger.dart';
 
-final _log = Log.component('payment');
+final ComponentLogger _log = Log.component('payment');
 
 class PaymentService extends BaseService {
   /// Track if PhonePe SDK is initialized
   static bool _phonePeInitialized = false;
-  
+
   /// Check if running in local testing mode
   static bool get isLocalTesting =>
       const String.fromEnvironment('LOCAL_TESTING', defaultValue: 'false') ==
@@ -30,7 +30,9 @@ class PaymentService extends BaseService {
           AppConstants.phonePeEnvironment; // 'PRODUCTION' or 'UAT'
       const merchantId = 'DEMOUAT'; // Moved to backend for security
 
-      _log.info('📱 PhonePe Config: Environment=$environment, MerchantId=$merchantId');
+      _log.info(
+        '📱 PhonePe Config: Environment=$environment, MerchantId=$merchantId',
+      );
 
       // PhonePe SDK 2.0.3 initialization pattern
       await PhonePePaymentSdk.init(
@@ -40,13 +42,10 @@ class PaymentService extends BaseService {
         AppConstants.debugMode, // Enable logging based on environment
       );
 
-      _log.info('Ã¢Å“â€¦ PhonePe SDK initialized successfully');
+      _log.info('✅ PhonePe SDK initialized successfully');
       _phonePeInitialized = true;
     } catch (error) {
-_log.error('PhonePe SDK initialization failed', error: error);
-      _phonePeInitialized = true;
-    } catch (error) {
-_log.error('PhonePe SDK initialization failed', error: error);
+      _log.error('PhonePe SDK initialization failed', error: error);
       rethrow;
     }
   }
@@ -71,15 +70,16 @@ _log.error('PhonePe SDK initialization failed', error: error);
       // Mock payment mode - skip PhonePe integration
       if (AppConstants.mockPaymentMode || isLocalTesting) {
         _log.info('🚀 Mock payment mode - simulating payment');
-        
+
         // Simulate realistic payment delay
         await Future.delayed(const Duration(seconds: 2));
-        
+
         // Create mock transaction record for proper data flow
-        final mockTransactionId = 'MOCK_TXN_${DateTime.now().millisecondsSinceEpoch}';
-        
+        final mockTransactionId =
+            'MOCK_TXN_${DateTime.now().millisecondsSinceEpoch}';
+
         // Still call backend to create transaction record
-        final mockResponse = await BaseService.supabase.functions.invoke(
+        await BaseService.supabase.functions.invoke(
           'initiate-payment',
           body: {
             'invoice_id': finalInvoiceId,
@@ -87,20 +87,23 @@ _log.error('PhonePe SDK initialization failed', error: error);
             'mock_mode': true, // Signal backend to handle as mock
           },
         );
-        
+
         // Update invoice status to paid
         await BaseService.supabase
             .from('invoices')
-            .update({'status': 'paid', 'paid_at': DateTime.now().toIso8601String()})
+            .update({
+              'status': 'paid',
+              'paid_at': DateTime.now().toIso8601String(),
+            })
             .eq('id', finalInvoiceId);
-        
+
         // Log mock payment for transparency
         _log.info('✅ Mock payment completed', {
           'transaction_id': mockTransactionId,
           'invoice_id': finalInvoiceId,
           'amount': amount,
         });
-        
+
         return payment_types.PaymentSuccess(
           transactionId: mockTransactionId,
           invoiceId: finalInvoiceId,
@@ -188,7 +191,7 @@ _log.error('PhonePe SDK initialization failed', error: error);
         );
       }
     } catch (error) {
-_log.error('Payment processing error', error: error);
+      _log.error('Payment processing error', error: error);
       return payment_types.PaymentFailure(
         error: 'Payment processing failed: $error',
       );

@@ -7,7 +7,7 @@ import '../constants/app_constants.dart';
 import '../types/result.dart';
 import 'logger.dart';
 
-final _log = Log.component('security');
+final ComponentLogger _log = Log.component('security');
 
 /// RSA 4096 Encryption Service for PCC Compliance
 /// Implements enterprise-grade encryption for sensitive data
@@ -52,7 +52,7 @@ class EncryptionService {
       );
       return const Success(null);
     } catch (error) {
-      _log.info('api_call', {'method': 'Failed to initialize encryption service', 'endpoint': error: error});
+      _log.error('Failed to initialize encryption service', error: error);
       return Failure('Encryption initialization failed: $error');
     }
   }
@@ -85,17 +85,14 @@ class EncryptionService {
       // Combine IV and encrypted data for storage
       final combined = '${iv.base64}:${encrypted.base64}';
 
-      _log.info(
-        'Sensitive data encrypted successfully',
-        data: {
-          'data_size': jsonData.length,
-          'encrypted_size': combined.length,
-        },
-      );
+      _log.info('Sensitive data encrypted successfully', {
+        'data_size': jsonData.length,
+        'encrypted_size': combined.length,
+      });
 
       return Success(combined);
     } catch (error) {
-      _log.info('Failed to encrypt sensitive data'.error(_log.info('Failed to encrypt sensitive data', error: error$(if () { ", stackTrace: " } else { "" }));
+      _log.error('Failed to encrypt sensitive data', error: error);
       return Failure('Encryption failed: $error');
     }
   }
@@ -129,11 +126,7 @@ class EncryptionService {
 
       return Success(data);
     } catch (error) {
-      _log.info('Failed to decrypt sensitive data'.error(_log.info('Sensitive data decrypted successfully');
-
-      return Success(data);
-    } catch (error) {
-      _log.info('Failed to decrypt sensitive data', error: error$(if () { ", stackTrace: " } else { "" }));
+      _log.error('Failed to decrypt sensitive data', error: error);
       return Failure('Decryption failed: $error');
     }
   }
@@ -161,12 +154,7 @@ class EncryptionService {
 
       return result;
     } catch (error) {
-      _log.info('Failed to encrypt card data'.error(_log.info('Card data encrypted for PCC compliance');
-      }
-
-      return result;
-    } catch (error) {
-      _log.info('Failed to encrypt card data', error: error$(if () { ", stackTrace: " } else { "" }));
+      _log.error('Failed to encrypt card data', error: error);
       return Failure('Card encryption failed: $error');
     }
   }
@@ -178,14 +166,12 @@ class EncryptionService {
     try {
       final result = await decryptSensitiveData(encryptedCardData);
       if (result is Success) {
-        _log.info(
-          'Card data decrypted for authorized operation',
-        );
+        _log.info('Card data decrypted for authorized operation');
       }
 
       return result;
     } catch (error) {
-      _log.info('Failed to decrypt card data'.error(_log.info('Failed to decrypt card data', error: error$(if () { ", stackTrace: " } else { "" }));
+      _log.error('Failed to decrypt card data', error: error);
       return Failure('Card decryption failed: $error');
     }
   }
@@ -211,9 +197,7 @@ class EncryptionService {
       _encrypter = null;
       _log.info('Encryption keys cleared for security');
     } catch (error) {
-      _log.info('Failed to clear encryption keys'.error(_log.info('Encryption keys cleared for security');
-    } catch (error) {
-      _log.info('Failed to clear encryption keys', error: error$(if () { ", stackTrace: " } else { "" }));
+      _log.error('Failed to clear encryption keys', error: error);
     }
   }
 
@@ -234,7 +218,7 @@ class EncryptionService {
 
       return Success(status);
     } catch (error) {
-      _log.info('Failed to get encryption status'.error(_log.info('Failed to get encryption status', error: error$(if () { ", stackTrace: " } else { "" }));
+      _log.error('Failed to get encryption status', error: error);
       return Failure('Encryption status check failed: $error');
     }
   }

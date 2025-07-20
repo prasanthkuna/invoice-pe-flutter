@@ -8,7 +8,7 @@ import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/logger.dart';
 import '../../../../core/types/auth_types.dart' as app_auth;
 
-final _log = Log.component('auth');
+final ComponentLogger _log = Log.component('auth');
 
 final phoneNumberProvider = StateProvider<String>((ref) => '');
 final isLoadingProvider = StateProvider<bool>((ref) => false);

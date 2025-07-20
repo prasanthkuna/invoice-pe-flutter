@@ -4,14 +4,15 @@ import 'logger.dart';
 /// This allows existing code to work while we migrate
 class DebugService {
   static bool _initialized = false;
-  
+
   static void initialize() {
     if (_initialized) return;
     _initialized = true;
     Log.init();
   }
-  
-  static void logInfo(String message, {
+
+  static void logInfo(
+    String message, {
     dynamic error,
     StackTrace? stackTrace,
     Map<String, dynamic>? context,
@@ -22,8 +23,9 @@ class DebugService {
       if (error != null) 'error': error.toString(),
     });
   }
-  
-  static void logDebug(String message, [
+
+  static void logDebug(
+    String message, [
     dynamic error,
     StackTrace? stackTrace,
   ]) {
@@ -32,8 +34,9 @@ class DebugService {
       if (error != null) 'error': error.toString(),
     });
   }
-  
-  static void logWarning(String message, {
+
+  static void logWarning(
+    String message, {
     dynamic error,
     StackTrace? stackTrace,
     Map<String, dynamic>? context,
@@ -48,8 +51,9 @@ class DebugService {
       suggestion: 'Check the warning context for potential issues',
     );
   }
-  
-  static void logError(String message, {
+
+  static void logError(
+    String message, {
     dynamic error,
     StackTrace? stackTrace,
     Map<String, dynamic>? context,
@@ -65,16 +69,18 @@ class DebugService {
       },
     );
   }
-  
-  static void logAuth(String event, {
+
+  static void logAuth(
+    String event, {
     Map<String, dynamic>? data,
     dynamic error,
     int? performanceMs,
   }) {
     final logger = Log.component('auth');
-    
+
     if (error != null) {
-      logger.error(event, 
+      logger.error(
+        event,
         error: error,
         data: {
           ...?data,
@@ -93,17 +99,19 @@ class DebugService {
       });
     }
   }
-  
-  static void logDatabase(String operation, {
+
+  static void logDatabase(
+    String operation, {
     String? table,
     Map<String, dynamic>? data,
     dynamic error,
     int? performanceMs,
   }) {
     final logger = Log.component('database');
-    
+
     if (error != null) {
-      logger.error(operation,
+      logger.error(
+        operation,
         error: error,
         data: {
           if (table != null) 'table': table,
@@ -126,7 +134,7 @@ class DebugService {
         ...?data,
         if (performanceMs != null) 'performance_ms': performanceMs,
       });
-      
+
       // Log slow queries
       if (performanceMs != null && performanceMs > 1000) {
         logger.warn(operation, {
@@ -137,17 +145,21 @@ class DebugService {
       }
     }
   }
-  
-  static void logApi(String method, String endpoint, {
+
+  static void logApi(
+    String method,
+    String endpoint, {
     Map<String, dynamic>? data,
     dynamic error,
     int? statusCode,
   }) {
     final logger = Log.component('api');
-    final operation = '${method.toLowerCase()}_${endpoint.replaceAll('/', '_')}';
-    
+    final operation =
+        '${method.toLowerCase()}_${endpoint.replaceAll('/', '_')}';
+
     if (error != null) {
-      logger.error(operation,
+      logger.error(
+        operation,
         error: error,
         data: {
           'method': method,
@@ -172,17 +184,19 @@ class DebugService {
       });
     }
   }
-  
-  static void logPayment(String event, {
+
+  static void logPayment(
+    String event, {
     String? transactionId,
     double? amount,
     dynamic error,
     int? performanceMs,
   }) {
     final logger = Log.component('payment');
-    
+
     if (error != null) {
-      logger.error(event,
+      logger.error(
+        event,
         error: error,
         data: {
           if (transactionId != null) 'transaction_id': transactionId,
@@ -208,25 +222,27 @@ class DebugService {
       });
     }
   }
-  
+
   static void logNavigation(String route, {Map<String, dynamic>? params}) {
     Log.component('navigation').info('route_change', {
       'route': route,
       ...?params,
     });
-    
+
     // Add to breadcrumbs for error context
     Log.addBreadcrumb('nav:$route');
   }
-  
+
   static void logUserAction(String action, {Map<String, dynamic>? context}) {
     Log.component('user').info(action, context ?? {});
-    
+
     // Add to breadcrumbs
     Log.addBreadcrumb('user:$action');
   }
-  
-  static void logPerformance(String operation, Duration duration, {
+
+  static void logPerformance(
+    String operation,
+    Duration duration, {
     Map<String, dynamic>? metrics,
   }) {
     Log.component('performance').info(operation, {
@@ -234,8 +250,9 @@ class DebugService {
       ...?metrics,
     });
   }
-  
-  static void logSecurity(String event, {
+
+  static void logSecurity(
+    String event, {
     Map<String, dynamic>? data,
     String? userId,
   }) {
@@ -244,8 +261,9 @@ class DebugService {
       ...?data,
     });
   }
-  
-  static void logSecurityViolation(String violation, {
+
+  static void logSecurityViolation(
+    String violation, {
     Map<String, dynamic>? context,
     String? userId,
   }) {
@@ -265,7 +283,7 @@ class DebugService {
       ],
     );
   }
-  
+
   // Utility methods
   static String _extractOperation(String message) {
     // Try to extract operation from emoji messages
@@ -278,20 +296,21 @@ class DebugService {
     if (message.contains('✅')) return 'success';
     if (message.contains('❌')) return 'failure';
     if (message.contains('⚠️')) return 'warning';
-    
+
     // Extract first few words as operation
     final words = message.split(' ').take(3).join('_').toLowerCase();
-    return words.replaceAll(RegExp(r'[^a-z0-9_]'), '');
+    return words.replaceAll(RegExp('[^a-z0-9_]'), '');
   }
-  
+
   // Legacy compatibility
   static void setDatabaseLogging(bool enabled) {
     // No-op for compatibility
   }
-  
+
   static String? get sessionId => null; // Deprecated
-  
-  static void logAuditTrail(String event, {
+
+  static void logAuditTrail(
+    String event, {
     String? userId,
     String? action,
     Map<String, dynamic>? metadata,

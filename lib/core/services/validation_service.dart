@@ -2,7 +2,7 @@ import 'dart:convert';
 import '../types/result.dart';
 import 'logger.dart';
 
-final _log = Log.component('validation');
+final ComponentLogger _log = Log.component('validation');
 
 /// Enhanced Input Validation Service for PCC Compliance
 /// Implements XSS protection, SQL injection prevention, and security hardening
@@ -68,14 +68,11 @@ class ValidationService {
 
     // Log if sanitization occurred
     if (sanitized != input) {
-      _log.info(
-        'XSS attempt detected and sanitized',
-        context: {
-          'original_length': input.length,
-          'sanitized_length': sanitized.length,
-          'input_hash': input.hashCode.toString(),
-        },
-      );
+      _log.info('XSS attempt detected and sanitized', {
+        'original_length': input.length,
+        'sanitized_length': sanitized.length,
+        'input_hash': input.hashCode.toString(),
+      });
     }
 
     return sanitized.trim();
@@ -101,13 +98,10 @@ class ValidationService {
 
       // Check for SQL injection attempts
       if (_sqlInjectionPattern.hasMatch(validatedInput)) {
-        _log.info(
-          'SQL injection attempt detected',
-          context: {
-            'field': fieldName,
-            'input_hash': input.hashCode.toString(),
-          },
-        );
+        _log.warn('SQL injection attempt detected', {
+          'field': fieldName,
+          'input_hash': input.hashCode.toString(),
+        });
         return Failure('Invalid characters detected in $fieldName');
       }
 
@@ -122,7 +116,7 @@ class ValidationService {
 
       return Success(validatedInput);
     } catch (error) {
-      _log.info('Text validation failed'.error(_log.info('Text validation failed', error: error$(if () { ", stackTrace: " } else { "" }));
+      _log.error('Text validation failed', error: error);
       return Failure('Validation error for $fieldName');
     }
   }
@@ -266,12 +260,9 @@ class ValidationService {
 
     // Check for malicious file types
     if (_maliciousFilePattern.hasMatch(sanitized)) {
-      _log.info(
-        'Malicious file upload attempt',
-        context: {
-          'filename': sanitized,
-        },
-      );
+      _log.warn('Malicious file upload attempt', {
+        'filename': sanitized,
+      });
       return const Failure('File type not allowed for security reasons');
     }
 
@@ -308,7 +299,7 @@ class ValidationService {
 
       return Success(data);
     } catch (error) {
-      _log.info('JSON validation failed'.error(_log.info('JSON validation failed', error: error$(if () { ", stackTrace: " } else { "" }));
+      _log.error('JSON validation failed', error: error);
       return const Failure('Invalid JSON format');
     }
   }
@@ -319,24 +310,18 @@ class ValidationService {
       if (value is String) {
         // Check for XSS in string values
         if (_xssPattern.hasMatch(value)) {
-          _log.info(
-            'XSS attempt in JSON data',
-            context: {
-              'field': key,
-              'value_hash': value.hashCode.toString(),
-            },
-          );
+          _log.warn('XSS attempt in JSON data', {
+            'field': key,
+            'value_hash': value.hashCode.toString(),
+          });
         }
 
         // Check for SQL injection in string values
         if (_sqlInjectionPattern.hasMatch(value)) {
-          _log.info(
-            'SQL injection attempt in JSON data',
-            context: {
-              'field': key,
-              'value_hash': value.hashCode.toString(),
-            },
-          );
+          _log.warn('SQL injection attempt in JSON data', {
+            'field': key,
+            'value_hash': value.hashCode.toString(),
+          });
         }
       } else if (value is Map<String, dynamic>) {
         // Recursively validate nested objects
@@ -367,14 +352,11 @@ class ValidationService {
     attempts.removeWhere((attempt) => now.difference(attempt) > timeWindow);
 
     if (attempts.length >= maxAttempts) {
-      _log.info(
-        'Rate limit exceeded',
-        context: {
-          'identifier': identifier,
-          'attempts': attempts.length,
-          'time_window_minutes': timeWindow.inMinutes,
-        },
-      );
+      _log.warn('Rate limit exceeded', {
+        'identifier': identifier,
+        'attempts': attempts.length,
+        'time_window_minutes': timeWindow.inMinutes,
+      });
       return Failure(
         'Too many attempts. Please try again in ${timeWindow.inMinutes} minutes.',
       );

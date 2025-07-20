@@ -11,7 +11,7 @@ import '../../../../core/services/logger.dart';
 import '../../../../core/types/auth_types.dart' as app_auth;
 import '../../../../core/types/result.dart';
 
-final _log = Log.component('auth');
+final ComponentLogger _log = Log.component('auth');
 
 final otpProvider = StateProvider<String>((ref) => '');
 final timerProvider = StateProvider<int>((ref) => 60);

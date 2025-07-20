@@ -4,7 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/services/logger.dart';
 
-final _log = Log.component('debug');
+final ComponentLogger _log = Log.component('debug');
 
 /// Debug logs screen for viewing centralized logs
 /// Only available in debug mode for developers
@@ -62,9 +62,7 @@ class _DebugLogsScreenState extends ConsumerState<DebugLogsScreen> {
 
       _log.info('Loaded ${_logs.length} debug logs');
     } catch (e) {
-      _log.info('Failed to load debug logs'.error(_log.info('Loaded ${_logs.length} debug logs');
-    } catch (e) {
-      _log.info('Failed to load debug logs', error: e$(if () { ", stackTrace: " } else { "" }));
+      _log.error('Failed to load debug logs', error: e);
       setState(() => _isLoading = false);
     }
   }
@@ -197,9 +195,7 @@ class _DebugLogsScreenState extends ConsumerState<DebugLogsScreen> {
         _loadLogs();
         _log.info('Debug logs cleared');
       } catch (e) {
-        _log.info('Failed to clear logs'.error(_log.info('Debug logs cleared');
-      } catch (e) {
-        _log.info('Failed to clear logs', error: e$(if () { ", stackTrace: " } else { "" }));
+        _log.error('Failed to clear logs', error: e);
       }
     }
   }

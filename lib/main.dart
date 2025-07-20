@@ -40,13 +40,13 @@ void main() async {
       'debug_mode': AppConstants.debugMode,
       'version': 'v1.0.0',
     });
-    
+
     // Add breadcrumb for tracking
     Log.addBreadcrumb('app.main.post_frame_callback');
-    
+
     // Defer PhonePe initialization to first payment
     // This saves ~500ms on startup
-    
+
     // Session restoration happens in splash screen
     // No need to block here
   });

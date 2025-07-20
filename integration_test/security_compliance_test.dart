@@ -284,7 +284,7 @@ void main() {
           DebugService.logAuditTrail(
             'Test audit event',
             userId: 'test-user-id',
-            details: {
+            metadata: {
               'action': 'payment_initiated',
               'amount': 1000.0,
             },

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../services/logger.dart';
 
-final _log = Log.component('error');
+final ComponentLogger _log = Log.component('error');
 
 /// Tesla-grade error handler - consistent error handling across app
 class ErrorHandler {
@@ -16,7 +16,11 @@ class ErrorHandler {
     try {
       return await operation();
     } catch (error, stack) {
-      _log.error(errorMessage ?? 'Operation failed', error: error, stackTrace: stack);
+      _log.error(
+        errorMessage ?? 'Operation failed',
+        error: error,
+        stackTrace: stack,
+      );
 
       if (showError && context.mounted) {
         _showErrorSnackBar(

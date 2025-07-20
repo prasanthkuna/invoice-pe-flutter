@@ -42,7 +42,8 @@ class PaymentScreen extends ConsumerWidget {
     final rewards = amount * AppConstants.defaultRewardsPercentage / 100;
 
     // Handle loading states
-    if ((invoiceAsync?.isLoading ?? false) || (vendorAsync?.isLoading ?? false)) {
+    if ((invoiceAsync?.isLoading ?? false) ||
+        (vendorAsync?.isLoading ?? false)) {
       return Scaffold(
         appBar: AppBar(
           title: const Text('Make Payment'),

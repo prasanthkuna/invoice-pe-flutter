@@ -2,7 +2,7 @@ import '../../shared/models/vendor.dart';
 import 'base_service.dart';
 import 'logger.dart';
 
-final _log = Log.component('vendor');
+final ComponentLogger _log = Log.component('vendor');
 
 class VendorService extends BaseService {
   static const String _tableName = 'vendors';

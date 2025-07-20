@@ -299,7 +299,10 @@ final filteredTransactionsProvider = Provider<AsyncValue<List<Transaction>>>((
         filtered = filtered
             .where(
               (transaction) =>
-                  (transaction.vendorName?.toLowerCase().contains(searchQuery) ?? false) ||
+                  (transaction.vendorName?.toLowerCase().contains(
+                        searchQuery,
+                      ) ??
+                      false) ||
                   (transaction.phonepeTransactionId?.toLowerCase().contains(
                         searchQuery,
                       ) ??
