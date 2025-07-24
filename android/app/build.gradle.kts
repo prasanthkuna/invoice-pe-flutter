@@ -39,23 +39,50 @@ android {
         versionName = flutter.versionName
     }
 
+    // ELON-STANDARD: Asset compression and optimization
+    packagingOptions {
+        resources {
+            excludes += setOf(
+                "META-INF/DEPENDENCIES",
+                "META-INF/LICENSE",
+                "META-INF/LICENSE.txt",
+                "META-INF/NOTICE",
+                "META-INF/NOTICE.txt",
+                "META-INF/*.kotlin_module",
+                "kotlin/**",
+                "**/*.kotlin_metadata"
+            )
+        }
+    }
+
     buildTypes {
         debug {
-            applicationIdSuffix = ".staging"
-            versionNameSuffix = "-staging"
+            applicationIdSuffix = ".demo"
+            versionNameSuffix = "-demo"
             isDebuggable = true
             isMinifyEnabled = false
-            // Enhanced logging for real device testing
+            // Enhanced logging for demo builds
             buildConfigField("boolean", "ENABLE_SMART_LOGGING", "true")
             buildConfigField("String", "LOG_LEVEL", "\"debug\"")
+            buildConfigField("boolean", "MOCK_PAYMENT_MODE", "true")
         }
 
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
+
+            // ELON-STANDARD OPTIMIZATION: Aggressive size reduction
             isMinifyEnabled = true
+            isShrinkResources = true
             isDebuggable = false
+
+            // ProGuard configuration for maximum optimization
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+
             // Smart logging for production
             buildConfigField("boolean", "ENABLE_SMART_LOGGING", "true")
             buildConfigField("String", "LOG_LEVEL", "\"warning\"")

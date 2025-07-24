@@ -1,6 +1,8 @@
 import 'package:logger/logger.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:math';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../constants/app_constants.dart';
 
 /// InvoicePe Smart Logger - 2025 Best Practices
 /// Elon's Philosophy: "Log smart, not hard. Every log should solve a problem."
@@ -198,14 +200,42 @@ class SmartLogger {
     return message;
   }
 
-  /// Buffer logs for potential remote logging
+  /// Buffer logs for database logging
   static void _logToBuffer(
     String level,
     String message,
     Map<String, dynamic> context,
   ) {
-    // Implementation for buffering logs for remote logging
-    // This could be sent to Supabase, Firebase, or other logging services
+    // TEMPORARILY DISABLED - Restore transactions first
+    // SmartLogger database operations were conflicting with transaction system
+    // TODO: Re-enable after transactions are confirmed working
+    return;
+
+    // Original code preserved for future restoration:
+    /*
+    if (!AppConstants.enableDatabaseLogging ||
+        const bool.fromEnvironment('flutter.test', defaultValue: false)) {
+      return;
+    }
+
+    Future.microtask(() async {
+      try {
+        await Supabase.instance.client.from('logs').insert({
+          'level': level,
+          'category': context['category'] ?? 'general',
+          'message': message,
+          'operation': context['operation'],
+          'context': context,
+          'session_id': _correlationId,
+          'created_at': DateTime.now().toIso8601String(),
+        });
+      } catch (e) {
+        if (kDebugMode) {
+          debugPrint('Failed to log to database: $e');
+        }
+      }
+    });
+    */
   }
 }
 

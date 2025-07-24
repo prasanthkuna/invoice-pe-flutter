@@ -99,6 +99,12 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   void _startTimer() {
     _timer?.cancel();
     _timer = async.Timer.periodic(const Duration(seconds: 1), (timer) {
+      // CRITICAL FIX: Check if widget is still mounted before accessing provider
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+
       final currentTimer = ref.read(timerProvider);
       if (currentTimer > 0) {
         ref.read(timerProvider.notifier).state = currentTimer - 1;

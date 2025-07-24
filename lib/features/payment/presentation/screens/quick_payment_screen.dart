@@ -27,6 +27,27 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
   bool _showVendorDropdown = false;
 
   @override
+  void initState() {
+    super.initState();
+    // Smart vendor selection logic
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _handleSmartVendorSelection();
+    });
+  }
+
+  void _handleSmartVendorSelection() {
+    final vendors = ref.read(vendorsProvider);
+    vendors.whenData((vendorList) {
+      if (vendorList.length == 1) {
+        // Auto-select single vendor and focus amount
+        ref.read(quickPaymentVendorProvider.notifier).state = vendorList.first;
+        // Amount field will auto-focus due to autofocus: true
+      }
+      // If multiple vendors, let user select first (amount field won't focus)
+    });
+  }
+
+  @override
   void dispose() {
     _amountController.dispose();
     _searchController.dispose();
@@ -345,7 +366,7 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
                       Expanded(
                         child: TextField(
                           controller: _amountController,
-                          autofocus: true, // KEYBOARD FIX: Auto-focus amount field
+                          autofocus: selectedVendor != null, // Smart focus: only when vendor selected
                           onChanged: (value) {
                             final parsedAmount = double.tryParse(value) ?? 0.0;
                             ref
@@ -574,10 +595,8 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
           'total': total,
         };
 
-        // CRITICAL FIX: Use refresh() to immediately update data
-        ref.refresh(dashboardMetricsProvider);
-        ref.refresh(recentTransactionsProvider);
-        ref.refresh(transactionsProvider);
+        // ELON FIX: Avoid excessive refreshes that cause UI flickering
+        // Let providers auto-update on next read instead of forcing immediate refresh
 
         // Reset form
         ref.read(quickPaymentVendorProvider.notifier).state = null;

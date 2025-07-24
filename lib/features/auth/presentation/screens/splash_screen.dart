@@ -84,23 +84,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
 
 
-  /// Handle loading state with timeout
-  Future<void> _handleAuthLoading() async {
-    if (!mounted || _navigationCompleted) return;
-
-    // Wait briefly for auth state to resolve, then fallback
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    if (!mounted || _navigationCompleted) return;
-
-    // Check if we have a current user after waiting
-    final currentUser = AuthService.getCurrentUser();
-    if (currentUser != null) {
-      await _navigateToDashboard();
-    } else {
-      await _navigateToAuth('Auth loading timeout');
-    }
-  }
+  // Removed unused _handleAuthLoading method
 
   /// Atomic navigation to dashboard
   Future<void> _navigateToDashboard() async {
@@ -109,12 +93,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     context.go('/dashboard');
   }
 
-  /// Atomic navigation to profile setup
-  Future<void> _navigateToProfileSetup() async {
-    if (!mounted || _navigationCompleted) return;
-    _navigationCompleted = true;
-    context.go('/setup-profile');
-  }
+  // Removed unused _navigateToProfileSetup method
 
   /// Atomic navigation to auth
   Future<void> _navigateToAuth(String reason) async {

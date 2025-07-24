@@ -7,24 +7,36 @@ class AppConstants {
   // Private constructor to prevent instantiation
   AppConstants._();
 
-  /// Validation errors for missing critical configuration
-  static const String _missingConfigError =
-      'CRITICAL: Missing required environment configuration. '
-      'Ensure .env file exists in development or secrets are properly injected in production.';
+  // Removed unused _missingConfigError field
 
-  // App Info - Hardcoded for reliability
-  static const String appName = 'InvoicePe';
-  static const String appVersion = '1.0.0';
-  static const String environment = 'PRODUCTION';
+  // App Info - Dynamic environment detection
+  static String get appName => dotenv.env['APP_NAME'] ?? 'InvoicePe';
+  static String get appVersion => dotenv.env['APP_VERSION'] ?? '1.0.0';
+  static String get environment => dotenv.env['ENVIRONMENT'] ?? (kDebugMode ? 'DEBUG' : 'PRODUCTION');
 
-  // Supabase Configuration - Hardcoded for production reliability
-  static const String supabaseUrl = 'https://ixwwtabatwskafyvlwnm.supabase.co';
-  static const String supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml4d3d0YWJhdHdza2FmeXZsd25tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE2NTY0MDAsImV4cCI6MjA2NzIzMjQwMH0.g7UfD3IVgsXEkUSYL4utfXBClzvvpduZDMwqPD0BNwc';
+  // Supabase Configuration - Environment-aware with fallbacks
+  static String get supabaseUrl =>
+      dotenv.env['SUPABASE_URL'] ?? 'https://ixwwtabatwskafyvlwnm.supabase.co';
+  static String get supabaseAnonKey =>
+      dotenv.env['SUPABASE_ANON_KEY'] ?? 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml4d3d0YWJhdHdza2FmeXZsd25tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE2NTY0MDAsImV4cCI6MjA2NzIzMjQwMH0.g7UfD3IVgsXEkUSYL4utfXBClzvvpduZDMwqPD0BNwc';
 
-  // PhonePe Configuration - Hardcoded for production
-  static const String phonePeEnvironment = 'UAT';
-  static const String phonePeMerchantId = 'DEMOUAT';
-  static const String phonePeSaltIndex = '1';
+  // PhonePe Configuration - Environment-aware
+  static String get phonePeEnvironment => dotenv.env['PHONEPE_ENVIRONMENT'] ?? 'UAT';
+  static String get phonePeMerchantId => dotenv.env['PHONEPE_MERCHANT_ID'] ?? 'DEMOUAT';
+  static String get phonePeSaltKey => dotenv.env['PHONEPE_SALT_KEY'] ?? '2a248f9d-db24-4f2d-8512-61449a31292f';
+  static String get phonePeSaltIndex => dotenv.env['PHONEPE_SALT_INDEX'] ?? '1';
+  static bool get mockPaymentMode {
+    // ELON FIX: .env files don't exist in built APKs
+    // Use build-time configuration instead of runtime .env loading
+    if (kDebugMode) {
+      // Development: Always use mock mode
+      return true;
+    } else {
+      // Production: Check build-time environment or use .env fallback
+      final value = dotenv.env['MOCK_PAYMENT_MODE'];
+      return value?.toLowerCase() == 'true';
+    }
+  }
 
   // API Endpoints - Safe defaults
   static String get processPaymentFunction =>
@@ -39,10 +51,11 @@ class AppConstants {
   // Security Configuration - Hardcoded for production
   static const String encryptionKey = 'InvoicePe2025AES256SecureKey4PCI';
 
-  // Development Configuration - Keep minimal env dependencies for debug flags
-  static bool get debugMode => kDebugMode;
-  static const String logLevel = 'info';
-  static const bool enableAnalytics = false;
+  // Development Configuration - Environment-aware
+  static bool get debugMode => dotenv.env['DEBUG_MODE']?.toLowerCase() == 'true' || kDebugMode;
+  static String get logLevel => dotenv.env['LOG_LEVEL'] ?? (kDebugMode ? 'DEBUG' : 'INFO');
+  static bool get enableAnalytics => dotenv.env['ENABLE_ANALYTICS']?.toLowerCase() == 'true';
+  static bool get enableDatabaseLogging => dotenv.env['ENABLE_DATABASE_LOGGING']?.toLowerCase() != 'false';
 
   // Storage Buckets
   static const String invoicesBucket = 'invoices';
@@ -68,8 +81,7 @@ class AppConstants {
   static const int phoneNumberLength = 10;
   static const String phoneNumberPattern = r'^[6-9]\d{9}$';
 
-  // Mock Payment Mode - Hardcoded for production control
-  static const bool mockPaymentMode = true; // Set to false for live payments
+  // Mock Payment Mode removed - now using environment-aware version above
 
   /// Validate critical configuration on app startup
   static void validateConfiguration() {

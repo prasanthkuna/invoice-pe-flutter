@@ -342,39 +342,4 @@ class _ErrorScreen extends StatelessWidget {
   }
 }
 
-/// ELON'S MINIMAL APP - ABSOLUTE BASICS ONLY
-class _ElonMinimalApp extends StatelessWidget {
-  const _ElonMinimalApp();
-
-  @override
-  Widget build(BuildContext context) {
-    print('🚀 ELON DEBUG: Building minimal app widget');
-
-    return MaterialApp(
-      title: 'Elon Debug - Minimal Test',
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('ELON DEBUG: Minimal App'),
-          backgroundColor: Colors.blue,
-        ),
-        body: const Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.rocket_launch, size: 64, color: Colors.green),
-              SizedBox(height: 16),
-              Text(
-                'MINIMAL APP WORKS!',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 8),
-              Text('If you see this, basic Flutter is working'),
-              SizedBox(height: 24),
-              Text('Next: Add components systematically'),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+// Removed unused _ElonMinimalApp class

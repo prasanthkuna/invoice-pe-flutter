@@ -253,21 +253,22 @@ class ComponentLogger {
         '${entry.component}.${entry.operation}';
 
     if (kDebugMode) {
-      switch (entry.level) {
-        case LogLevel.trace:
-        case LogLevel.debug:
-          debugPrint(message);
-        case LogLevel.info:
-          debugPrint('\x1B[32m$message\x1B[0m'); // Green
-        case LogLevel.warn:
-          debugPrint('\x1B[33m$message\x1B[0m'); // Yellow
-        case LogLevel.error:
-        case LogLevel.fatal:
-          debugPrint('\x1B[31m$message\x1B[0m'); // Red
-      }
+      // DEVELOPMENT FIX: Only show warnings and errors to reduce noise
+      if (entry.level.index >= LogLevel.warn.index) {
+        switch (entry.level) {
+          case LogLevel.warn:
+            debugPrint('\x1B[33m$message\x1B[0m'); // Yellow
+          case LogLevel.error:
+          case LogLevel.fatal:
+            debugPrint('\x1B[31m$message\x1B[0m'); // Red
+          default:
+            break;
+        }
 
-      if (entry.data.isNotEmpty) {
-        debugPrint('  Data: ${json.encode(entry.data)}');
+        // Only show data for warnings and errors
+        if (entry.data.isNotEmpty) {
+          debugPrint('  Data: ${json.encode(entry.data)}');
+        }
       }
     } else {
       print(json.encode(entry.toJson()));

@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="ic_launcher_background">#FFFFFF</color>
-    <color name="primary">#FF6B35</color>
-    <color name="primary_dark">#E85D2C</color>
-    <color name="accent">#4CAF50</color>
+    <color name="primary">#0D3B66</color>
+    <color name="primary_dark">#0A2E52</color>
+    <color name="accent">#33A02C</color>
+    <color name="orange_accent">#FFA500</color>
+    <color name="gradient_start">#FFA500</color>
+    <color name="gradient_mid">#33A02C</color>
+    <color name="gradient_end">#0D3B66</color>
 </resources>

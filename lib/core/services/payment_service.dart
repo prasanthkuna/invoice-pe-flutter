@@ -26,9 +26,9 @@ class PaymentService extends BaseService {
       _log.info('💀 Initializing PhonePe SDK');
 
       // Use string-based environment configuration (PhonePe SDK 2.0.3 pattern)
-      const environment =
+      final environment =
           AppConstants.phonePeEnvironment; // 'PRODUCTION' or 'UAT'
-      const merchantId = 'DEMOUAT'; // Moved to backend for security
+      final merchantId = AppConstants.phonePeMerchantId; // From environment
 
       _log.info(
         '📱 PhonePe Config: Environment=$environment, MerchantId=$merchantId',
@@ -50,7 +50,7 @@ class PaymentService extends BaseService {
     }
   }
 
-  /// Process payment using real PhonePe SDK (modern Result<T> pattern)
+  /// Process payment using real PhonePe SDK (modern Result pattern)
   static Future<payment_types.PaymentResult> processPayment({
     required String vendorId,
     required double amount,
@@ -60,7 +60,7 @@ class PaymentService extends BaseService {
     try {
       BaseService.ensureAuthenticated();
 
-      _log.info('Ã°Å¸Å¡â‚¬ Starting PhonePe payment process');
+      _log.info('💳 Starting PhonePe payment process');
 
       // Create invoice if not provided
       final finalInvoiceId =
@@ -73,10 +73,6 @@ class PaymentService extends BaseService {
 
         // Simulate realistic payment delay
         await Future.delayed(const Duration(seconds: 2));
-
-        // Create mock transaction record for proper data flow
-        final mockTransactionId =
-            'MOCK_TXN_${DateTime.now().millisecondsSinceEpoch}';
 
         // CRITICAL FIX: Create transaction directly in database for mock mode
         _log.info('🚀 Creating mock transaction directly in database', {

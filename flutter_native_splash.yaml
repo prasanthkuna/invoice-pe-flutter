@@ -1,33 +1,33 @@
 # flutter_native_splash configuration
-# Matches InvoicePe branding
+# InvoicePe Revolutionary Branding - FIXED TO MATCH APP THEME
 
 flutter_native_splash:
-  # Background color
-  color: "#FFFFFF"
-  
-  # App icon
+  # Background color - FIXED: Use app's primary background (Deep Blue)
+  color: "#0D3B66"
+
+  # App icon - SINGLE LOGO ONLY
   image: assets/icons/splash_logo.png
-  
-  # Branding (Android 12+)
-  branding: assets/icons/branding.png
-  
-  # Dark mode
-  color_dark: "#1A1A1A"
-  image_dark: assets/icons/splash_logo_dark.png
-  branding_dark: assets/icons/branding_dark.png
-  
-  # Android 12+ splash
+
+  # NO BRANDING - Remove duplicate logo
+  # branding: assets/icons/branding.png
+
+  # Dark mode (Same as light mode for consistency)
+  color_dark: "#0D3B66"
+  image_dark: assets/icons/splash_logo.png
+  # branding_dark: assets/icons/branding_dark.png
+
+  # Android 12+ splash - FIXED COLORS
   android_12:
-    color: "#FFFFFF"
-    icon_background_color: "#FFFFFF"
+    color: "#0D3B66"
+    icon_background_color: "#FFA500"  # Orange accent for icon background
     image: assets/icons/splash_logo.png
-    branding: assets/icons/branding.png
-    
-    # Dark mode
-    color_dark: "#1A1A1A"
-    icon_background_color_dark: "#1A1A1A"
-    image_dark: assets/icons/splash_logo_dark.png
-    branding_dark: assets/icons/branding_dark.png
+    # branding: assets/icons/branding.png  # REMOVED DUPLICATE
+
+    # Dark mode (Same as light mode)
+    color_dark: "#0D3B66"
+    icon_background_color_dark: "#FFA500"
+    image_dark: assets/icons/splash_logo.png
+    # branding_dark: assets/icons/branding_dark.png  # REMOVED DUPLICATE
   
   # Platform specific
   android: true

@@ -51,6 +51,8 @@ class EnvironmentService {
         try {
           await dotenv.load(fileName: '.env');
           debugPrint('✅ Development environment loaded from .env');
+          debugPrint('🔍 MOCK_PAYMENT_MODE in .env: "${dotenv.env['MOCK_PAYMENT_MODE']}"');
+          debugPrint('🔍 All env keys: ${dotenv.env.keys.toList()}');
         } catch (e) {
           debugPrint('⚠️ .env file not found or invalid: $e');
           debugPrint('⚠️ Using hardcoded development defaults');

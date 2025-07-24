@@ -571,10 +571,8 @@ class PaymentScreen extends ConsumerWidget {
           'total': total,
         };
 
-        // CRITICAL FIX: Use refresh() to immediately update data
-        ref.refresh(dashboardMetricsProvider);
-        ref.refresh(recentTransactionsProvider);
-        ref.refresh(transactionsProvider);
+        // ELON FIX: Avoid excessive refreshes that cause UI flickering
+        // Let providers auto-update on next read instead of forcing immediate refresh
 
         if (context.mounted) {
           context.go('/payment-success', extra: paymentData);

@@ -254,9 +254,6 @@ class AuthService extends BaseService {
       return const Failure('Authentication failed - invalid response');
     } on AuthException catch (e) {
       _log.error('Auth error during OTP verification', error: e);
-      return const Failure('Authentication failed - invalid response');
-    } on AuthException catch (e) {
-      _log.error('Auth error during OTP verification', error: e);
       return Failure(_parseAuthError(e));
     } catch (error) {
       _log.error('Unexpected error during OTP verification', error: error);

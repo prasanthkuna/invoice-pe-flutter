@@ -212,8 +212,11 @@ class TransactionListScreen extends ConsumerWidget {
               data: (filteredTransactions) => RefreshIndicator(
                 onRefresh: () async {
                   // CRITICAL FIX: Use refresh() to immediately update data
+                  // ignore: unused_result
                   ref.refresh(transactionsProvider);
+                  // ignore: unused_result
                   ref.refresh(dashboardMetricsProvider);
+                  // ignore: unused_result
                   ref.refresh(recentTransactionsProvider);
                 },
                 color: AppTheme.primaryAccent,

@@ -14,6 +14,11 @@ class DashboardScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // STANDARD: Refresh dashboard data when screen loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.invalidate(dashboardMetricsProvider);
+      ref.invalidate(recentTransactionsProvider);
+    });
     final dashboardMetrics = ref.watch(dashboardMetricsProvider);
     final currentProfile = ref.watch(currentProfileProvider);
     final isAuthenticated = ref.watch(isAuthenticatedProvider);
