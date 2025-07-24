@@ -61,9 +61,10 @@
 git clone https://github.com/prasanthkuna/invoice-pe-flutter.git
 cd invoice-pe-flutter
 
-# 2. Setup (Everything auto-configured)
+# 2. Setup environment (CRITICAL)
+cp .env.example .env
+# Edit .env with your Supabase credentials (see SETUP.md)
 flutter pub get
-# .env already included with mock payment mode enabled
 
 # 3. Experience the future
 flutter run
