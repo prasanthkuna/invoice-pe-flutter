@@ -78,6 +78,7 @@ class BusinessInfoScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 8),
                 TextField(
+                  autofocus: true, // KEYBOARD FIX: Auto-focus business name field
                   onChanged: (value) =>
                       ref.read(businessNameProvider.notifier).state = value,
                   style: const TextStyle(

@@ -98,6 +98,12 @@ final currentUserProvider = Provider<User?>((ref) {
   );
 });
 
+// Is Authenticated Provider
+final isAuthenticatedProvider = Provider<bool>((ref) {
+  final user = ref.watch(currentUserProvider);
+  return user != null;
+});
+
 // Loading State Provider (Global)
 final loadingStateProvider = StateProvider<bool>((ref) => false);
 

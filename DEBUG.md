@@ -11,6 +11,18 @@
 
 ## 🎯 The Only Commands You Need
 
+### 0. CRITICAL: Analyze Before Building (Elon Standard)
+```powershell
+# ALWAYS analyze changed files before building to catch errors early
+dart analyze lib/features/payment/presentation/screens/
+dart analyze lib/core/services/payment_service.dart
+
+# Quick analysis of specific files
+flutter analyze lib/path/to/changed_file.dart
+
+# Fix any issues found before proceeding to build
+```
+
 ### 1. Nuclear Reset (Fixes 99% of Issues)
 ```powershell
 # Complete clean install - Windows PowerShell
@@ -43,10 +55,11 @@ dart fix --apply --code=dead_code
 dart fix --apply --code=unused_local_variable
 ```
 
-### 2. Device Management
+### 2. Device Management & ADB Commands
 ```powershell
 # List all devices
 flutter devices
+C:\Users\kunap\AppData\Local\Android\Sdk\platform-tools\adb.exe devices
 
 # Run on specific device
 flutter run -d windows     # Windows desktop
@@ -55,9 +68,63 @@ flutter run -d emulator-5554  # Android emulator
 flutter run -d [device-id]    # Your connected device
 ```
 
-### 3. PATH Fix (If Flutter Not Found)
+### 2.1. Emulator Management (Essential Commands)
 ```powershell
+# List available AVDs
+C:\Users\kunap\AppData\Local\Android\Sdk\emulator\emulator.exe -list-avds
+
+# Start emulator (our main AVD)
+C:\Users\kunap\AppData\Local\Android\Sdk\emulator\emulator.exe -avd Medium_Phone_API_36.0
+
+# Check emulator status
+C:\Users\kunap\AppData\Local\Android\Sdk\platform-tools\adb.exe devices
+
+# Kill all emulators (if stuck)
+C:\Users\kunap\AppData\Local\Android\Sdk\platform-tools\adb.exe kill-server
+C:\Users\kunap\AppData\Local\Android\Sdk\platform-tools\adb.exe start-server
+```
+
+### 2.2. App Management (InvoicePe Specific)
+```powershell
+# Install/Update app
+C:\Users\kunap\AppData\Local\Android\Sdk\platform-tools\adb.exe install -r build\app\outputs\flutter-apk\app-debug.apk
+
+# Launch InvoicePe app
+C:\Users\kunap\AppData\Local\Android\Sdk\platform-tools\adb.exe shell am start -n com.invoicepe.invoice_pe_app.staging/com.invoicepe.invoice_pe_app.MainActivity
+
+# Force stop app (if frozen)
+C:\Users\kunap\AppData\Local\Android\Sdk\platform-tools\adb.exe shell am force-stop com.invoicepe.invoice_pe_app.staging
+
+# Clear app data (reset app)
+C:\Users\kunap\AppData\Local\Android\Sdk\platform-tools\adb.exe shell pm clear com.invoicepe.invoice_pe_app.staging
+
+# Uninstall app
+C:\Users\kunap\AppData\Local\Android\Sdk\platform-tools\adb.exe uninstall com.invoicepe.invoice_pe_app.staging
+```
+
+### 2.3. Debugging Commands
+```powershell
+# View app logs (real-time)
+C:\Users\kunap\AppData\Local\Android\Sdk\platform-tools\adb.exe logcat -s flutter -v time
+
+# View app logs (filtered)
+C:\Users\kunap\AppData\Local\Android\Sdk\platform-tools\adb.exe logcat | findstr "InvoicePe"
+
+# Check app info
+C:\Users\kunap\AppData\Local\Android\Sdk\platform-tools\adb.exe shell pm list packages | findstr invoice
+
+# Take screenshot
+C:\Users\kunap\AppData\Local\Android\Sdk\platform-tools\adb.exe shell screencap -p /sdcard/screenshot.png
+C:\Users\kunap\AppData\Local\Android\Sdk\platform-tools\adb.exe pull /sdcard/screenshot.png
+```
+
+### 3. PATH Fix (If Flutter/Supabase Not Found)
+```powershell
+# Flutter PATH
 $env:PATH = "C:\tools\flutter\bin;" + $env:PATH
+
+# Supabase PATH (Scoop installation)
+$env:PATH = "$env:USERPROFILE\scoop\apps\supabase\current;" + $env:PATH
 ```
 
 ### 3. Security Check
@@ -66,7 +133,16 @@ $env:PATH = "C:\tools\flutter\bin;" + $env:PATH
 Select-String -Path "lib\**\*.dart" -Pattern "PHONEPE_|TWILIO_|JWT_SECRET"
 ```
 
-### 4. Supabase Edge Functions
+### 4. Fix Supabase PATH (One-time setup)
+```powershell
+# Add Supabase to global PATH (run once)
+[Environment]::SetEnvironmentVariable("PATH", [Environment]::GetEnvironmentVariable("PATH", "User") + ";$env:USERPROFILE\scoop\apps\supabase\current", "User")
+
+# Restart PowerShell or refresh PATH
+$env:PATH = [Environment]::GetEnvironmentVariable("PATH", "User")
+```
+
+### 5. Supabase Edge Functions
 ```powershell
 # Deploy secrets
 supabase secrets set --env-file supabase/functions/.env
@@ -78,13 +154,20 @@ supabase functions deploy
 supabase functions logs initiate-payment
 ```
 
-### 5. Build & Run
+### 6. Efficient Development Workflow (Elon Standard)
 ```powershell
-# Debug build
-flutter build apk --debug
+# STEP 1: Analyze first (catch errors early)
+dart analyze lib/path/to/changed_files.dart
 
-# Run on device
-flutter run
+# STEP 2: Hot reload mode (fastest development)
+flutter run -d emulator-5554
+
+# STEP 3: Only build when ready for testing
+flutter build apk --debug
+adb install -r build\app\outputs\flutter-apk\app-debug.apk
+
+# STEP 4: Production build
+flutter build apk --release
 ```
 
 ## Fix Sequence (Copy & Run)
@@ -94,28 +177,61 @@ flutter clean
 flutter pub get
 dart fix --apply
 dart format .
+
+# CRITICAL: Analyze before building
 flutter analyze
+
+# Only run tests if analysis passes
 flutter test
 ```
 
-## Beta Testing Commands
+## Beta Testing Commands (Elon Workflow)
 ```powershell
-# Test mock payments
-$env:MOCK_PAYMENT_MODE="true"
-flutter run
+# STEP 1: Analyze first
+dart analyze lib/
 
-# Test real payments (PhonePe UAT)
-$env:MOCK_PAYMENT_MODE="false"
-flutter run
+# STEP 2: Hot reload development
+flutter run -d emulator-5554
 
-# Build release APK
+# STEP 3: Test mock payments (default mode)
+# App runs in mock mode by default - no environment changes needed
+
+# STEP 4: Build only when ready
+flutter build apk --debug
+
+# STEP 5: Production builds
 flutter build apk --release
-
-# Build for all platforms
-flutter build apk
 flutter build appbundle
 flutter build web
 flutter build windows
+```
+
+## Emergency Fixes (Copy & Paste)
+
+### Emulator Not Responding
+```powershell
+# Nuclear option - restart everything
+C:\Users\kunap\AppData\Local\Android\Sdk\platform-tools\adb.exe kill-server
+taskkill /f /im qemu-system-x86_64.exe
+C:\Users\kunap\AppData\Local\Android\Sdk\platform-tools\adb.exe start-server
+C:\Users\kunap\AppData\Local\Android\Sdk\emulator\emulator.exe -avd Medium_Phone_API_36.0
+```
+
+### App Stuck/Frozen
+```powershell
+# Force restart app
+C:\Users\kunap\AppData\Local\Android\Sdk\platform-tools\adb.exe shell am force-stop com.invoicepe.invoice_pe_app.staging
+C:\Users\kunap\AppData\Local\Android\Sdk\platform-tools\adb.exe shell am start -n com.invoicepe.invoice_pe_app.staging/com.invoicepe.invoice_pe_app.MainActivity
+```
+
+### Complete Reset (Nuclear Option)
+```powershell
+# Reset everything - use when nothing works
+C:\Users\kunap\AppData\Local\Android\Sdk\platform-tools\adb.exe shell pm clear com.invoicepe.invoice_pe_app.staging
+flutter clean
+flutter pub get
+flutter build apk --debug
+C:\Users\kunap\AppData\Local\Android\Sdk\platform-tools\adb.exe install -r build\app\outputs\flutter-apk\app-debug.apk
 ```
 
 ## Common Fixes
@@ -142,6 +258,20 @@ supabase db remote commit
 supabase functions deploy
 ```
 
+### ADB Connection Issues
+```powershell
+# ADB not recognizing device
+C:\Users\kunap\AppData\Local\Android\Sdk\platform-tools\adb.exe kill-server
+C:\Users\kunap\AppData\Local\Android\Sdk\platform-tools\adb.exe start-server
+C:\Users\kunap\AppData\Local\Android\Sdk\platform-tools\adb.exe devices
+
+# Device offline
+C:\Users\kunap\AppData\Local\Android\Sdk\platform-tools\adb.exe reconnect
+
+# Multiple devices (specify target)
+C:\Users\kunap\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 install -r build\app\outputs\flutter-apk\app-debug.apk
+```
+
 ### Environment Variables
 ```powershell
 # Check current settings
@@ -163,6 +293,9 @@ cat .env | Select-String "MOCK_PAYMENT_MODE"
 - App startup: <2 seconds
 - Payment flow: <20 seconds
 - All platforms: ✅
+- Emulator boot: <60 seconds
+- App install: <10 seconds
+- Hot reload: <3 seconds
 
 ## Quick Links
 - Supabase: https://supabase.com/dashboard/project/ixwwtabatwskafyvlwnm

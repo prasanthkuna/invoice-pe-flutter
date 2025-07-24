@@ -21,7 +21,6 @@ import '../../features/cards/presentation/screens/card_list_screen.dart';
 import '../../features/payment/presentation/screens/payment_screen.dart';
 import '../../features/payment/presentation/screens/payment_success_screen.dart';
 import '../../features/payment/presentation/screens/quick_payment_screen.dart';
-import '../providers/data_providers.dart';
 
 // Temporary placeholder screen
 class PlaceholderScreen extends StatelessWidget {

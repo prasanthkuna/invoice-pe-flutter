@@ -44,7 +44,7 @@ Deno.serve(async (req) => {
     // Validate invoice belongs to user and is pending
     const { data: invoice, error: invoiceError } = await supabaseUser
       .from('invoices')
-      .select('id, user_id, vendor_id, amount, status')
+      .select('id, user_id, vendor_id, vendor_name, amount, status')
       .eq('id', invoice_id)
       .eq('user_id', user.id)
       .eq('status', 'pending')
@@ -58,14 +58,59 @@ Deno.serve(async (req) => {
       throw new Error('Amount mismatch')
     }
 
-    // If in mock mode, skip actual PhonePe and return fake success
+    // If in mock mode, create transaction but skip actual PhonePe
     if (mock_mode) {
+      const mockPaymentRef = `MOCK_${Date.now()}`
+
+      // CRITICAL FIX: Create transaction record even in mock mode
+      const { error: transactionError } = await supabaseAdmin
+        .from('transactions')
+        .insert({
+          invoice_id,
+          user_id: user.id,
+          vendor_id: invoice.vendor_id,
+          vendor_name: invoice.vendor_name, // CRITICAL FIX: Add vendor_name
+          status: 'success', // Set to success immediately for mock
+          amount: amount,
+          fee: Math.round(amount * 0.02 * 100) / 100, // 2% fee
+          rewards_earned: Math.round(amount * 0.015 * 100) / 100, // 1.5% rewards
+          payment_gateway_ref: mockPaymentRef,
+          phonepe_transaction_id: mockPaymentRef,
+          payment_method: 'Mock Payment', // CRITICAL FIX: Add payment_method
+          completed_at: new Date().toISOString()
+        })
+
+      if (transactionError) {
+        console.error('Transaction creation error:', transactionError)
+        throw new Error(`Failed to create mock transaction record: ${transactionError.message}`)
+      }
+
+      console.log('Mock transaction created successfully:', mockPaymentRef)
+
+      // Update invoice to paid for mock payments
+      const { error: invoiceUpdateError } = await supabaseAdmin
+        .from('invoices')
+        .update({
+          status: 'paid',
+          paid_at: new Date().toISOString()
+        })
+        .eq('id', invoice_id)
+
+      if (invoiceUpdateError) {
+        console.error('Invoice update error:', invoiceUpdateError)
+        throw new Error(`Failed to update invoice status: ${invoiceUpdateError.message}`)
+      }
+
+      console.log('Invoice updated to paid successfully:', invoice_id)
+
       return new Response(JSON.stringify({
         success: true,
         body: 'MOCK_PAYLOAD',
         checksum: 'MOCK_CHECKSUM',
-        merchantTransactionId: `MOCK_${Date.now()}`
-      }))
+        merchantTransactionId: mockPaymentRef
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      })
     }
 
     // PhonePe Configuration (YOUR_MERCHANT_ID - UAT Credentials)

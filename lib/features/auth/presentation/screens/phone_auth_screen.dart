@@ -1,11 +1,13 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/types/auth_types.dart' as app_auth;
 import '../../../../core/types/result.dart';
+import '../../../../core/theme/app_theme.dart';
 
 final phoneControllerProvider = StateProvider<TextEditingController>((ref) {
   return TextEditingController();
@@ -15,23 +17,50 @@ final otpControllerProvider = StateProvider<TextEditingController>((ref) {
   return TextEditingController();
 });
 
+final phoneFocusNodeProvider = StateProvider<FocusNode>((ref) {
+  return FocusNode();
+});
+
 final isLoadingProvider = StateProvider<bool>((ref) => false);
 final showOtpFieldProvider = StateProvider<bool>((ref) => false);
 final errorMessageProvider = StateProvider<String?>((ref) => null);
 
-class PhoneAuthScreen extends ConsumerWidget {
+class PhoneAuthScreen extends ConsumerStatefulWidget {
   const PhoneAuthScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PhoneAuthScreen> createState() => _PhoneAuthScreenState();
+}
+
+class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Auto-focus phone input when screen loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(phoneFocusNodeProvider).requestFocus();
+    });
+  }
+
+  @override
+  void dispose() {
+    ref.read(phoneControllerProvider).dispose();
+    ref.read(otpControllerProvider).dispose();
+    ref.read(phoneFocusNodeProvider).dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final phoneController = ref.watch(phoneControllerProvider);
     final otpController = ref.watch(otpControllerProvider);
+    final phoneFocusNode = ref.watch(phoneFocusNodeProvider);
     final isLoading = ref.watch(isLoadingProvider);
     final showOtpField = ref.watch(showOtpFieldProvider);
     final errorMessage = ref.watch(errorMessageProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0A),
+      backgroundColor: AppTheme.primaryBackground,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -40,128 +69,197 @@ class PhoneAuthScreen extends ConsumerWidget {
             children: [
               const SizedBox(height: 60),
 
-              // Logo and Title
-              const Text(
+              // Logo and Title - NEW THEME
+              Text(
                 'InvoicePe',
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF00D4FF),
+                  color: AppTheme.primaryAccent,
                 ),
-              ),
+              ).animate().fadeIn(delay: 200.ms).slideX(begin: -0.3),
               const SizedBox(height: 8),
-              const Text(
-                'Smart Invoice Management',
+              Text(
+                'Smart Business Payments',
                 style: TextStyle(
                   fontSize: 16,
-                  color: Color(0xFF888888),
+                  color: AppTheme.secondaryText,
                 ),
-              ),
+              ).animate().fadeIn(delay: 400.ms),
 
               const SizedBox(height: 80),
 
-              // Welcome Text
+              // Welcome Text - FIXED: Remove duplicate welcome message
               Text(
-                showOtpField ? 'Verify OTP' : 'Welcome Back',
-                style: const TextStyle(
+                showOtpField ? 'Verify OTP' : 'Sign In',
+                style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: AppTheme.primaryText,
                 ),
-              ),
+              ).animate().fadeIn(delay: 600.ms).slideY(begin: -0.3),
               const SizedBox(height: 8),
               Text(
                 showOtpField
                     ? 'Enter the 6-digit code sent to your phone'
                     : 'Enter your phone number to continue',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
-                  color: Color(0xFF888888),
+                  color: AppTheme.secondaryText,
                 ),
-              ),
+              ).animate().fadeIn(delay: 800.ms),
 
               const SizedBox(height: 40),
 
-              // Phone Number Field
+              // Phone Number Field - FIXED KEYBOARD + NEW THEME
               if (!showOtpField) ...[
                 TextField(
                   controller: phoneController,
+                  focusNode: phoneFocusNode,
+                  autofocus: true, // KEYBOARD FIX: Auto-focus
                   keyboardType: TextInputType.phone,
-                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(10),
+                  ],
+                  style: TextStyle(
+                    color: AppTheme.primaryText,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
                   decoration: InputDecoration(
                     labelText: 'Phone Number',
-                    labelStyle: const TextStyle(color: Color(0xFF888888)),
+                    labelStyle: TextStyle(color: AppTheme.secondaryText),
                     prefixText: '+91 ',
-                    prefixStyle: const TextStyle(color: Colors.white),
+                    prefixStyle: TextStyle(
+                      color: AppTheme.primaryText,
+                      fontWeight: FontWeight.w500,
+                    ),
                     filled: true,
-                    fillColor: const Color(0xFF1A1A1A),
+                    fillColor: AppTheme.cardBackground,
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(16),
                       borderSide: BorderSide.none,
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFF00D4FF)),
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(
+                        color: AppTheme.primaryAccent,
+                        width: 2,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(
+                        color: AppTheme.secondaryText.withValues(alpha: 0.3),
+                        width: 1,
+                      ),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 16,
                     ),
                   ),
-                ),
+                ).animate().fadeIn(delay: 1000.ms).slideY(begin: 0.3),
               ],
 
-              // OTP Field
+              // OTP Field - NEW THEME + AUTO-FOCUS
               if (showOtpField) ...[
                 TextField(
                   controller: otpController,
+                  autofocus: true, // KEYBOARD FIX: Auto-focus OTP field
                   keyboardType: TextInputType.number,
                   maxLength: 6,
-                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                  ],
+                  style: TextStyle(
+                    color: AppTheme.primaryText,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 4,
+                  ),
+                  textAlign: TextAlign.center,
                   decoration: InputDecoration(
-                    labelText: 'OTP Code',
-                    labelStyle: const TextStyle(color: Color(0xFF888888)),
+                    labelText: 'Enter 6-digit OTP',
+                    labelStyle: TextStyle(color: AppTheme.secondaryText),
                     filled: true,
-                    fillColor: const Color(0xFF1A1A1A),
+                    fillColor: AppTheme.cardBackground,
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(16),
                       borderSide: BorderSide.none,
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFF00D4FF)),
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(
+                        color: AppTheme.primaryAccent,
+                        width: 2,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(
+                        color: AppTheme.secondaryText.withValues(alpha: 0.3),
+                        width: 1,
+                      ),
                     ),
                     counterText: '',
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 16,
+                    ),
                   ),
-                ),
+                ).animate().fadeIn(delay: 300.ms).slideY(begin: 0.3),
                 const SizedBox(height: 16),
                 TextButton(
                   onPressed: () => _resendOtp(context, ref),
-                  child: const Text(
+                  child: Text(
                     'Resend OTP',
-                    style: TextStyle(color: Color(0xFF00D4FF)),
+                    style: TextStyle(
+                      color: AppTheme.primaryAccent,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
+                ).animate().fadeIn(delay: 500.ms),
               ],
 
               const SizedBox(height: 24),
 
-              // Error Message
+              // Error Message - NEW THEME
               if (errorMessage != null) ...[
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.red.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
+                    color: AppTheme.errorColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: Colors.red.withValues(alpha: 0.3),
+                      color: AppTheme.errorColor.withValues(alpha: 0.3),
                     ),
                   ),
-                  child: Text(
-                    errorMessage,
-                    style: const TextStyle(color: Colors.red),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        color: AppTheme.errorColor,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          errorMessage,
+                          style: TextStyle(
+                            color: AppTheme.errorColor,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
+                ).animate().shake(delay: 100.ms),
                 const SizedBox(height: 24),
               ],
 
-              // Continue Button
+              // Continue Button - NEW THEME
               SizedBox(
                 width: double.infinity,
                 height: 56,
@@ -170,21 +268,22 @@ class PhoneAuthScreen extends ConsumerWidget {
                       ? null
                       : () => _handleContinue(context, ref),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00D4FF),
-                    foregroundColor: Colors.black,
+                    backgroundColor: AppTheme.primaryAccent,
+                    foregroundColor: AppTheme.primaryBackground,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(16),
                     ),
                     elevation: 0,
+                    shadowColor: AppTheme.primaryAccent.withValues(alpha: 0.3),
                   ),
                   child: isLoading
-                      ? const SizedBox(
+                      ? SizedBox(
                           height: 20,
                           width: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
                             valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.black,
+                              AppTheme.primaryBackground,
                             ),
                           ),
                         )
@@ -196,21 +295,19 @@ class PhoneAuthScreen extends ConsumerWidget {
                           ),
                         ),
                 ),
-              ),
+              ).animate().fadeIn(delay: 1200.ms).slideY(begin: 0.3),
 
               const Spacer(),
 
-
-
-              // Terms and Privacy
-              const Text(
+              // Terms and Privacy - NEW THEME
+              Text(
                 'By continuing, you agree to our Terms of Service and Privacy Policy',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 12,
-                  color: Color(0xFF666666),
+                  color: AppTheme.secondaryText,
                 ),
-              ),
+              ).animate().fadeIn(delay: 1400.ms),
             ],
           ),
         ),

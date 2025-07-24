@@ -79,17 +79,19 @@ class AuthService extends BaseService {
     _log.info('Starting smart OTP send', {'phone': phone});
 
     try {
-      // Add timeout protection to prevent main thread blocking
-      return await Future.any([
-        _performOtpSendWithRetry(phone),
-        Future.delayed(
-          const Duration(seconds: 30),
-          () => app_auth.OtpFailed(
-            error: 'Request timeout - please check your internet connection and try again',
-            phone: phone,
+      // ELON FIX: Reduce timeout to prevent UI blocking and use microtask
+      return await Future.microtask(() async {
+        return Future.any([
+          _performOtpSendWithRetry(phone),
+          Future.delayed(
+            const Duration(seconds: 10), // Reduced from 30 to 10 seconds
+            () => app_auth.OtpFailed(
+              error: 'Request timeout - please check your internet connection and try again',
+              phone: phone,
+            ),
           ),
-        ),
-      ]);
+        ]);
+      });
     } catch (error) {
       _log.error('Smart OTP send failed', error: error);
       return app_auth.OtpFailed(

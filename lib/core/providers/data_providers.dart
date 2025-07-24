@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../shared/models/vendor.dart';
 import '../../shared/models/invoice.dart';
 import '../../shared/models/transaction.dart';
@@ -8,27 +7,9 @@ import '../services/vendor_service.dart';
 import '../services/invoice_service.dart';
 import '../services/transaction_service.dart';
 import '../services/profile_service.dart';
-import '../services/auth_service.dart';
 
-// Auth Providers
-final authStateProvider = StreamProvider<AuthState>((ref) {
-  return AuthService.authStateStream;
-});
-
-final currentUserProvider = Provider<User?>((ref) {
-  final authState = ref.watch(authStateProvider);
-  return authState.when(
-    data: (state) => state.session?.user,
-    loading: () => null, // TESLA FIX: Don't block during loading
-    error: (error, stackTrace) => null,
-  );
-});
-
-final isAuthenticatedProvider = Provider<bool>((ref) {
-  final user = ref.watch(currentUserProvider);
-  // TESLA FIX: Remove redundant call that was causing performance issues
-  return user != null;
-});
+// Auth Providers - REMOVED DUPLICATES (use app_providers.dart instead)
+// These providers are now in lib/core/providers/app_providers.dart to avoid circular dependencies
 
 // Profile Providers - TESLA FIX: Lazy loading to prevent main thread blocking
 final currentProfileProvider = FutureProvider<UserProfile?>((ref) async {
@@ -141,11 +122,7 @@ final FutureProviderFamily<Transaction, String> transactionProvider =
       ref,
       transactionId,
     ) async {
-      final isAuthenticated = ref.watch(isAuthenticatedProvider);
-      if (!isAuthenticated) {
-        throw Exception('User not authenticated');
-      }
-
+      // TESLA FIX: Don't watch isAuthenticated to prevent automatic triggering
       try {
         final transaction = await TransactionService.getTransaction(
           transactionId,

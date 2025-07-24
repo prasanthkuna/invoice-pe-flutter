@@ -245,10 +245,7 @@ class _StartupErrorScreen extends StatelessWidget {
               ],
               const SizedBox(height: 32),
               ElevatedButton(
-                onPressed: () {
-                  // Restart the app
-                  main();
-                },
+                onPressed: main,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF338DFF),
                   foregroundColor: Colors.white,
@@ -345,45 +342,35 @@ class _ErrorScreen extends StatelessWidget {
   }
 }
 
-/// TESLA MINIMAL TEST APP - To isolate performance issues
-class _MinimalTestApp extends StatelessWidget {
-  const _MinimalTestApp();
+/// ELON'S MINIMAL APP - ABSOLUTE BASICS ONLY
+class _ElonMinimalApp extends StatelessWidget {
+  const _ElonMinimalApp();
 
   @override
   Widget build(BuildContext context) {
+    print('🚀 ELON DEBUG: Building minimal app widget');
+
     return MaterialApp(
-      title: 'InvoicePe - Minimal Test',
-      theme: ThemeData.light(),
+      title: 'Elon Debug - Minimal Test',
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('InvoicePe - Performance Test'),
+          title: const Text('ELON DEBUG: Minimal App'),
           backgroundColor: Colors.blue,
         ),
         body: const Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.check_circle,
-                size: 64,
-                color: Colors.green,
-              ),
+              Icon(Icons.rocket_launch, size: 64, color: Colors.green),
               SizedBox(height: 16),
               Text(
-                'App is Working!',
+                'MINIMAL APP WORKS!',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 8),
-              Text(
-                'If you can see this, the basic app structure is fine.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16),
-              ),
+              Text('If you see this, basic Flutter is working'),
               SizedBox(height: 24),
-              Text(
-                'Next: Test with full app',
-                style: TextStyle(fontSize: 14, color: Colors.grey),
-              ),
+              Text('Next: Add components systematically'),
             ],
           ),
         ),

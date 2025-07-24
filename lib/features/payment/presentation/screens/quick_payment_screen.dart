@@ -5,8 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/providers/app_providers.dart';
 import '../../../../core/providers/data_providers.dart';
 import '../../../../core/services/payment_service.dart';
+import '../../../../core/types/payment_types.dart' as payment_types;
 import '../../../../shared/models/vendor.dart';
 
 final quickPaymentAmountProvider = StateProvider<double>((ref) => 0.0);
@@ -343,6 +345,7 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
                       Expanded(
                         child: TextField(
                           controller: _amountController,
+                          autofocus: true, // KEYBOARD FIX: Auto-focus amount field
                           onChanged: (value) {
                             final parsedAmount = double.tryParse(value) ?? 0.0;
                             ref
@@ -412,7 +415,41 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
                 amount >= AppConstants.minPaymentAmount) ...[
               const SizedBox(height: 32),
 
-              // Pay Button
+              // Total Debit Information
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppTheme.cardBackground,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: AppTheme.secondaryText.withValues(alpha: 0.2),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      color: AppTheme.primaryAccent,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        '₹${total.toStringAsFixed(2)} will be debited from your payment method',
+                        style: TextStyle(
+                          color: AppTheme.secondaryText,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ).animate().fadeIn(delay: 1300.ms).slideY(begin: 0.3),
+
+              const SizedBox(height: 16),
+
+              // Pay Button - Shows actual payment to vendor
               SizedBox(
                 width: double.infinity,
                 height: 56,
@@ -431,7 +468,7 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
                     ),
                   ),
                   child: Text(
-                    'Pay ₹${total.toStringAsFixed(2)} to ${selectedVendor.name}',
+                    'Pay ₹${amount.toStringAsFixed(2)} to ${selectedVendor.name}',
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -524,23 +561,23 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
       // Close loading dialog
       if (context.mounted) Navigator.of(context).pop();
 
-      // Handle payment result
-      if (result.toString().contains('success')) {
+      // Handle payment result using proper type checking
+      if (result.isSuccess) {
         final paymentData = {
           'amount': amount,
           'vendorName': vendor.name,
           'vendorId': vendor.id,
-          'rewards': amount * AppConstants.defaultRewardsPercentage / 100,
-          'transactionId': 'TXN${DateTime.now().millisecondsSinceEpoch}',
-          'paymentMethod': 'Credit Card',
+          'rewards': result.rewards ?? (amount * AppConstants.defaultRewardsPercentage / 100),
+          'transactionId': result.transactionId ?? 'TXN${DateTime.now().millisecondsSinceEpoch}',
+          'paymentMethod': 'Mock Payment',
           'fee': amount * AppConstants.defaultFeePercentage / 100,
           'total': total,
         };
 
-        // Refresh data providers
-        ref.invalidate(dashboardMetricsProvider);
-        ref.invalidate(recentTransactionsProvider);
-        ref.invalidate(transactionsProvider);
+        // CRITICAL FIX: Use refresh() to immediately update data
+        ref.refresh(dashboardMetricsProvider);
+        ref.refresh(recentTransactionsProvider);
+        ref.refresh(transactionsProvider);
 
         // Reset form
         ref.read(quickPaymentVendorProvider.notifier).state = null;

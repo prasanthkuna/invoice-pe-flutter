@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../shared/models/transaction.dart';
+import '../../../../core/providers/app_providers.dart';
 import '../../../../core/providers/data_providers.dart';
 
 class TransactionListScreen extends ConsumerWidget {
@@ -208,73 +209,88 @@ class TransactionListScreen extends ConsumerWidget {
                   ],
                 ),
               ),
-              data: (filteredTransactions) => filteredTransactions.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+              data: (filteredTransactions) => RefreshIndicator(
+                onRefresh: () async {
+                  // CRITICAL FIX: Use refresh() to immediately update data
+                  ref.refresh(transactionsProvider);
+                  ref.refresh(dashboardMetricsProvider);
+                  ref.refresh(recentTransactionsProvider);
+                },
+                color: AppTheme.primaryAccent,
+                backgroundColor: AppTheme.cardBackground,
+                child: filteredTransactions.isEmpty
+                    ? ListView(
                         children: [
-                          Icon(
-                            Icons.receipt_long_outlined,
-                            size: 64,
-                            color: AppTheme.secondaryText.withValues(
-                              alpha: 0.5,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            searchQuery.isEmpty
-                                ? 'No transactions yet'
-                                : 'No transactions found',
-                            style: Theme.of(context).textTheme.headlineSmall
-                                ?.copyWith(
-                                  color: AppTheme.secondaryText,
-                                ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            searchQuery.isEmpty
-                                ? 'Your payment history will appear here'
-                                : 'Try a different search term',
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(
+                          SizedBox(height: MediaQuery.of(context).size.height * 0.3),
+                          Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.receipt_long_outlined,
+                                  size: 64,
                                   color: AppTheme.secondaryText.withValues(
-                                    alpha: 0.7,
+                                    alpha: 0.5,
                                   ),
                                 ),
-                          ),
-                          if (searchQuery.isEmpty) ...[
-                            const SizedBox(height: 24),
-                            ElevatedButton(
-                              onPressed: () => context.go('/quick-pay'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppTheme.primaryAccent,
-                                foregroundColor: Colors.white,
-                              ),
-                              child: const Text('Make Your First Payment'),
-                            ),
-                          ],
-                        ],
-                      ),
-                    )
-                  : ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: filteredTransactions.length,
-                      itemBuilder: (context, index) {
-                        final transaction = filteredTransactions[index];
-                        return Container(
-                              margin: const EdgeInsets.only(bottom: 12),
-                              child: _TransactionCard(
-                                transaction: transaction,
-                                onTap: () => context.go(
-                                  '/transactions/${transaction.id}',
+                                const SizedBox(height: 16),
+                                Text(
+                                  searchQuery.isEmpty
+                                      ? 'No transactions yet'
+                                      : 'No transactions found',
+                                  style: Theme.of(context).textTheme.headlineSmall
+                                      ?.copyWith(
+                                        color: AppTheme.secondaryText,
+                                      ),
                                 ),
-                              ),
-                            )
-                            .animate(delay: Duration(milliseconds: 100 * index))
-                            .fadeIn()
-                            .slideX(begin: 0.3);
-                      },
-                    ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  searchQuery.isEmpty
+                                      ? 'Your payment history will appear here'
+                                      : 'Try a different search term',
+                                  style: Theme.of(context).textTheme.bodyMedium
+                                      ?.copyWith(
+                                        color: AppTheme.secondaryText.withValues(
+                                          alpha: 0.7,
+                                        ),
+                                      ),
+                                ),
+                                if (searchQuery.isEmpty) ...[
+                                  const SizedBox(height: 24),
+                                  ElevatedButton(
+                                    onPressed: () => context.go('/quick-pay'),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppTheme.primaryAccent,
+                                      foregroundColor: Colors.white,
+                                    ),
+                                    child: const Text('Make Your First Payment'),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ],
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        itemCount: filteredTransactions.length,
+                        itemBuilder: (context, index) {
+                          final transaction = filteredTransactions[index];
+                          return Container(
+                                margin: const EdgeInsets.only(bottom: 12),
+                                child: _TransactionCard(
+                                  transaction: transaction,
+                                  onTap: () => context.go(
+                                    '/transactions/${transaction.id}',
+                                  ),
+                                ),
+                              )
+                              .animate(delay: Duration(milliseconds: 100 * index))
+                              .fadeIn()
+                              .slideX(begin: 0.3);
+                        },
+                      ),
+              ),
             ),
           ),
         ],

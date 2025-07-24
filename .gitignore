@@ -45,6 +45,16 @@ build/
 coverage/
 doc/api/
 
+# Generated splash screens and icons (recreatable)
+android/app/src/main/res/drawable-*/splash.png
+android/app/src/main/res/drawable-*/android12splash.png
+android/app/src/main/res/drawable-night*/
+android/app/src/main/res/values-night-v31/
+android/app/src/main/res/values-v31/
+ios/Runner/Assets.xcassets/LaunchBackground.imageset/
+ios/Runner/Assets.xcassets/BrandingImage.imageset/
+web/splash/
+
 # ================================
 # ELON'S REPO CLEANLINESS RULES
 # ================================

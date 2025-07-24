@@ -104,17 +104,14 @@ class EnvironmentService {
 
     for (final key in criticalKeys) {
       // Use String.fromEnvironment with each key individually
-      String value = '';
+      var value = '';
       switch (key) {
         case 'SUPABASE_URL':
           value = const String.fromEnvironment('SUPABASE_URL');
-          break;
         case 'SUPABASE_ANON_KEY':
           value = const String.fromEnvironment('SUPABASE_ANON_KEY');
-          break;
         case 'ENCRYPTION_KEY':
           value = const String.fromEnvironment('ENCRYPTION_KEY');
-          break;
       }
 
       if (value.isNotEmpty) {
@@ -135,7 +132,13 @@ class EnvironmentService {
         }
       }
     } catch (e) {
-      throw StateError('Failed to load production secrets: $e');
+      if (kDebugMode) {
+        debugPrint('⚠️ Secure storage error: $e');
+      }
+      // Don't throw in debug mode - continue with .env values
+      if (kReleaseMode) {
+        throw StateError('Failed to load production secrets: $e');
+      }
     }
   }
 

@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:invoice_pe_app/main.dart';
-import 'package:invoice_pe_app/core/providers/data_providers.dart';
+import 'package:invoice_pe_app/core/providers/app_providers.dart';
 import 'package:invoice_pe_app/core/services/debug_service.dart';
 
 /// InvoicePe's Test Philosophy: "Setup once, test everything"

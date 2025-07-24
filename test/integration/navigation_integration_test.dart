@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:invoice_pe_app/main.dart';
-import 'package:invoice_pe_app/core/providers/data_providers.dart';
+import 'package:invoice_pe_app/core/providers/app_providers.dart';
 import 'package:invoice_pe_app/core/services/debug_service.dart';
 
 void main() {

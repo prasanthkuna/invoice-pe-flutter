@@ -1,20 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-// CRED/Binance Style Theme Implementation (UX Requirements)
+// InvoicePe Revolutionary Theme Implementation (User Specification)
 class AppTheme {
-  // Color Palette (UX Specification)
-  static const Color primaryBackground = Color(0xFF101213); // Deep Charcoal
-  static const Color cardBackground = Color(
-    0xFF1A1D1E,
-  ); // Slightly lighter Charcoal
-  static const Color primaryAccent = Color(0xFF338DFF); // Electric Blue
-  static const Color secondaryAccent = Color(0xFFAE8F61); // Brushed Gold
-  static const Color primaryText = Color(0xFFF1F1F1); // Off-White
-  static const Color secondaryText = Color(0xFFA8A8A8); // Light Grey
-  static const Color successColor = Color(0xFF1ED760); // Clean Green
+  // Color Palette (User's Revolutionary Design)
+  static const Color primaryBackground = Color(0xFF0D3B66); // Deep Blue (Primary)
+  static const Color cardBackground = Color(0xFF1A4A73); // Lighter Deep Blue
+  static const Color primaryAccent = Color(0xFFFFA500); // Bright Orange (CTA)
+  static const Color secondaryAccent = Color(0xFF33A02C); // Vibrant Green (Success)
+  static const Color primaryText = Color(0xFFFFFFFF); // Pure White
+  static const Color secondaryText = Color(0xFFCCCCCC); // Medium Gray
+  static const Color successColor = Color(0xFF33A02C); // Vibrant Green
   static const Color errorColor = Color(0xFFFF453A); // Soft Red
-  static const Color warningColor = Color(0xFFFFC300); // Warm Amber
+  static const Color warningColor = Color(0xFFFFA500); // Bright Orange
+
+  // Gradient Colors (Orange → Green → Blue)
+  static const Color gradientStart = Color(0xFFFFA500); // Bright Orange
+  static const Color gradientMid = Color(0xFF33A02C); // Vibrant Green
+  static const Color gradientEnd = Color(0xFF0D3B66); // Deep Blue
+
+  // Neutral Colors (User Specification)
+  static const Color neutralWhite = Color(0xFFFFFFFF);
+  static const Color neutralLightGray = Color(0xFFF7F7F7);
+  static const Color neutralMediumGray = Color(0xFFCCCCCC);
+  static const Color neutralDarkGray = Color(0xFF333333);
+  static const Color neutralBlack = Color(0xFF000000);
 
   // Dark Theme (Primary)
   static ThemeData get darkTheme {
@@ -210,12 +220,30 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
-      scaffoldBackgroundColor: Colors.white,
+      scaffoldBackgroundColor: neutralWhite,
       colorScheme: const ColorScheme.light(
-        primary: primaryAccent,
-        secondary: secondaryAccent,
-        surface: Colors.white,
+        primary: primaryBackground, // Deep Blue
+        secondary: secondaryAccent, // Vibrant Green
+        surface: neutralLightGray,
         error: errorColor,
+        onPrimary: neutralWhite,
+        onSecondary: neutralWhite,
+        onSurface: neutralDarkGray,
+        onError: neutralWhite,
+      ),
+
+      // App Bar Theme (Light)
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
+        titleTextStyle: TextStyle(
+          color: neutralDarkGray,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          fontFamily: 'Inter',
+        ),
+        iconTheme: IconThemeData(color: neutralDarkGray),
       ),
     );
   }

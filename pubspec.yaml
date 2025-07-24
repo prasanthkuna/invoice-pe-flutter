@@ -99,6 +99,9 @@ dev_dependencies:
   # Linting (Updated to very_good_analysis)
   # flutter_lints: ^6.0.0  # Replaced by very_good_analysis
 
+  # Splash screen generation
+  flutter_native_splash: ^2.4.1
+
 # ELON-STYLE DEPENDENCY OVERRIDES (Research-based fixes for Codemagic)
 # Eliminates "X packages have newer versions incompatible" errors
 dependency_overrides:
@@ -137,12 +140,13 @@ flutter:
     - assets/icons/
     # NOTE: Never include .env in assets - it exposes secrets
 
-  # Fonts (UX Requirements: Inter/SF Pro)
+  # Fonts (User Specification: Inter font family)
   # TODO: Add Inter font files to assets/fonts/ directory
   # fonts:
   #   - family: Inter
   #     fonts:
   #       - asset: assets/fonts/Inter-Regular.ttf
+  #         weight: 400
   #       - asset: assets/fonts/Inter-Medium.ttf
   #         weight: 500
   #       - asset: assets/fonts/Inter-SemiBold.ttf
@@ -192,7 +196,7 @@ flutter_launcher_icons:
     generate: true
     image_path: "assets/icons/app_icon.png"
     background_color: "#FFFFFF"
-    theme_color: "#FF6B35"
+    theme_color: "#0D3B66"
   # Windows
   windows:
     generate: true

@@ -174,6 +174,7 @@ class PaymentScreen extends ConsumerWidget {
                       const SizedBox(width: 8),
                       Expanded(
                         child: TextField(
+                          autofocus: true, // KEYBOARD FIX: Auto-focus amount field
                           onChanged: (value) {
                             final parsedAmount = double.tryParse(value) ?? 0.0;
                             ref.read(paymentAmountProvider.notifier).state =
@@ -438,9 +439,44 @@ class PaymentScreen extends ConsumerWidget {
                 ),
               ).animate().fadeIn(delay: 1000.ms).slideX(begin: 0.3),
 
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
 
-              // Pay Button
+              // Total Debit Information
+              if (amount >= AppConstants.minPaymentAmount) ...[
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppTheme.cardBackground,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: AppTheme.secondaryText.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        color: AppTheme.primaryAccent,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          '₹${total.toStringAsFixed(2)} will be debited from your payment method',
+                          style: TextStyle(
+                            color: AppTheme.secondaryText,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ).animate().fadeIn(delay: 1100.ms).slideY(begin: 0.3),
+                const SizedBox(height: 16),
+              ],
+
+              // Pay Button - Shows actual payment amount
               SizedBox(
                 width: double.infinity,
                 height: 56,
@@ -464,7 +500,9 @@ class PaymentScreen extends ConsumerWidget {
                     ),
                   ),
                   child: Text(
-                    'Pay ₹${total.toStringAsFixed(2)}',
+                    amount >= AppConstants.minPaymentAmount
+                        ? 'Pay ₹${amount.toStringAsFixed(2)}${_getVendorName(invoiceAsync?.value, vendorAsync?.value).isNotEmpty ? ' to ${_getVendorName(invoiceAsync?.value, vendorAsync?.value)}' : ''}'
+                        : 'Enter amount to pay',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -526,18 +564,17 @@ class PaymentScreen extends ConsumerWidget {
           'vendorName': _getVendorName(invoice, vendor),
           'vendorId': vendorId ?? invoice?.vendorId ?? '',
           'invoiceId': invoiceId,
-          'rewards': rewards,
-          'transactionId':
-              result.transactionId ??
-              'TXN${DateTime.now().millisecondsSinceEpoch}',
-          'paymentMethod': 'Credit Card **** 1234',
+          'rewards': result.rewards ?? rewards,
+          'transactionId': result.transactionId ?? 'TXN${DateTime.now().millisecondsSinceEpoch}',
+          'paymentMethod': 'Mock Payment',
           'fee': fee,
           'total': total,
         };
 
-        // Refresh data providers
-        ref.invalidate(dashboardMetricsProvider);
-        ref.invalidate(recentTransactionsProvider);
+        // CRITICAL FIX: Use refresh() to immediately update data
+        ref.refresh(dashboardMetricsProvider);
+        ref.refresh(recentTransactionsProvider);
+        ref.refresh(transactionsProvider);
 
         if (context.mounted) {
           context.go('/payment-success', extra: paymentData);

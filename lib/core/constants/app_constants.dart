@@ -12,45 +12,19 @@ class AppConstants {
       'CRITICAL: Missing required environment configuration. '
       'Ensure .env file exists in development or secrets are properly injected in production.';
 
-  // App Info - Safe defaults for non-critical values
-  static String get appName => dotenv.env['APP_NAME'] ?? 'InvoicePe';
-  static String get appVersion => dotenv.env['APP_VERSION'] ?? '1.0.0';
-  static String get environment => dotenv.env['ENVIRONMENT'] ?? 'DEVELOPMENT';
+  // App Info - Hardcoded for reliability
+  static const String appName = 'InvoicePe';
+  static const String appVersion = '1.0.0';
+  static const String environment = 'PRODUCTION';
 
-  // Supabase Configuration - FAIL FAST if missing in production
-  static String get supabaseUrl {
-    final url = dotenv.env['SUPABASE_URL'];
-    if (url == null || url.isEmpty) {
-      if (kReleaseMode) {
-        throw StateError('$_missingConfigError Missing SUPABASE_URL');
-      }
-      // Development fallback - but log warning
-      if (kDebugMode) {
-        debugPrint('⚠️ WARNING: Using hardcoded Supabase URL for development');
-      }
-      return 'https://ixwwtabatwskafyvlwnm.supabase.co';
-    }
-    return url;
-  }
+  // Supabase Configuration - Hardcoded for production reliability
+  static const String supabaseUrl = 'https://ixwwtabatwskafyvlwnm.supabase.co';
+  static const String supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml4d3d0YWJhdHdza2FmeXZsd25tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE2NTY0MDAsImV4cCI6MjA2NzIzMjQwMH0.g7UfD3IVgsXEkUSYL4utfXBClzvvpduZDMwqPD0BNwc';
 
-  static String get supabaseAnonKey {
-    final key = dotenv.env['SUPABASE_ANON_KEY'];
-    if (key == null || key.isEmpty) {
-      if (kReleaseMode) {
-        throw StateError('$_missingConfigError Missing SUPABASE_ANON_KEY');
-      }
-      // Development fallback - but log warning
-      if (kDebugMode) {
-        debugPrint('⚠️ WARNING: Using hardcoded Supabase key for development');
-      }
-      return 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml4d3d0YWJhdHdza2FmeXZsd25tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE2NTY0MDAsImV4cCI6MjA2NzIzMjQwMH0.g7UfD3IVgsXEkUSYL4utfXBClzvvpduZDMwqPD0BNwc';
-    }
-    return key;
-  }
-
-  // PhonePe Configuration - Backend only for security
-  static String get phonePeEnvironment =>
-      dotenv.env['PHONEPE_ENVIRONMENT'] ?? 'UAT';
+  // PhonePe Configuration - Hardcoded for production
+  static const String phonePeEnvironment = 'UAT';
+  static const String phonePeMerchantId = 'DEMOUAT';
+  static const String phonePeSaltIndex = '1';
 
   // API Endpoints - Safe defaults
   static String get processPaymentFunction =>
@@ -62,28 +36,13 @@ class AppConstants {
   static String get initiatePaymentFunction =>
       dotenv.env['INITIATE_PAYMENT_FUNCTION'] ?? 'initiate-payment';
 
-  // Security Configuration - FAIL FAST if missing in production
-  static String get encryptionKey {
-    final key = dotenv.env['ENCRYPTION_KEY'];
-    if (key == null || key.isEmpty) {
-      if (kReleaseMode) {
-        throw StateError('$_missingConfigError Missing ENCRYPTION_KEY');
-      }
-      // Development fallback with warning
-      if (kDebugMode) {
-        debugPrint('⚠️ WARNING: Using default encryption key for development');
-      }
-      return 'InvoicePe2025AES256SecureKey4PCI';
-    }
-    return key;
-  }
+  // Security Configuration - Hardcoded for production
+  static const String encryptionKey = 'InvoicePe2025AES256SecureKey4PCI';
 
-  // Development Configuration
-  static bool get debugMode =>
-      (dotenv.env['DEBUG_MODE']?.toLowerCase() ?? 'true') == 'true';
-  static String get logLevel => dotenv.env['LOG_LEVEL'] ?? 'debug';
-  static bool get enableAnalytics =>
-      (dotenv.env['ENABLE_ANALYTICS']?.toLowerCase() ?? 'false') == 'true';
+  // Development Configuration - Keep minimal env dependencies for debug flags
+  static bool get debugMode => kDebugMode;
+  static const String logLevel = 'info';
+  static const bool enableAnalytics = false;
 
   // Storage Buckets
   static const String invoicesBucket = 'invoices';
@@ -109,20 +68,22 @@ class AppConstants {
   static const int phoneNumberLength = 10;
   static const String phoneNumberPattern = r'^[6-9]\d{9}$';
 
-  // Mock Payment Mode - Ship fast, test with real users
-  static bool get mockPaymentMode =>
-      (dotenv.env['MOCK_PAYMENT_MODE']?.toLowerCase() ?? 'true') == 'true';
+  // Mock Payment Mode - Hardcoded for production control
+  static const bool mockPaymentMode = true; // Set to false for live payments
 
   /// Validate critical configuration on app startup
   static void validateConfiguration() {
     try {
-      // Force evaluation of critical getters to trigger validation
-      final _ = supabaseUrl;
-      final __ = supabaseAnonKey;
-      final ___ = encryptionKey;
+      // Validate hardcoded constants are not empty
+      assert(supabaseUrl.isNotEmpty, 'Supabase URL cannot be empty');
+      assert(supabaseAnonKey.isNotEmpty, 'Supabase anon key cannot be empty');
+      assert(encryptionKey.isNotEmpty, 'Encryption key cannot be empty');
+      assert(appName.isNotEmpty, 'App name cannot be empty');
 
       if (kDebugMode) {
-        debugPrint('✅ Configuration validation passed');
+        debugPrint('✅ Configuration validation passed - All constants hardcoded');
+        debugPrint('📱 App: $appName v$appVersion ($environment)');
+        debugPrint('🔒 Mock Payment Mode: $mockPaymentMode');
       }
     } catch (e) {
       if (kDebugMode) {

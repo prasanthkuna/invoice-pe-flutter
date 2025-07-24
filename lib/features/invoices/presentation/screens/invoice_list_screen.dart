@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../shared/models/invoice.dart';
 import '../../../../core/providers/data_providers.dart';
+import '../../../../core/providers/app_providers.dart';
 
 class InvoiceListScreen extends ConsumerWidget {
   const InvoiceListScreen({super.key});

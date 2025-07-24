@@ -26,7 +26,7 @@ class PaymentService extends BaseService {
       _log.info('💀 Initializing PhonePe SDK');
 
       // Use string-based environment configuration (PhonePe SDK 2.0.3 pattern)
-      final environment =
+      const environment =
           AppConstants.phonePeEnvironment; // 'PRODUCTION' or 'UAT'
       const merchantId = 'DEMOUAT'; // Moved to backend for security
 
@@ -78,34 +78,29 @@ class PaymentService extends BaseService {
         final mockTransactionId =
             'MOCK_TXN_${DateTime.now().millisecondsSinceEpoch}';
 
-        // Still call backend to create transaction record
-        await BaseService.supabase.functions.invoke(
-          'initiate-payment',
-          body: {
-            'invoice_id': finalInvoiceId,
-            'amount': amount,
-            'mock_mode': true, // Signal backend to handle as mock
-          },
-        );
+        // CRITICAL FIX: Create transaction directly in database for mock mode
+        _log.info('🚀 Creating mock transaction directly in database', {
+          'invoice_id': finalInvoiceId,
+          'amount': amount,
+          'vendor_id': vendorId,
+        });
 
-        // Update invoice status to paid
-        await BaseService.supabase
-            .from('invoices')
-            .update({
-              'status': 'paid',
-              'paid_at': DateTime.now().toIso8601String(),
-            })
-            .eq('id', finalInvoiceId);
+        final actualTransactionId = await _createMockTransaction(
+          invoiceId: finalInvoiceId,
+          vendorId: vendorId,
+          amount: amount,
+        );
 
         // Log mock payment for transparency
         _log.info('✅ Mock payment completed', {
-          'transaction_id': mockTransactionId,
+          'transaction_id': actualTransactionId,
           'invoice_id': finalInvoiceId,
           'amount': amount,
+          'method': 'direct_database',
         });
 
         return payment_types.PaymentSuccess(
-          transactionId: mockTransactionId,
+          transactionId: actualTransactionId,
           invoiceId: finalInvoiceId,
           amount: amount,
           rewards: payment_types.PaymentFeeCalculator.calculateRewards(amount),
@@ -192,8 +187,11 @@ class PaymentService extends BaseService {
       }
     } catch (error) {
       _log.error('Payment processing error', error: error);
+
+      // Ensure we always return a proper PaymentFailure
       return payment_types.PaymentFailure(
-        error: 'Payment processing failed: $error',
+        error: 'Payment processing failed: ${error.toString()}',
+        transactionId: null,
       );
     }
   }
@@ -223,36 +221,96 @@ class PaymentService extends BaseService {
     return response['id'] as String;
   }
 
-  /// Create transaction record (Future use - PCC compliance)
-  // ignore: unused_element
-  static Future<String> _createTransaction({
+  /// Create mock transaction directly in database
+  static Future<String> _createMockTransaction({
     required String invoiceId,
     required String vendorId,
     required double amount,
   }) async {
-    final fee = amount * 0.02; // 2% fee
-    final rewards = amount * 0.015; // 1.5% rewards
+    try {
+      BaseService.ensureAuthenticated();
 
-    final data = {
-      'user_id': BaseService.currentUserId!,
-      'vendor_id': vendorId,
-      'invoice_id': invoiceId,
-      'amount': amount,
-      'fee': fee,
-      'rewards_earned': rewards,
-      'status': 'initiated',
-      'payment_method': 'Credit Card',
-      'phonepe_transaction_id':
-          'MOCK_TXN_${DateTime.now().millisecondsSinceEpoch}',
-    };
+      // Get vendor information for vendor_name
+      final vendorResponse = await BaseService.supabase
+          .from('vendors')
+          .select('name')
+          .eq('id', vendorId)
+          .eq('user_id', BaseService.currentUserId!)
+          .single();
 
-    final response = await BaseService.supabase
-        .from('transactions')
-        .insert(data)
-        .select('id')
-        .single();
+      final vendorName = vendorResponse['name'] as String;
 
-    return response['id'] as String;
+      // Calculate fees and rewards
+      final fee = amount * 0.02; // 2% fee
+      final rewards = amount * 0.015; // 1.5% rewards
+      final mockTransactionId = 'MOCK_TXN_${DateTime.now().millisecondsSinceEpoch}';
+
+      _log.info('💰 Creating transaction with calculated values', {
+        'vendor_name': vendorName,
+        'fee': fee,
+        'rewards': rewards,
+        'mock_transaction_id': mockTransactionId,
+      });
+
+      // Create transaction record
+      final transactionData = {
+        'user_id': BaseService.currentUserId!,
+        'vendor_id': vendorId,
+        'vendor_name': vendorName,
+        'invoice_id': invoiceId,
+        'amount': amount,
+        'fee': fee,
+        'rewards_earned': rewards,
+        'status': 'success', // Set to success immediately for mock
+        'payment_method': 'Mock Payment',
+        'phonepe_transaction_id': mockTransactionId,
+        'completed_at': DateTime.now().toIso8601String(),
+      };
+
+      final transactionResponse = await BaseService.supabase
+          .from('transactions')
+          .insert(transactionData)
+          .select('id')
+          .single();
+
+      final transactionId = transactionResponse['id'] as String;
+
+      _log.info('✅ Transaction created successfully', {
+        'transaction_id': transactionId,
+        'amount': amount,
+        'vendor_name': vendorName,
+      });
+
+      // Update invoice status to paid
+      await BaseService.supabase
+          .from('invoices')
+          .update({
+            'status': 'paid',
+            'paid_at': DateTime.now().toIso8601String(),
+            'transaction_id': transactionId,
+          })
+          .eq('id', invoiceId)
+          .eq('user_id', BaseService.currentUserId!);
+
+      _log.info('✅ Invoice updated to paid', {
+        'invoice_id': invoiceId,
+        'transaction_id': transactionId,
+      });
+
+      _log.info('🎉 Mock transaction creation completed successfully', {
+        'transaction_id': mockTransactionId,
+        'invoice_id': invoiceId,
+        'vendor_id': vendorId,
+        'amount': amount,
+      });
+
+      return mockTransactionId;
+    } catch (error) {
+      _log.error('❌ Failed to create mock transaction', error: error);
+
+      // Re-throw with more context
+      throw Exception('Mock transaction creation failed: ${error.toString()}');
+    }
   }
 
   /// Update transaction status (Future use - PCC compliance)

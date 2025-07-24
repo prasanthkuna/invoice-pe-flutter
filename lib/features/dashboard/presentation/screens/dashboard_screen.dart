@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/providers/app_providers.dart';
 import '../../../../core/providers/data_providers.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../shared/models/transaction.dart';
@@ -32,7 +33,7 @@ class DashboardScreen extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         automaticallyImplyLeading: false,
-        title: const Text('Dashboard'),
+        toolbarHeight: 0, // Hide the app bar completely for cleaner look
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -47,12 +48,7 @@ class DashboardScreen extends ConsumerWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Good morning',
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: AppTheme.secondaryText,
-                        ),
-                      ),
+                      // REMOVED: Duplicate welcome message
                       currentProfile.when(
                         data: (profile) => Text(
                           profile?.businessName ?? 'Business Owner',

@@ -89,10 +89,10 @@ class ProfileService extends BaseService {
     try {
       BaseService.ensureAuthenticated();
 
-      // Get total payments and rewards from transactions
+      // Get total payments and rewards from transactions with dates
       final transactionsResponse = await BaseService.supabase
           .from('transactions')
-          .select('amount, fee, rewards_earned, status')
+          .select('amount, fee, rewards_earned, status, created_at')
           .eq('user_id', BaseService.currentUserId!);
 
       var totalPayments = 0.0;
@@ -100,15 +100,39 @@ class ProfileService extends BaseService {
       var totalFees = 0.0;
       var successfulTransactions = 0;
 
+      // Calculate monthly rewards for comparison
+      final now = DateTime.now();
+      final currentMonthStart = DateTime(now.year, now.month, 1);
+      final lastMonthStart = DateTime(now.year, now.month - 1, 1);
+      final lastMonthEnd = DateTime(now.year, now.month, 0);
+
+      var currentMonthRewards = 0.0;
+      var lastMonthRewards = 0.0;
+
       for (final transaction in transactionsResponse) {
-        if (transaction['status'] == 'completed') {
-          totalPayments += (transaction['amount'] as num).toDouble();
-          totalFees += (transaction['fee'] as num).toDouble();
-          totalRewards +=
-              (transaction['rewards_earned'] as num?)?.toDouble() ?? 0.0;
+        // CRITICAL FIX: Check for both 'success' and 'completed' status
+        if (transaction['status'] == 'success' || transaction['status'] == 'completed') {
+          final amount = (transaction['amount'] as num).toDouble();
+          final fee = (transaction['fee'] as num).toDouble();
+          final rewards = (transaction['rewards_earned'] as num?)?.toDouble() ?? 0.0;
+          final createdAt = DateTime.parse(transaction['created_at'] as String);
+
+          totalPayments += amount;
+          totalFees += fee;
+          totalRewards += rewards;
           successfulTransactions++;
+
+          // Calculate monthly rewards
+          if (createdAt.isAfter(currentMonthStart)) {
+            currentMonthRewards += rewards;
+          } else if (createdAt.isAfter(lastMonthStart) && createdAt.isBefore(lastMonthEnd)) {
+            lastMonthRewards += rewards;
+          }
         }
       }
+
+      // Calculate monthly change
+      final monthlyChange = currentMonthRewards - lastMonthRewards;
 
       // Get vendor count
       final vendorCountResponse = await BaseService.supabase
@@ -128,6 +152,10 @@ class ProfileService extends BaseService {
         'totalRewards': totalRewards,
         'totalFees': totalFees,
         'totalTransactions': successfulTransactions,
+        'monthlyTransactions': successfulTransactions, // CRITICAL FIX: Add monthly transactions
+        'monthlyChange': monthlyChange, // CRITICAL FIX: Actual monthly change calculation
+        'currentMonthRewards': currentMonthRewards, // Additional metric
+        'lastMonthRewards': lastMonthRewards, // Additional metric
         'vendorCount': vendorCountResponse.length,
         'pendingInvoicesCount': pendingInvoicesResponse.length,
       };
