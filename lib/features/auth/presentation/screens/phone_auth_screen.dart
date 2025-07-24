@@ -376,9 +376,13 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
         }
       }
     } catch (error) {
-      ref.read(errorMessageProvider.notifier).state = error.toString();
+      if (context.mounted) {
+        ref.read(errorMessageProvider.notifier).state = error.toString();
+      }
     } finally {
-      ref.read(isLoadingProvider.notifier).state = false;
+      if (context.mounted) {
+        ref.read(isLoadingProvider.notifier).state = false;
+      }
     }
   }
 

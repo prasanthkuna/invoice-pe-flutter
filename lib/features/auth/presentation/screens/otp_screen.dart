@@ -1,10 +1,12 @@
 import 'dart:async' as async;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sms_autofill/sms_autofill.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/logger.dart';
@@ -28,7 +30,7 @@ class OtpScreen extends ConsumerStatefulWidget {
   ConsumerState<OtpScreen> createState() => _OtpScreenState();
 }
 
-class _OtpScreenState extends ConsumerState<OtpScreen> {
+class _OtpScreenState extends ConsumerState<OtpScreen> with CodeAutoFill {
   final List<TextEditingController> controllers = List.generate(
     6,
     (_) => TextEditingController(),
@@ -51,6 +53,10 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
 
       switch (result) {
         case Success():
+          // ELON NUCLEAR FIX: Cancel timer and clear ref BEFORE any navigation
+          _timer?.cancel();
+          _timer = null;
+
           // Check profile completion status
           final profileStatus = await AuthService.checkProfileStatus();
 
@@ -86,7 +92,9 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
         );
       }
     } finally {
-      ref.read(isVerifyingProvider.notifier).state = false;
+      if (context.mounted) {
+        ref.read(isVerifyingProvider.notifier).state = false;
+      }
     }
   }
 
@@ -94,29 +102,56 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   void initState() {
     super.initState();
     _startTimer();
+    _initializeAutofill();
+  }
+
+  /// Initialize SMS autofill listener
+  void _initializeAutofill() async {
+    try {
+      // Start listening for SMS autofill
+      await SmsAutoFill().listenForCode();
+
+      _log.info('SMS autofill initialized successfully');
+    } catch (error) {
+      _log.error('SMS autofill initialization failed', error: error);
+      // Continue without autofill if it fails
+    }
   }
 
   void _startTimer() {
+    // Cancel any existing timer first
     _timer?.cancel();
+    _timer = null;
+
+    // ELON DEFINITIVE FIX: Store notifier reference ONCE before async operations
+    // This prevents "ref after disposed" errors in timer callbacks
+    final timerNotifier = ref.read(timerProvider.notifier);
+
     _timer = async.Timer.periodic(const Duration(seconds: 1), (timer) {
-      // CRITICAL FIX: Check if widget is still mounted before accessing provider
-      if (!mounted) {
+      // Safety check: widget still mounted
+      if (!mounted || _timer == null || _timer != timer) {
         timer.cancel();
         return;
       }
 
-      final currentTimer = ref.read(timerProvider);
+      // Use stored notifier - NO ref.read() calls in timer callback
+      final currentTimer = timerNotifier.state;
       if (currentTimer > 0) {
-        ref.read(timerProvider.notifier).state = currentTimer - 1;
+        timerNotifier.state = currentTimer - 1;
       } else {
         timer.cancel();
+        _timer = null;
       }
     });
   }
 
   @override
   void dispose() {
+    // ELON FIX: Cancel timer FIRST before anything else
     _timer?.cancel();
+    _timer = null;
+
+    SmsAutoFill().unregisterListener(); // Clean up autofill listener
     for (final controller in controllers) {
       controller.dispose();
     }
@@ -126,13 +161,48 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     super.dispose();
   }
 
+  @override
+  void codeUpdated() {
+    // Called when SMS autofill detects an OTP code
+    if (code != null && code!.length == 6 && mounted) {
+      _log.info('SMS autofill detected OTP', {'code_length': code!.length});
+
+      // Cancel timer before autofill to prevent conflicts
+      _timer?.cancel();
+      _timer = null;
+
+      // Fill the OTP fields with the detected code
+      for (int i = 0; i < 6; i++) {
+        if (i < code!.length) {
+          controllers[i].text = code![i];
+        }
+      }
+
+      // ELON DEFINITIVE FIX: Store notifier reference before operations
+      final otpNotifier = ref.read(otpProvider.notifier);
+      otpNotifier.state = code!;
+
+      // Auto-verify the OTP
+      _verifyOtp(context, ref, code!);
+    }
+  }
+
   void _onOtpChanged() {
     final otp = controllers.map((c) => c.text).join();
-    ref.read(otpProvider.notifier).state = otp;
 
-    if (otp.length == 6) {
-      // Auto-verify when OTP is complete
-      _verifyOtp(context, ref, otp);
+    // ELON DEFINITIVE FIX: Store notifier reference before any operations
+    if (mounted) {
+      final otpNotifier = ref.read(otpProvider.notifier);
+      otpNotifier.state = otp;
+
+      if (otp.length == 6) {
+        // Cancel timer before auto-verification to prevent conflicts
+        _timer?.cancel();
+        _timer = null;
+
+        // Auto-verify when OTP is complete
+        _verifyOtp(context, ref, otp);
+      }
     }
   }
 
@@ -176,12 +246,37 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
 
             const SizedBox(height: 16),
 
-            Text(
-              'We sent a 6-digit code to your phone',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: AppTheme.secondaryText,
-              ),
-            ).animate().fadeIn(delay: 400.ms).slideX(begin: -0.3),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'We sent a 6-digit code to your phone',
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: AppTheme.secondaryText,
+                  ),
+                ).animate().fadeIn(delay: 400.ms).slideX(begin: -0.3),
+
+                const SizedBox(height: 8),
+
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.auto_awesome,
+                      size: 16,
+                      color: AppTheme.primaryAccent,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Code will auto-fill when SMS arrives',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppTheme.primaryAccent,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ).animate().fadeIn(delay: 600.ms),
+              ],
+            ),
 
             const SizedBox(height: 48),
 
@@ -220,6 +315,8 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                       border: InputBorder.none,
                       counterText: '',
                     ),
+                    // ELON ENHANCEMENT: Enable autofill for the first field
+                    autofillHints: index == 0 ? [AutofillHints.oneTimeCode] : null,
                     onChanged: (value) {
                       if (value.isNotEmpty && index < 5) {
                         focusNodes[index + 1].requestFocus();
@@ -248,8 +345,13 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                       onPressed: () async {
                         try {
                           await AuthService.sendOtpSmart(widget.phone);
-                          ref.read(timerProvider.notifier).state = 60;
-                          _startTimer();
+
+                          // ELON FIX: Safe provider access with mounted check
+                          if (mounted) {
+                            ref.read(timerProvider.notifier).state = 60;
+                            _startTimer();
+                          }
+
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(

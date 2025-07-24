@@ -64,18 +64,25 @@ class SmartLogger {
     String? category,
     bool forceSample = false,
   }) {
-    if (!_initialized) initialize();
+    try {
+      if (!_initialized) initialize();
 
-    // Smart sampling for routine operations
-    if (!forceSample && !_shouldSample(category ?? 'general')) {
-      return;
+      // Smart sampling for routine operations
+      if (!forceSample && !_shouldSample(category ?? 'general')) {
+        return;
+      }
+
+      final enrichedContext = _enrichContext(context, category);
+      final maskedMessage = _maskPII(message);
+
+      _logger.i(maskedMessage, error: null, stackTrace: null);
+      _logToBuffer('INFO', maskedMessage, enrichedContext);
+    } catch (e) {
+      // ELON FIX: Never crash app due to logging
+      if (kDebugMode) {
+        debugPrint('❌ SmartLogger.logInfo failed: $e');
+      }
     }
-
-    final enrichedContext = _enrichContext(context, category);
-    final maskedMessage = _maskPII(message);
-
-    _logger.i(maskedMessage, error: null, stackTrace: null);
-    _logToBuffer('INFO', maskedMessage, enrichedContext);
   }
 
   /// Business-critical logging (always logged, never sampled)
@@ -83,13 +90,20 @@ class SmartLogger {
     String message, {
     Map<String, dynamic>? context,
   }) {
-    if (!_initialized) initialize();
+    try {
+      if (!_initialized) initialize();
 
-    final enrichedContext = _enrichContext(context, 'payment');
-    final maskedMessage = _maskPII(message);
+      final enrichedContext = _enrichContext(context, 'payment');
+      final maskedMessage = _maskPII(message);
 
-    _logger.i('💰 PAYMENT: $maskedMessage');
-    _logToBuffer('PAYMENT', maskedMessage, enrichedContext);
+      _logger.i('💰 PAYMENT: $maskedMessage');
+      _logToBuffer('INFO', maskedMessage, enrichedContext);
+    } catch (e) {
+      // ELON FIX: Never crash app due to payment logging
+      if (kDebugMode) {
+        debugPrint('❌ SmartLogger.logPayment failed: $e');
+      }
+    }
   }
 
   /// Security logging (always logged, high priority)
@@ -103,7 +117,7 @@ class SmartLogger {
     final maskedMessage = _maskPII(message);
 
     _logger.w('🔒 SECURITY: $maskedMessage');
-    _logToBuffer('SECURITY', maskedMessage, enrichedContext);
+    _logToBuffer('WARN', maskedMessage, enrichedContext);
   }
 
   /// Error logging (always logged, full context)
@@ -113,13 +127,20 @@ class SmartLogger {
     StackTrace? stackTrace,
     Map<String, dynamic>? context,
   }) {
-    if (!_initialized) initialize();
+    try {
+      if (!_initialized) initialize();
 
-    final enrichedContext = _enrichContext(context, 'error');
-    final maskedMessage = _maskPII(message);
+      final enrichedContext = _enrichContext(context, 'error');
+      final maskedMessage = _maskPII(message);
 
-    _logger.e('❌ ERROR: $maskedMessage', error: error, stackTrace: stackTrace);
-    _logToBuffer('ERROR', maskedMessage, enrichedContext);
+      _logger.e('❌ ERROR: $maskedMessage', error: error, stackTrace: stackTrace);
+      _logToBuffer('ERROR', maskedMessage, enrichedContext);
+    } catch (e) {
+      // ELON FIX: Never crash app due to error logging (ironic but necessary)
+      if (kDebugMode) {
+        debugPrint('❌ SmartLogger.logError failed: $e');
+      }
+    }
   }
 
   /// Performance logging with timing
@@ -137,7 +158,7 @@ class SmartLogger {
     final message =
         '⚡ PERFORMANCE: $operation took ${duration.inMilliseconds}ms';
     _logger.i(message);
-    _logToBuffer('PERFORMANCE', message, enrichedContext);
+    _logToBuffer('INFO', message, enrichedContext);
   }
 
   /// Smart sampling logic
@@ -206,36 +227,53 @@ class SmartLogger {
     String message,
     Map<String, dynamic> context,
   ) {
-    // TEMPORARILY DISABLED - Restore transactions first
-    // SmartLogger database operations were conflicting with transaction system
-    // TODO: Re-enable after transactions are confirmed working
-    return;
-
-    // Original code preserved for future restoration:
-    /*
-    if (!AppConstants.enableDatabaseLogging ||
-        const bool.fromEnvironment('flutter.test', defaultValue: false)) {
+    // ELON FIX: Always enable database logging for debugging payment issues
+    // Only skip during tests to avoid test database pollution
+    if (const bool.fromEnvironment('flutter.test', defaultValue: false)) {
       return;
     }
 
+    // ELON FIX: Completely non-blocking logging - never crash the app
     Future.microtask(() async {
       try {
+        // Check if Supabase client is available before attempting to log
+        if (Supabase.instance.client.auth.currentUser == null) {
+          // Skip logging if no user is authenticated (app startup phase)
+          if (kDebugMode) {
+            debugPrint('⚠️ No authenticated user, skipping database log');
+          }
+          return;
+        }
+
+        // ELON FIX: Match exact database schema from migration
         await Supabase.instance.client.from('logs').insert({
+          'user_id': Supabase.instance.client.auth.currentUser?.id,
           'level': level,
           'category': context['category'] ?? 'general',
           'message': message,
-          'operation': context['operation'],
+          'operation': context['operation'] ?? 'unknown',
           'context': context,
           'session_id': _correlationId,
           'created_at': DateTime.now().toIso8601String(),
         });
-      } catch (e) {
+
         if (kDebugMode) {
-          debugPrint('Failed to log to database: $e');
+          debugPrint('✅ Log written to database: $level - $message');
         }
+      } catch (e) {
+        // NEVER crash the app due to logging failures
+        if (kDebugMode) {
+          debugPrint('❌ Failed to log to database: $e');
+          debugPrint('📊 Attempted log data: level=$level, message=$message');
+        }
+        // Silently continue - logging is optional
+      }
+    }).catchError((e) {
+      // Extra safety net - catch any Future errors
+      if (kDebugMode) {
+        debugPrint('❌ Logging Future error: $e');
       }
     });
-    */
   }
 }
 
