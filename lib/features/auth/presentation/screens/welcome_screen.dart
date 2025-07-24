@@ -36,22 +36,14 @@ class WelcomeScreen extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: AppTheme.primaryAccent,
                         borderRadius: BorderRadius.circular(30),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppTheme.primaryAccent.withValues(
-                              alpha: 0.3,
-                            ),
-                            blurRadius: 20,
-                            spreadRadius: 5,
-                          ),
-                        ],
+                        // TESLA FIX: Removed expensive boxShadow to prevent main thread blocking
                       ),
                       child: const Icon(
                         Icons.payment,
                         size: 60,
                         color: Colors.white,
                       ),
-                    ).animate().scale(delay: 300.ms, duration: 600.ms),
+                    ),
 
                     const SizedBox(height: 32),
 
@@ -61,7 +53,7 @@ class WelcomeScreen extends StatelessWidget {
                         color: AppTheme.primaryText,
                         fontWeight: FontWeight.bold,
                       ),
-                    ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.3),
+                    ),
 
                     const SizedBox(height: 16),
 
@@ -98,7 +90,7 @@ class WelcomeScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                ).animate().fadeIn(delay: 1200.ms).slideY(begin: 0.5),
+                ),
 
                 const SizedBox(height: 24),
 
@@ -109,7 +101,7 @@ class WelcomeScreen extends StatelessWidget {
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: AppTheme.secondaryText.withValues(alpha: 0.7),
                   ),
-                ).animate().fadeIn(delay: 1500.ms),
+                ),
 
                 const Spacer(),
               ],

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/logger.dart';
@@ -64,7 +65,8 @@ class PhoneInputScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final phoneNumber = ref.watch(phoneNumberProvider);
     final isLoading = ref.watch(isLoadingProvider);
-    final isValid = phoneNumber.length == 10;
+    final isValid = phoneNumber.length == AppConstants.phoneNumberLength &&
+      RegExp(AppConstants.phoneNumberPattern).hasMatch(phoneNumber);
 
     return Scaffold(
       appBar: AppBar(
@@ -86,23 +88,23 @@ class PhoneInputScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Progress Indicator
+            // Progress Indicator - TESLA FIX: Disabled animation to prevent main thread blocking
             const LinearProgressIndicator(
               value: 0.25,
               backgroundColor: AppTheme.cardBackground,
               valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryAccent),
-            ).animate().scaleX(duration: 800.ms),
+            ),
 
             const SizedBox(height: 40),
 
-            // Title
+            // Title - TESLA FIX: Disabled animations
             Text(
               'Enter your phone number',
               style: Theme.of(context).textTheme.displaySmall?.copyWith(
                 color: AppTheme.primaryText,
                 fontWeight: FontWeight.bold,
               ),
-            ).animate().fadeIn(delay: 200.ms).slideX(begin: -0.3),
+            ),
 
             const SizedBox(height: 16),
 
@@ -111,7 +113,7 @@ class PhoneInputScreen extends ConsumerWidget {
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 color: AppTheme.secondaryText,
               ),
-            ).animate().fadeIn(delay: 400.ms).slideX(begin: -0.3),
+            ),
 
             const SizedBox(height: 48),
 
@@ -150,7 +152,7 @@ class PhoneInputScreen extends ConsumerWidget {
                       keyboardType: TextInputType.phone,
                       inputFormatters: [
                         FilteringTextInputFormatter.digitsOnly,
-                        LengthLimitingTextInputFormatter(10),
+                        LengthLimitingTextInputFormatter(AppConstants.phoneNumberLength),
                       ],
                       style: const TextStyle(
                         fontSize: 18,
@@ -167,7 +169,7 @@ class PhoneInputScreen extends ConsumerWidget {
                   ),
                 ],
               ),
-            ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.3),
+            ),
 
             const Spacer(),
 
@@ -209,7 +211,7 @@ class PhoneInputScreen extends ConsumerWidget {
                         ),
                       ),
               ),
-            ).animate().fadeIn(delay: 800.ms).slideY(begin: 0.5),
+            ),
 
             const SizedBox(height: 24),
           ],

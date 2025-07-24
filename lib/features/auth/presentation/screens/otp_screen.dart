@@ -150,23 +150,23 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Progress Indicator
+            // Progress Indicator - TESLA FIX: Removed animation
             const LinearProgressIndicator(
               value: 0.5,
               backgroundColor: AppTheme.cardBackground,
               valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryAccent),
-            ).animate().scaleX(duration: 800.ms),
+            ),
 
             const SizedBox(height: 40),
 
-            // Title
+            // Title - TESLA FIX: Removed animation
             Text(
               'Enter verification code',
               style: Theme.of(context).textTheme.displaySmall?.copyWith(
                 color: AppTheme.primaryText,
                 fontWeight: FontWeight.bold,
               ),
-            ).animate().fadeIn(delay: 200.ms).slideX(begin: -0.3),
+            ),
 
             const SizedBox(height: 16),
 

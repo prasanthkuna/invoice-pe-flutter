@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.invoicepe.invoice_pe_app"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 35  // TESLA FIX: Update to SDK 35 for plugin compatibility
     ndkVersion = "27.0.12077973"
 
     // Enable BuildConfig feature for custom fields (Codemagic fix)
@@ -29,8 +29,12 @@ android {
         applicationId = "com.invoicepe.invoice_pe_app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+
+        // Set explicit SDK versions for better device compatibility
+        minSdk = 21  // Android 5.0 (covers 99%+ of devices)
+        targetSdk = 34  // Android 14 (stable and widely supported)
+        // compileSdk set above to 35 for plugin compatibility
+
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }

@@ -166,24 +166,14 @@ class DashboardScreen extends ConsumerWidget {
                   ),
                 ).animate().fadeIn(delay: 300.ms).slideY(begin: -0.2),
 
-              // Rewards Card (Hero Metric)
+              // Rewards Card (Hero Metric) - TESLA FIX: Simplified for performance
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [AppTheme.secondaryAccent, Color(0xFFD4AF37)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  color: AppTheme.secondaryAccent, // Simple color instead of gradient
                   borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppTheme.secondaryAccent.withValues(alpha: 0.3),
-                      blurRadius: 20,
-                      spreadRadius: 5,
-                    ),
-                  ],
+                  // Removed expensive gradient and boxShadow to prevent main thread blocking
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'base_service.dart';
 import 'logger.dart';
@@ -73,18 +74,51 @@ class AuthService extends BaseService {
     }
   }
 
-  /// Smart OTP sending with automatic retry logic (modern Result<T> pattern)
+  /// Smart OTP sending with automatic retry logic and timeout protection
   static Future<app_auth.OtpResult> sendOtpSmart(String phone) async {
     _log.info('Starting smart OTP send', {'phone': phone});
 
     try {
+      // Add timeout protection to prevent main thread blocking
+      return await Future.any([
+        _performOtpSendWithRetry(phone),
+        Future.delayed(
+          const Duration(seconds: 30),
+          () => app_auth.OtpFailed(
+            error: 'Request timeout - please check your internet connection and try again',
+            phone: phone,
+          ),
+        ),
+      ]);
+    } catch (error) {
+      _log.error('Smart OTP send failed', error: error);
+      return app_auth.OtpFailed(
+        error: _parseAuthError(error),
+        phone: phone,
+      );
+    }
+  }
+
+  /// Perform OTP send with retry logic and enhanced debugging
+  static Future<app_auth.OtpResult> _performOtpSendWithRetry(String phone) async {
+    try {
+      // Enhanced logging for debugging
+      _log.info('OTP send attempt', {
+        'phone': phone,
+        'phone_length': phone.length,
+        'has_plus': phone.startsWith('+'),
+      });
+
       // First attempt: try signin (existing user)
       _log.info('Attempting signin for existing user');
+
       await BaseService.supabase.auth.signInWithOtp(
         phone: phone,
         shouldCreateUser: false,
       );
+
       _log.info('Signin successful - existing user');
+
       return app_auth.OtpSent(
         phone: phone,
         message: 'Welcome back! OTP sent to $phone',
@@ -105,7 +139,9 @@ class AuthService extends BaseService {
             phone: phone,
             shouldCreateUser: true,
           );
+
           _log.info('Signup successful - new user created');
+
           return app_auth.OtpSent(
             phone: phone,
             message: 'Account created! OTP sent to $phone',
@@ -145,7 +181,7 @@ class AuthService extends BaseService {
     }
   }
 
-  /// Verify OTP and complete authentication (modern Result<T> pattern)
+  /// Verify OTP and complete authentication with timeout protection
   static Future<app_auth.AuthResult> verifyOtp({
     required String phone,
     required String otp,
@@ -155,6 +191,25 @@ class AuthService extends BaseService {
       {'phone': phone, 'otp_length': otp.length},
     );
 
+    try {
+      // Add timeout protection to prevent main thread blocking
+      return await Future.any([
+        _performOtpVerification(phone, otp),
+        Future.delayed(
+          const Duration(seconds: 30),
+          () => Failure(
+            'Verification timeout - please check your internet connection and try again',
+          ),
+        ),
+      ]);
+    } catch (error) {
+      _log.error('OTP verification failed', error: error);
+      return Failure(_parseAuthError(error));
+    }
+  }
+
+  /// Perform the actual OTP verification
+  static Future<app_auth.AuthResult> _performOtpVerification(String phone, String otp) async {
     try {
       final response = await BaseService.supabase.auth.verifyOTP(
         phone: phone,
@@ -222,6 +277,8 @@ class AuthService extends BaseService {
   /// Check if user is authenticated
   static bool get isAuthenticated => currentUser != null;
 
+
+
   /// Restore session on app startup
   static Future<bool> restoreSession() async {
     try {
@@ -270,11 +327,18 @@ class AuthService extends BaseService {
           });
           _log.info('Profile created successfully');
         } catch (insertError) {
-          _log.info(
-            'Profile insert failed - might already exist',
-          );
-          // Profile might have been created between check and insert
-          // This is fine, just ignore the error
+          // Check if it's a duplicate key error (profile already exists)
+          final errorMessage = insertError.toString().toLowerCase();
+          if (errorMessage.contains('duplicate') ||
+              errorMessage.contains('unique') ||
+              errorMessage.contains('already exists')) {
+            _log.info('Profile already exists - continuing');
+          } else {
+            // This is a real error, not a race condition
+            _log.error('Profile creation failed with unexpected error',
+              error: insertError);
+            throw Exception('Failed to create user profile: $insertError');
+          }
         }
       } else {
         _log.info(
@@ -283,11 +347,16 @@ class AuthService extends BaseService {
         );
       }
     } catch (error) {
-      _log.info(
-        'Profile creation/check failed',
-      );
-      // Log error but don't throw - profile creation can be done later
-      // Profile creation is handled by database triggers, so this is not critical
+      _log.error('Profile creation/check failed', error: error);
+
+      // In production, profile creation is critical for app functionality
+      // Don't silently ignore failures
+      if (kReleaseMode) {
+        throw Exception('Critical: Profile creation failed - $error');
+      } else {
+        // In development, log warning but continue
+        _log.info('Development mode: Continuing despite profile creation failure');
+      }
     }
   }
 

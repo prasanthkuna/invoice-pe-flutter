@@ -37,35 +37,21 @@ class PaymentSuccessScreen extends StatelessWidget {
               children: [
                 const Spacer(flex: 2),
 
-                // Success Animation
+                // Success Animation - TESLA FIX: Simplified for performance
                 Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        color: AppTheme.successColor,
-                        borderRadius: BorderRadius.circular(60),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppTheme.successColor.withValues(alpha: 0.3),
-                            blurRadius: 30,
-                            spreadRadius: 10,
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.check,
-                        size: 60,
-                        color: Colors.white,
-                      ),
-                    )
-                    .animate()
-                    .scale(
-                      delay: 300.ms,
-                      duration: 600.ms,
-                      curve: Curves.elasticOut,
-                    )
-                    .then()
-                    .shake(duration: 200.ms),
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    color: AppTheme.successColor,
+                    borderRadius: BorderRadius.circular(60),
+                    // Removed expensive boxShadow and animations to prevent main thread blocking
+                  ),
+                  child: const Icon(
+                    Icons.check,
+                    size: 60,
+                    color: Colors.white,
+                  ),
+                ),
 
                 const SizedBox(height: 40),
 

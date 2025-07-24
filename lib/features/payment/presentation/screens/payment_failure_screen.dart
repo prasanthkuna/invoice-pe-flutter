@@ -64,30 +64,26 @@ class PaymentFailureScreen extends StatelessWidget {
 
                 const Spacer(),
 
-                // Failure Animation
+                // Failure Animation - TESLA FIX: Simplified for performance
                 Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        color: Colors.red.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(60),
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.error_outline,
-                          size: 60,
-                          color: Colors.red,
-                        ),
-                      ),
-                    )
-                    .animate()
-                    .scale(delay: 200.ms, duration: 600.ms)
-                    .then()
-                    .shake(hz: 4, curve: Curves.easeInOut),
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    color: Colors.red.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(60),
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      Icons.error_outline,
+                      size: 60,
+                      color: Colors.red,
+                    ),
+                  ),
+                ),
 
                 const SizedBox(height: 32),
 
-                // Failure Message
+                // Failure Message - TESLA FIX: Removed animation
                 Text(
                   'Payment Failed',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
@@ -95,7 +91,7 @@ class PaymentFailureScreen extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                   textAlign: TextAlign.center,
-                ).animate().fadeIn(delay: 800.ms).slideY(begin: 0.3),
+                ),
 
                 const SizedBox(height: 16),
 

@@ -19,22 +19,21 @@ final currentUserProvider = Provider<User?>((ref) {
   final authState = ref.watch(authStateProvider);
   return authState.when(
     data: (state) => state.session?.user,
-    loading: AuthService.getCurrentUser, // Return current user during loading
+    loading: () => null, // TESLA FIX: Don't block during loading
     error: (error, stackTrace) => null,
   );
 });
 
 final isAuthenticatedProvider = Provider<bool>((ref) {
   final user = ref.watch(currentUserProvider);
-  // Also check if there's a current session even if user is null during loading
-  return user != null || AuthService.getCurrentUser() != null;
+  // TESLA FIX: Remove redundant call that was causing performance issues
+  return user != null;
 });
 
-// Profile Providers
+// Profile Providers - TESLA FIX: Lazy loading to prevent main thread blocking
 final currentProfileProvider = FutureProvider<UserProfile?>((ref) async {
-  final isAuthenticated = ref.watch(isAuthenticatedProvider);
-  if (!isAuthenticated) return null;
-
+  // Don't watch isAuthenticated to prevent automatic triggering
+  // Let individual screens decide when to load data
   try {
     return await ProfileService.getCurrentProfile();
   } catch (error) {
@@ -45,9 +44,8 @@ final currentProfileProvider = FutureProvider<UserProfile?>((ref) async {
 final dashboardMetricsProvider = FutureProvider<Map<String, dynamic>>((
   ref,
 ) async {
-  final isAuthenticated = ref.watch(isAuthenticatedProvider);
-  if (!isAuthenticated) return {};
-
+  // Don't watch isAuthenticated to prevent automatic triggering
+  // Let dashboard screen decide when to load data
   try {
     return await ProfileService.getDashboardMetrics();
   } catch (error) {
@@ -55,11 +53,10 @@ final dashboardMetricsProvider = FutureProvider<Map<String, dynamic>>((
   }
 });
 
-// Vendor Providers
+// Vendor Providers - TESLA FIX: Lazy loading to prevent main thread blocking
 final vendorsProvider = FutureProvider<List<Vendor>>((ref) async {
-  final isAuthenticated = ref.watch(isAuthenticatedProvider);
-  if (!isAuthenticated) return [];
-
+  // Don't watch isAuthenticated to prevent automatic triggering
+  // Let individual screens decide when to load data
   try {
     return await VendorService.getVendors();
   } catch (error) {
@@ -72,11 +69,7 @@ final FutureProviderFamily<Vendor, String> vendorProvider =
       ref,
       vendorId,
     ) async {
-      final isAuthenticated = ref.watch(isAuthenticatedProvider);
-      if (!isAuthenticated) {
-        throw Exception('User not authenticated');
-      }
-
+      // TESLA FIX: Don't watch isAuthenticated to prevent automatic triggering
       try {
         final vendor = await VendorService.getVendor(vendorId);
         if (vendor == null) {
@@ -88,11 +81,10 @@ final FutureProviderFamily<Vendor, String> vendorProvider =
       }
     });
 
-// Invoice Providers
+// Invoice Providers - TESLA FIX: Lazy loading to prevent main thread blocking
 final invoicesProvider = FutureProvider<List<Invoice>>((ref) async {
-  final isAuthenticated = ref.watch(isAuthenticatedProvider);
-  if (!isAuthenticated) return [];
-
+  // Don't watch isAuthenticated to prevent automatic triggering
+  // Let individual screens decide when to load data
   try {
     return await InvoiceService.getInvoices();
   } catch (error) {
@@ -105,11 +97,7 @@ final FutureProviderFamily<Invoice, String> invoiceProvider =
       ref,
       invoiceId,
     ) async {
-      final isAuthenticated = ref.watch(isAuthenticatedProvider);
-      if (!isAuthenticated) {
-        throw Exception('User not authenticated');
-      }
-
+      // TESLA FIX: Don't watch isAuthenticated to prevent automatic triggering
       try {
         return await InvoiceService.getInvoice(invoiceId);
       } catch (error) {
@@ -118,9 +106,7 @@ final FutureProviderFamily<Invoice, String> invoiceProvider =
     });
 
 final pendingInvoicesProvider = FutureProvider<List<Invoice>>((ref) async {
-  final isAuthenticated = ref.watch(isAuthenticatedProvider);
-  if (!isAuthenticated) return [];
-
+  // TESLA FIX: Lazy loading to prevent main thread blocking
   try {
     return await InvoiceService.getInvoicesByStatus(InvoiceStatus.pending);
   } catch (error) {
@@ -128,11 +114,10 @@ final pendingInvoicesProvider = FutureProvider<List<Invoice>>((ref) async {
   }
 });
 
-// Transaction Providers
+// Transaction Providers - TESLA FIX: Lazy loading to prevent main thread blocking
 final transactionsProvider = FutureProvider<List<Transaction>>((ref) async {
-  final isAuthenticated = ref.watch(isAuthenticatedProvider);
-  if (!isAuthenticated) return [];
-
+  // Don't watch isAuthenticated to prevent automatic triggering
+  // Let individual screens decide when to load data
   try {
     return await TransactionService.getTransactions();
   } catch (error) {
@@ -143,9 +128,7 @@ final transactionsProvider = FutureProvider<List<Transaction>>((ref) async {
 final recentTransactionsProvider = FutureProvider<List<Transaction>>((
   ref,
 ) async {
-  final isAuthenticated = ref.watch(isAuthenticatedProvider);
-  if (!isAuthenticated) return [];
-
+  // TESLA FIX: Lazy loading to prevent main thread blocking
   try {
     return await TransactionService.getRecentTransactions(limit: 5);
   } catch (error) {

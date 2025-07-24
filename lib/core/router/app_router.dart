@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 // Import screens
 import '../../features/auth/presentation/screens/splash_screen.dart';
@@ -48,12 +49,15 @@ class PlaceholderScreen extends StatelessWidget {
   }
 }
 
-// Router Configuration (TRD Requirements)
+// Router Configuration (TRD Requirements) - Elon-style: No provider dependencies in redirect
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: '/splash',
     redirect: (context, state) {
-      final isAuthenticated = ref.read(isAuthenticatedProvider);
+      // TESLA FIX: Use direct auth check instead of provider to prevent infinite loops
+      final currentUser = Supabase.instance.client.auth.currentUser;
+      final isAuthenticated = currentUser != null;
+
       final isAuthRoute =
           state.matchedLocation.startsWith('/auth') ||
           state.matchedLocation == '/welcome' ||

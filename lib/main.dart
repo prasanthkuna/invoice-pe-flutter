@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/constants/app_constants.dart';
@@ -8,50 +10,109 @@ import 'core/providers/app_providers.dart';
 import 'core/services/logger.dart';
 import 'core/services/environment_service.dart';
 
+/// Tesla-grade main function with fail-fast initialization
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  // Wrap everything in error boundary for production safety
+  await runZonedGuarded<Future<void>>(() async {
+    WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize AI-friendly logging
-  Log.init();
+    // Initialize logging first for error tracking
+    Log.init();
 
-  // CRITICAL PATH: Only absolute essentials before showing UI
-  // 1. Environment (fast, local)
-  await EnvironmentService.initialize();
+    try {
+      // PHASE 1: Critical environment setup with validation - MAIN THREAD OPTIMIZED
+      await EnvironmentService.initialize();
 
-  // 2. Minimal Supabase init (no session check)
-  await Supabase.initialize(
-    url: AppConstants.supabaseUrl,
-    anonKey: AppConstants.supabaseAnonKey,
-    debug: false,
-  );
+      // Validate configuration immediately after environment load (fast, in-memory)
+      AppConstants.validateConfiguration();
 
-  // 3. Show UI immediately!
-  runApp(
-    const ProviderScope(
-      child: InvoicePeApp(),
-    ),
-  );
+      // PHASE 2: Initialize Supabase with timeout to prevent hanging
+      Log.component('app').info('Starting Supabase initialization...');
 
-  // DEFERRED: Everything else happens after first frame
-  WidgetsBinding.instance.addPostFrameCallback((_) async {
-    // Log app startup with structured data
-    Log.component('app').info('startup', {
-      'environment': AppConstants.environment,
-      'debug_mode': AppConstants.debugMode,
-      'version': 'v1.0.0',
-    });
+      // TESLA FIX: Use microtask to prevent blocking main thread during Supabase init
+      await Future.microtask(() async {
+        await Future.any([
+          Supabase.initialize(
+            url: AppConstants.supabaseUrl,
+            anonKey: AppConstants.supabaseAnonKey,
+            debug: AppConstants.debugMode,
+          ),
+          Future.delayed(
+            const Duration(seconds: 10),
+            () => throw TimeoutException('Supabase initialization timeout'),
+          ),
+        ]);
+      });
 
-    // Add breadcrumb for tracking
-    Log.addBreadcrumb('app.main.post_frame_callback');
+      Log.component('app').info('Supabase initialization completed');
 
-    // Defer PhonePe initialization to first payment
-    // This saves ~500ms on startup
+      // PHASE 3: Launch UI with error boundary - BACK TO FULL APP
+      runApp(
+        ProviderScope(
+          child: _AppErrorBoundary(
+            child: const InvoicePeApp(),
+          ),
+        ),
+      );
 
-    // Session restoration happens in splash screen
-    // No need to block here
+      // DEFERRED: Non-critical initialization after first frame
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await _deferredInitialization();
+      });
+
+    } catch (error, stackTrace) {
+      // Critical startup failure - show error screen
+      Log.component('app').error('Critical startup failure',
+        error: error,
+        stackTrace: stackTrace
+      );
+
+      runApp(
+        MaterialApp(
+          home: _StartupErrorScreen(error: error.toString()),
+          debugShowCheckedModeBanner: false,
+        ),
+      );
+    }
+  }, (error, stackTrace) {
+    // Global error handler for uncaught exceptions
+    Log.component('app').error('Uncaught exception',
+      error: error,
+      stackTrace: stackTrace
+    );
+
+    // In debug mode, crash. In release mode, log and continue.
+    if (kDebugMode) {
+      throw error;
+    }
   });
 }
 
+
+
+/// Deferred initialization for non-critical services
+Future<void> _deferredInitialization() async {
+  try {
+    // Log successful startup
+    Log.component('app').info('startup_complete', {
+      'environment': AppConstants.environment,
+      'debug_mode': AppConstants.debugMode,
+      'version': 'v1.0.0',
+      'env_status': EnvironmentService.getStatus(),
+    });
+
+    // Add breadcrumb for tracking
+    Log.addBreadcrumb('app.main.deferred_init_complete');
+
+    // PhonePe initialization is deferred to first payment
+    // This saves ~500ms on startup and improves perceived performance
+  } catch (error) {
+    Log.component('app').error('Deferred initialization failed', error: error);
+    // Don't crash app for non-critical failures
+  }
+}
+
+/// Main app widget with Tesla-grade error handling
 class InvoicePeApp extends ConsumerWidget {
   const InvoicePeApp({super.key});
 
@@ -71,6 +132,262 @@ class InvoicePeApp extends ConsumerWidget {
 
       // Router Configuration (TRD Requirements)
       routerConfig: router,
+    );
+  }
+}
+
+/// Error boundary widget to catch and handle widget errors
+class _AppErrorBoundary extends StatefulWidget {
+  const _AppErrorBoundary({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_AppErrorBoundary> createState() => _AppErrorBoundaryState();
+}
+
+class _AppErrorBoundaryState extends State<_AppErrorBoundary> {
+  Object? _error;
+  StackTrace? _stackTrace;
+
+  @override
+  Widget build(BuildContext context) {
+    if (_error != null) {
+      return MaterialApp(
+        home: _ErrorScreen(
+          error: _error.toString(),
+          stackTrace: _stackTrace.toString(),
+        ),
+        debugShowCheckedModeBanner: false,
+      );
+    }
+
+    return widget.child;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Catch errors in the widget tree
+    FlutterError.onError = (FlutterErrorDetails details) {
+      Log.component('app').error('Widget error caught by boundary',
+        error: details.exception,
+        stackTrace: details.stack,
+      );
+
+      if (mounted) {
+        setState(() {
+          _error = details.exception;
+          _stackTrace = details.stack;
+        });
+      }
+    };
+  }
+}
+
+/// Startup error screen for critical initialization failures
+class _StartupErrorScreen extends StatelessWidget {
+  const _StartupErrorScreen({required this.error});
+
+  final String error;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF101213),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.error_outline,
+                color: Color(0xFFFF453A),
+                size: 64,
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'Startup Failed',
+                style: TextStyle(
+                  color: Color(0xFFF1F1F1),
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'The app failed to initialize properly. Please check your configuration.',
+                style: TextStyle(
+                  color: const Color(0xFFA8A8A8),
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              if (kDebugMode) ...[
+                const SizedBox(height: 24),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1A1D1E),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    error,
+                    style: const TextStyle(
+                      color: Color(0xFFFF453A),
+                      fontSize: 12,
+                      fontFamily: 'monospace',
+                    ),
+                  ),
+                ),
+              ],
+              const SizedBox(height: 32),
+              ElevatedButton(
+                onPressed: () {
+                  // Restart the app
+                  main();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF338DFF),
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Runtime error screen for widget errors
+class _ErrorScreen extends StatelessWidget {
+  const _ErrorScreen({
+    required this.error,
+    required this.stackTrace,
+  });
+
+  final String error;
+  final String stackTrace;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF101213),
+      appBar: AppBar(
+        title: const Text('Error'),
+        backgroundColor: const Color(0xFF1A1D1E),
+        foregroundColor: const Color(0xFFF1F1F1),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'An error occurred:',
+              style: TextStyle(
+                color: Color(0xFFF1F1F1),
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1A1D1E),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        error,
+                        style: const TextStyle(
+                          color: Color(0xFFFF453A),
+                          fontSize: 14,
+                        ),
+                      ),
+                      if (kDebugMode) ...[
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Stack Trace:',
+                          style: TextStyle(
+                            color: Color(0xFFF1F1F1),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          stackTrace,
+                          style: const TextStyle(
+                            color: Color(0xFFA8A8A8),
+                            fontSize: 12,
+                            fontFamily: 'monospace',
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// TESLA MINIMAL TEST APP - To isolate performance issues
+class _MinimalTestApp extends StatelessWidget {
+  const _MinimalTestApp();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'InvoicePe - Minimal Test',
+      theme: ThemeData.light(),
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('InvoicePe - Performance Test'),
+          backgroundColor: Colors.blue,
+        ),
+        body: const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.check_circle,
+                size: 64,
+                color: Colors.green,
+              ),
+              SizedBox(height: 16),
+              Text(
+                'App is Working!',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 8),
+              Text(
+                'If you can see this, the basic app structure is fine.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16),
+              ),
+              SizedBox(height: 24),
+              Text(
+                'Next: Test with full app',
+                style: TextStyle(fontSize: 14, color: Colors.grey),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

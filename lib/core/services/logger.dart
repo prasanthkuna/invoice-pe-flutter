@@ -9,19 +9,22 @@ class Log {
   static final _instance = Log._internal();
   static Log get instance => _instance;
 
-  // Component loggers cache
+  // Component loggers cache (bounded to prevent memory leaks)
   static final Map<String, ComponentLogger> _componentLoggers = {};
+  static const int _maxComponentLoggers = 50;
 
   // Configuration
   static bool _initialized = false;
   static LogConfig _config = LogConfig();
 
-  // Performance tracking
+  // Performance tracking (bounded to prevent memory leaks)
   static final Map<String, DateTime> _timers = {};
+  static const int _maxTimers = 100;
 
-  // Request tracking
+  // Request tracking (bounded to prevent memory leaks)
   static String? _currentCorrelationId;
   static final List<String> _breadcrumbs = [];
+  static const int _maxBreadcrumbs = 50;
 
   /// Initialize logger with zero config
   static void init([LogConfig? config]) {
@@ -38,25 +41,62 @@ class Log {
     });
   }
 
-  /// Get component-specific logger
+  /// Get component-specific logger with memory management
   static ComponentLogger component(String name) {
+    // Clean up old loggers if we hit the limit
+    if (_componentLoggers.length >= _maxComponentLoggers) {
+      _cleanupComponentLoggers();
+    }
+
     return _componentLoggers.putIfAbsent(
       name,
       () => ComponentLogger(name),
     );
   }
 
-  /// Start performance timer
+  /// Clean up least recently used component loggers
+  static void _cleanupComponentLoggers() {
+    if (_componentLoggers.length <= _maxComponentLoggers ~/ 2) return;
+
+    // Remove half of the loggers (simple LRU approximation)
+    final keysToRemove = _componentLoggers.keys.take(_maxComponentLoggers ~/ 2).toList();
+    for (final key in keysToRemove) {
+      _componentLoggers.remove(key);
+    }
+  }
+
+  /// Start performance timer with memory management
   static Timer startTimer(String operation) {
+    // Clean up old timers if we hit the limit
+    if (_timers.length >= _maxTimers) {
+      _cleanupTimers();
+    }
+
     final id = '${operation}_${DateTime.now().millisecondsSinceEpoch}';
     _timers[id] = DateTime.now();
     return Timer(id, operation);
   }
 
-  /// Add breadcrumb for error context
+  /// Clean up old timers to prevent memory leaks
+  static void _cleanupTimers() {
+    if (_timers.length <= _maxTimers ~/ 2) return;
+
+    // Remove oldest timers
+    final sortedEntries = _timers.entries.toList()
+      ..sort((a, b) => a.value.compareTo(b.value));
+
+    final toRemove = sortedEntries.take(_maxTimers ~/ 2);
+    for (final entry in toRemove) {
+      _timers.remove(entry.key);
+    }
+  }
+
+  /// Add breadcrumb for error context with proper bounds
   static void addBreadcrumb(String breadcrumb) {
     _breadcrumbs.add(breadcrumb);
-    if (_breadcrumbs.length > 20) {
+
+    // Maintain bounded list to prevent memory leaks
+    while (_breadcrumbs.length > _maxBreadcrumbs) {
       _breadcrumbs.removeAt(0);
     }
   }
