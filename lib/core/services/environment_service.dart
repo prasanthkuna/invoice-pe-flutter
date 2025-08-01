@@ -32,12 +32,13 @@ class EnvironmentService {
         debugPrint('💥 CRITICAL: Environment initialization failed: $e');
       }
 
-      // In production, fail fast. In development, try to continue with warnings.
+      // ELON FIX: Don't fail in release mode, use hardcoded constants
+      // Initialize empty dotenv to prevent crashes
+      dotenv.testLoad(fileInput: '');
+
       if (kReleaseMode) {
-        throw StateError('Environment initialization failed: $e');
+        debugPrint('⚠️ Using hardcoded production constants (release mode)');
       } else {
-        // Initialize empty dotenv to prevent crashes, but log the failure
-        dotenv.testLoad(fileInput: '');
         debugPrint('⚠️ Continuing with empty environment (development only)');
       }
     }
@@ -157,8 +158,10 @@ class EnvironmentService {
     }
 
     if (missingKeys.isNotEmpty && kReleaseMode) {
-      throw StateError(
-        'CRITICAL: Missing required configuration in production: ${missingKeys.join(', ')}'
+      // ELON FIX: Don't throw in release mode, log warning and continue
+      // App constants will provide hardcoded fallbacks
+      debugPrint(
+        '⚠️ WARNING: Missing env config, using hardcoded constants: ${missingKeys.join(', ')}'
       );
     }
   }

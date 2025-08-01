@@ -5,29 +5,29 @@ flutter_native_splash:
   # Background color - FIXED: Use app's primary background (Deep Blue)
   color: "#0D3B66"
 
-  # App icon - SINGLE LOGO ONLY
-  image: assets/icons/splash_logo.png
+  # App icon - SINGLE LOGO ONLY (WebP optimized)
+  image: assets/icons/splash_logo.webp
 
   # NO BRANDING - Remove duplicate logo
-  # branding: assets/icons/branding.png
+  # branding: assets/icons/branding.webp
 
   # Dark mode (Same as light mode for consistency)
   color_dark: "#0D3B66"
-  image_dark: assets/icons/splash_logo.png
-  # branding_dark: assets/icons/branding_dark.png
+  image_dark: assets/icons/splash_logo_dark.webp
+  # branding_dark: assets/icons/branding_dark.webp
 
   # Android 12+ splash - FIXED COLORS
   android_12:
     color: "#0D3B66"
     icon_background_color: "#FFA500"  # Orange accent for icon background
-    image: assets/icons/splash_logo.png
-    # branding: assets/icons/branding.png  # REMOVED DUPLICATE
+    image: assets/icons/splash_logo.webp
+    # branding: assets/icons/branding.webp  # REMOVED DUPLICATE
 
     # Dark mode (Same as light mode)
     color_dark: "#0D3B66"
     icon_background_color_dark: "#FFA500"
-    image_dark: assets/icons/splash_logo.png
-    # branding_dark: assets/icons/branding_dark.png  # REMOVED DUPLICATE
+    image_dark: assets/icons/splash_logo_dark.webp
+    # branding_dark: assets/icons/branding_dark.webp  # REMOVED DUPLICATE
   
   # Platform specific
   android: true

@@ -24,14 +24,42 @@
     @com.google.gson.annotations.SerializedName <fields>;
 }
 
-# Security - Remove logging in release
+# ELON-STYLE: Smart logging removal (keep essential logging for Supabase)
 -assumenosideeffects class android.util.Log {
     public static *** d(...);
     public static *** v(...);
-    public static *** i(...);
-    public static *** w(...);
-    public static *** e(...);
+    # Keep info, warnings, and errors for production logging
+    # public static *** i(...);
+    # public static *** w(...);
+    # public static *** e(...);
 }
+
+# Keep Supabase logging infrastructure
+-keep class io.supabase.** { *; }
+-keep class com.supabase.** { *; }
+-dontwarn io.supabase.**
+-dontwarn com.supabase.**
+
+# CRITICAL: Keep HTTP client classes for edge functions
+-keep class okhttp3.** { *; }
+-keep class retrofit2.** { *; }
+-dontwarn okhttp3.**
+-dontwarn retrofit2.**
+
+# Keep JSON serialization for edge functions
+-keep class com.google.gson.** { *; }
+-keepattributes Signature
+-keepattributes *Annotation*
+
+# ELON-STYLE: Keep Flutter Play Store components (R8 fix)
+-keep class com.google.android.play.core.** { *; }
+-keep class io.flutter.embedding.** { *; }
+-dontwarn com.google.android.play.core.**
+
+# Keep Flutter essential classes
+-keep class io.flutter.** { *; }
+-keep class androidx.** { *; }
+-dontwarn io.flutter.**
 
 # Keep model classes
 -keep class com.invoicepe.invoice_pe_app.models.** { *; }
@@ -49,8 +77,7 @@
 -dontwarn org.bouncycastle.**
 -dontwarn org.openjsse.**
 
-# Optimize method calls and inline
--optimizeaggressively
+# Optimize method calls and inline (R8 compatible)
 -allowaccessmodification
 -mergeinterfacesaggressively
 

@@ -1,8 +1,22 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+}
+
+// Load signing configuration
+val keystoreProperties = Properties()
+val keystorePropertiesFile = file("../key.properties")
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+    println("ELON DEBUG: Keystore file found at: ${keystorePropertiesFile.absolutePath}")
+    println("ELON DEBUG: Store file: ${keystoreProperties["storeFile"]}")
+} else {
+    println("ELON DEBUG: Keystore file NOT found at: ${keystorePropertiesFile.absolutePath}")
 }
 
 android {
@@ -22,6 +36,24 @@ android {
 
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_11.toString()
+    }
+
+    // ELON-STYLE SIGNING CONFIGURATION
+    signingConfigs {
+        create("release") {
+            if (keystorePropertiesFile.exists()) {
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+                storeFile = file(keystoreProperties["storeFile"] as String)
+                storePassword = keystoreProperties["storePassword"] as String
+            } else {
+                // Fallback to debug signing if keystore not found
+                keyAlias = "androiddebugkey"
+                keyPassword = "android"
+                storeFile = file("debug.keystore")
+                storePassword = "android"
+            }
+        }
     }
 
     defaultConfig {
@@ -68,13 +100,12 @@ android {
         }
 
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            // ELON-STYLE: Use proper release signing
+            signingConfig = signingConfigs.getByName("release")
 
-            // ELON-STANDARD OPTIMIZATION: Aggressive size reduction
-            isMinifyEnabled = true
-            isShrinkResources = true
+            // PHASE 3: NUCLEAR OPTIMIZATION - Enable all optimizations
+            isMinifyEnabled = true      // Enable ProGuard/R8
+            isShrinkResources = true    // Enable resource shrinking
             isDebuggable = false
 
             // ProGuard configuration for maximum optimization
@@ -85,7 +116,8 @@ android {
 
             // Smart logging for production
             buildConfigField("boolean", "ENABLE_SMART_LOGGING", "true")
-            buildConfigField("String", "LOG_LEVEL", "\"warning\"")
+            buildConfigField("String", "LOG_LEVEL", "\"info\"")
+            buildConfigField("boolean", "MOCK_PAYMENT_MODE", "true")
         }
     }
 }

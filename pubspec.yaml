@@ -64,12 +64,15 @@ dependencies:
   crypto: ^3.0.3
 
   # Payment Features (UPGRADED - Latest tech)
-  mobile_scanner: ^7.0.1  # QR/Barcode scanning (replaces qr_code_scanner)
+  # mobile_scanner: ^7.0.1  # QR/Barcode scanning (DISABLED - not used, will re-enable post-PhonePe integration)
   logger: ^2.4.0  # For comprehensive logging
 
-  # UI/UX Enhancements
-  shimmer: ^3.0.0
-  flutter_staggered_animations: ^1.1.1
+  # OTP Autofill (PROFESSIONAL - No SMS permissions required)
+  sms_autofill: ^2.3.0  # SMS OTP autofill with User Consent API
+
+  # UI/UX Enhancements (OPTIMIZED - Removed redundant packages)
+  # shimmer: ^3.0.0  # REMOVED - Can be built with flutter_animate
+  # flutter_staggered_animations: ^1.1.1  # REMOVED - Redundant with flutter_animate
 
   # Utilities
   cupertino_icons: ^1.0.8
@@ -180,29 +183,29 @@ flutter:
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
 
-# App Icon Configuration
+# App Icon Configuration (WebP Optimized)
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/icons/app_icon.png"
+  image_path: "assets/icons/app_icon.webp"
   min_sdk_android: 21
   # Android Adaptive Icons
   adaptive_icon_background: "#FFFFFF"
-  adaptive_icon_foreground: "assets/icons/app_icon_square.png"
+  adaptive_icon_foreground: "assets/icons/app_icon_square.webp"
   # iOS
   remove_alpha_ios: true
   # Web
   web:
     generate: true
-    image_path: "assets/icons/app_icon.png"
+    image_path: "assets/icons/app_icon.webp"
     background_color: "#FFFFFF"
     theme_color: "#0D3B66"
   # Windows
   windows:
     generate: true
-    image_path: "assets/icons/app_icon.png"
+    image_path: "assets/icons/app_icon.webp"
     icon_size: 256
   # macOS
   macos:
     generate: true
-    image_path: "assets/icons/app_icon.png"
+    image_path: "assets/icons/app_icon.webp"

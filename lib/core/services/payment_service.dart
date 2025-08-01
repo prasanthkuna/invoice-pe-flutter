@@ -5,6 +5,7 @@ import '../constants/app_constants.dart';
 import '../types/payment_types.dart' as payment_types;
 import 'base_service.dart';
 import 'logger.dart';
+import 'smart_logger.dart';
 
 final ComponentLogger _log = Log.component('payment');
 
@@ -71,6 +72,14 @@ class PaymentService extends BaseService {
       if (AppConstants.mockPaymentMode || isLocalTesting) {
         _log.info('🚀 Mock payment mode - simulating payment');
 
+        // ELON FIX: Add smart logging for payment debugging
+        SmartLogger.logPayment('Mock payment initiated', context: {
+          'invoice_id': finalInvoiceId,
+          'amount': amount,
+          'vendor_id': vendorId,
+          'operation': 'mock_payment_start',
+        });
+
         // Simulate realistic payment delay
         await Future.delayed(const Duration(seconds: 2));
 
@@ -93,6 +102,14 @@ class PaymentService extends BaseService {
           'invoice_id': finalInvoiceId,
           'amount': amount,
           'method': 'direct_database',
+        });
+
+        // ELON FIX: Smart log payment success
+        SmartLogger.logPayment('Mock payment completed successfully', context: {
+          'transaction_id': actualTransactionId,
+          'invoice_id': finalInvoiceId,
+          'amount': amount,
+          'operation': 'mock_payment_success',
         });
 
         return payment_types.PaymentSuccess(
@@ -183,6 +200,17 @@ class PaymentService extends BaseService {
       }
     } catch (error) {
       _log.error('Payment processing error', error: error);
+
+      // ELON FIX: Smart log payment failures for debugging
+      SmartLogger.logError('Payment processing failed',
+        error: error,
+        context: {
+          'vendor_id': vendorId,
+          'amount': amount,
+          'invoice_id': invoiceId,
+          'operation': 'payment_processing_error',
+        }
+      );
 
       // Ensure we always return a proper PaymentFailure
       return payment_types.PaymentFailure(
@@ -303,6 +331,17 @@ class PaymentService extends BaseService {
       return mockTransactionId;
     } catch (error) {
       _log.error('❌ Failed to create mock transaction', error: error);
+
+      // ELON FIX: Smart log transaction creation failures
+      SmartLogger.logError('Mock transaction creation failed',
+        error: error,
+        context: {
+          'invoice_id': invoiceId,
+          'vendor_id': vendorId,
+          'amount': amount,
+          'operation': 'mock_transaction_creation_error',
+        }
+      );
 
       // Re-throw with more context
       throw Exception('Mock transaction creation failed: ${error.toString()}');

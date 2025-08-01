@@ -243,3 +243,6 @@ pubspec.lock.backup
 # Allow build-essential assets
 !android/app/src/main/res/drawable*/background.png
 !ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImageDark*.png
+
+# Crush agent workspace
+.crush/
