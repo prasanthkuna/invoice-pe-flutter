@@ -545,6 +545,10 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
     double amount,
     double total,
   ) async {
+    // ELON FIX: Store notifiers BEFORE async operations
+    final quickPaymentVendorNotifier = ref.read(quickPaymentVendorProvider.notifier);
+    final quickPaymentAmountNotifier = ref.read(quickPaymentAmountProvider.notifier);
+
     // Validate session before payment
     final isAuthenticated = ref.read(isAuthenticatedProvider);
     if (!isAuthenticated) {
@@ -598,9 +602,9 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
         // ELON FIX: Avoid excessive refreshes that cause UI flickering
         // Let providers auto-update on next read instead of forcing immediate refresh
 
-        // Reset form
-        ref.read(quickPaymentVendorProvider.notifier).state = null;
-        ref.read(quickPaymentAmountProvider.notifier).state = 0.0;
+        // Reset form using stored notifiers
+        quickPaymentVendorNotifier.state = null;
+        quickPaymentAmountNotifier.state = 0.0;
         _amountController.clear();
 
         if (context.mounted) {

@@ -87,6 +87,16 @@ android {
         }
     }
 
+    // ELON-STYLE: Split APKs by architecture for maximum size reduction
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("arm64-v8a", "armeabi-v7a", "x86_64")
+            isUniversalApk = false  // Don't generate universal APK
+        }
+    }
+
     buildTypes {
         debug {
             applicationIdSuffix = ".demo"
@@ -103,16 +113,16 @@ android {
             // ELON-STYLE: Use proper release signing
             signingConfig = signingConfigs.getByName("release")
 
-            // PHASE 3: NUCLEAR OPTIMIZATION - Enable all optimizations
-            isMinifyEnabled = true      // Enable ProGuard/R8
-            isShrinkResources = true    // Enable resource shrinking
+            // EMERGENCY FIX: DISABLE OPTIMIZATION - R8 was causing app to hang
+            isMinifyEnabled = false     // DISABLED - was causing main thread hang
+            isShrinkResources = false   // DISABLED - to isolate the issue
             isDebuggable = false
 
-            // ProGuard configuration for maximum optimization
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+            // ProGuard configuration DISABLED for now
+            // proguardFiles(
+            //     getDefaultProguardFile("proguard-android.txt"),
+            //     "proguard-rules.pro"
+            // )
 
             // Smart logging for production
             buildConfigField("boolean", "ENABLE_SMART_LOGGING", "true")

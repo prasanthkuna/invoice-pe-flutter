@@ -43,8 +43,11 @@ class _OtpScreenState extends ConsumerState<OtpScreen> with CodeAutoFill {
     WidgetRef ref,
     String otp,
   ) async {
+    // ELON FIX: Store notifier reference BEFORE async operations
+    final isVerifyingNotifier = ref.read(isVerifyingProvider.notifier);
+
     try {
-      ref.read(isVerifyingProvider.notifier).state = true;
+      isVerifyingNotifier.state = true;
 
       final result = await AuthService.verifyOtp(
         phone: widget.phone,
@@ -93,7 +96,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> with CodeAutoFill {
       }
     } finally {
       if (context.mounted) {
-        ref.read(isVerifyingProvider.notifier).state = false;
+        isVerifyingNotifier.state = false;
       }
     }
   }

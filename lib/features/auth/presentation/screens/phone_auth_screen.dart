@@ -44,9 +44,7 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
 
   @override
   void dispose() {
-    ref.read(phoneControllerProvider).dispose();
-    ref.read(otpControllerProvider).dispose();
-    ref.read(phoneFocusNodeProvider).dispose();
+    // ELON FIX: Don't use ref in dispose - let Riverpod handle provider disposal
     super.dispose();
   }
 
@@ -316,12 +314,15 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
   }
 
   Future<void> _handleContinue(BuildContext context, WidgetRef ref) async {
+    // ELON FIX: Store all notifiers BEFORE async operations (Official Riverpod solution)
     final phoneController = ref.read(phoneControllerProvider);
     final otpController = ref.read(otpControllerProvider);
     final showOtpField = ref.read(showOtpFieldProvider);
+    final isLoadingNotifier = ref.read(isLoadingProvider.notifier);
+    final errorMessageNotifier = ref.read(errorMessageProvider.notifier);
 
-    ref.read(isLoadingProvider.notifier).state = true;
-    ref.read(errorMessageProvider.notifier).state = null;
+    isLoadingNotifier.state = true;
+    errorMessageNotifier.state = null;
 
     try {
       if (!showOtpField) {
@@ -377,11 +378,11 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
       }
     } catch (error) {
       if (context.mounted) {
-        ref.read(errorMessageProvider.notifier).state = error.toString();
+        errorMessageNotifier.state = error.toString();
       }
     } finally {
       if (context.mounted) {
-        ref.read(isLoadingProvider.notifier).state = false;
+        isLoadingNotifier.state = false;
       }
     }
   }
