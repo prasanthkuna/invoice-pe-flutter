@@ -382,5 +382,47 @@ adb logcat -s flutter
 
 **Status**: ✅ 38.9MB release build fully functional - no "ref after disposed" errors
 
+## 📱 PHYSICAL DEVICE DEPLOYMENT (VERIFIED WORKING)
+
+### Device Information
+- **Device**: iQOO I2401 (Android 15, SDK 35, arm64-v8a)
+- **Device ID**: 10BF441Y76003GL
+- **Status**: ✅ Connected and verified working
+
+### Complete Uninstall/Reinstall Process
+```powershell
+# 1. Verify device connection
+C:\Users\kunap\AppData\Local\Android\Sdk\platform-tools\adb.exe devices
+
+# 2. Check for existing installations
+C:\Users\kunap\AppData\Local\Android\Sdk\platform-tools\adb.exe shell pm list packages | findstr com.invoicepe
+
+# 3. Complete uninstall (if needed)
+C:\Users\kunap\AppData\Local\Android\Sdk\platform-tools\adb.exe uninstall com.invoicepe.invoice_pe_app
+C:\Users\kunap\AppData\Local\Android\Sdk\platform-tools\adb.exe uninstall com.invoicepe.invoice_pe_app.demo
+
+# 4. Verify clean uninstall (should return "No leftover data found")
+C:\Users\kunap\AppData\Local\Android\Sdk\platform-tools\adb.exe shell "find /data/data -name '*invoicepe*' 2>/dev/null || echo 'No leftover data found'"
+
+# 5. Install latest release APK (38.9MB)
+C:\Users\kunap\AppData\Local\Android\Sdk\platform-tools\adb.exe install -r build\app\outputs\flutter-apk\app-arm64-v8a-release.apk
+
+# 6. Verify installation
+C:\Users\kunap\AppData\Local\Android\Sdk\platform-tools\adb.exe shell pm list packages | findstr com.invoicepe
+
+# 7. Launch app
+C:\Users\kunap\AppData\Local\Android\Sdk\platform-tools\adb.exe shell am start -n com.invoicepe.invoice_pe_app/com.invoicepe.invoice_pe_app.MainActivity
+```
+
+### Troubleshooting "App Not Installed" Error
+**Issue**: Getting "app not installed" popup during installation
+**Solution**:
+1. Ensure complete uninstall first (check for leftover data)
+2. Use `-r` flag for force reinstall
+3. Verify correct APK architecture (arm64-v8a for this device)
+4. Check device storage space
+
+**Verified Working**: ✅ Installation successful, app launches and functions perfectly
+
 ---
 **Tesla Standard**: Fix once. Automate forever. Ship fast.
