@@ -402,10 +402,16 @@ class TransactionDetailScreen extends ConsumerWidget {
     switch (status) {
       case TransactionStatus.initiated:
         return Colors.orange;
+      case TransactionStatus.pending:
+        return Colors.blue;
       case TransactionStatus.success:
         return Colors.green;
       case TransactionStatus.failure:
         return Colors.red;
+      case TransactionStatus.cancelled:
+        return Colors.grey;
+      case TransactionStatus.expired:
+        return Colors.brown;
     }
   }
 
@@ -413,10 +419,16 @@ class TransactionDetailScreen extends ConsumerWidget {
     switch (status) {
       case TransactionStatus.initiated:
         return Icons.schedule;
+      case TransactionStatus.pending:
+        return Icons.hourglass_empty;
       case TransactionStatus.success:
         return Icons.check_circle;
       case TransactionStatus.failure:
         return Icons.error;
+      case TransactionStatus.cancelled:
+        return Icons.cancel;
+      case TransactionStatus.expired:
+        return Icons.access_time;
     }
   }
 
@@ -424,10 +436,16 @@ class TransactionDetailScreen extends ConsumerWidget {
     switch (status) {
       case TransactionStatus.initiated:
         return 'Payment Initiated';
+      case TransactionStatus.pending:
+        return 'Payment Pending';
       case TransactionStatus.success:
         return 'Payment Successful';
       case TransactionStatus.failure:
         return 'Payment Failed';
+      case TransactionStatus.cancelled:
+        return 'Payment Cancelled';
+      case TransactionStatus.expired:
+        return 'Payment Expired';
     }
   }
 

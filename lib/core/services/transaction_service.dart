@@ -104,10 +104,16 @@ class TransactionService extends BaseService {
     switch (status) {
       case TransactionStatus.initiated:
         return 'initiated';
+      case TransactionStatus.pending:
+        return 'pending';
       case TransactionStatus.success:
         return 'success';
       case TransactionStatus.failure:
         return 'failure';
+      case TransactionStatus.cancelled:
+        return 'cancelled';
+      case TransactionStatus.expired:
+        return 'expired';
     }
   }
 

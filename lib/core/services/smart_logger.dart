@@ -2,7 +2,6 @@ import 'package:logger/logger.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:math';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../constants/app_constants.dart';
 
 /// InvoicePe Smart Logger - 2025 Best Practices
 /// Elon's Philosophy: "Log smart, not hard. Every log should solve a problem."

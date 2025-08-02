@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/services/payment_service.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../shared/models/user_card.dart';
 
@@ -55,9 +56,14 @@ class CardListScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // PhonePe Card Management Info
+            _PhonePeCardInfoCard(),
+
+            const SizedBox(height: 24),
+
             // Header
             Text(
-              'Saved Cards',
+              'Payment Methods',
               style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                 color: AppTheme.primaryText,
                 fontWeight: FontWeight.bold,
@@ -67,7 +73,7 @@ class CardListScreen extends ConsumerWidget {
             const SizedBox(height: 8),
 
             Text(
-              'Manage your saved payment cards',
+              'Securely managed by PhonePe with bank-grade security',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 color: AppTheme.secondaryText,
               ),
@@ -468,5 +474,167 @@ class _DetailRow extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+/// PhonePe Card Management Info Widget
+class _PhonePeCardInfoCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppTheme.primaryAccent.withOpacity(0.1),
+            AppTheme.primaryAccent.withOpacity(0.05),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppTheme.primaryAccent.withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        children: [
+          // Security Icon
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppTheme.primaryAccent.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              Icons.security,
+              color: AppTheme.primaryAccent,
+              size: 32,
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // Title
+          Text(
+            'Secure Card Management',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              color: AppTheme.primaryText,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+          ),
+
+          const SizedBox(height: 8),
+
+          // Description
+          Text(
+            'Your cards are securely managed by PhonePe with bank-grade security, automatic tokenization, and RBI compliance.',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: AppTheme.secondaryText,
+              height: 1.5,
+            ),
+            textAlign: TextAlign.center,
+          ),
+
+          const SizedBox(height: 20),
+
+          // Manage Cards Button
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () => _initiateCardManagement(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primaryAccent,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              icon: const Icon(Icons.payment),
+              label: const Text(
+                'Manage Cards via PhonePe',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          // Info Text
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.info_outline,
+                size: 16,
+                color: AppTheme.secondaryText,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                'Cards are saved securely on PhonePe servers',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: AppTheme.secondaryText,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Initiate card management via PhonePe
+void _initiateCardManagement(BuildContext context) async {
+  try {
+    // Show loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+
+    // Start a ₹1 payment to access PhonePe card management
+    // This will show PhonePe's native card management interface
+    await PaymentService.processPaymentV3(
+      vendorId: 'card_management',
+      vendorName: 'Card Management',
+      amount: 1.0, // ₹1 for card management access
+    );
+
+    // Close loading dialog
+    if (context.mounted) {
+      Navigator.of(context).pop();
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Card management completed via PhonePe'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
+  } catch (error) {
+    // Close loading dialog
+    if (context.mounted) {
+      Navigator.of(context).pop();
+
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Card management failed: ${error.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 }

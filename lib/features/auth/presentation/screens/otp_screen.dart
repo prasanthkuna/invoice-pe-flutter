@@ -1,6 +1,5 @@
 import 'dart:async' as async;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -111,6 +110,10 @@ class _OtpScreenState extends ConsumerState<OtpScreen> with CodeAutoFill {
   /// Initialize SMS autofill listener
   void _initializeAutofill() async {
     try {
+      // CRITICAL FIX: Get app signature for SMS autofill
+      final signature = await SmsAutoFill().getAppSignature;
+      _log.info('App signature for SMS autofill', {'signature': signature});
+
       // Start listening for SMS autofill
       await SmsAutoFill().listenForCode();
 

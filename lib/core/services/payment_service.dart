@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:phonepe_payment_sdk/phonepe_payment_sdk.dart';
 import '../../shared/models/invoice.dart';
 import '../../shared/models/transaction.dart';
@@ -20,33 +22,132 @@ class PaymentService extends BaseService {
       const String.fromEnvironment('FLUTTER_TEST', defaultValue: 'false') ==
           'true';
 
-  /// Initialize PhonePe SDK (lazy - only when needed)
+  /// Initialize PhonePe SDK 3.0.0 (NEW PATTERN)
   static Future<void> initializePhonePe() async {
     if (_phonePeInitialized) return; // Already initialized
     try {
-      _log.info('💀 Initializing PhonePe SDK');
+      _log.info('🚀 Initializing PhonePe SDK 3.0.0');
 
-      // Use string-based environment configuration (PhonePe SDK 2.0.3 pattern)
-      final environment =
-          AppConstants.phonePeEnvironment; // 'PRODUCTION' or 'UAT'
-      final merchantId = AppConstants.phonePeMerchantId; // From environment
+      // NEW: SDK 3.0.0 initialization pattern
+      final environment = AppConstants.phonePeEnvironment; // "SANDBOX" or "PRODUCTION"
+      final merchantId = AppConstants.phonePeMerchantId;    // Merchant ID
+      final flowId = 'INVOICE_PE_FLOW_${DateTime.now().millisecondsSinceEpoch}'; // Unique flow ID
+      final enableLogging = AppConstants.debugMode;        // Enable logging
 
       _log.info(
-        '📱 PhonePe Config: Environment=$environment, MerchantId=$merchantId',
+        '📱 PhonePe SDK 3.0.0 Config: Environment=$environment, MerchantId=$merchantId, FlowId=$flowId',
       );
 
-      // PhonePe SDK 2.0.3 initialization pattern
+      // PhonePe SDK 3.0.0 initialization (NEW API)
       await PhonePePaymentSdk.init(
-        environment,
-        merchantId,
-        '', // App ID (required but can be empty)
-        AppConstants.debugMode, // Enable logging based on environment
+        environment,    // Environment string
+        merchantId,     // Merchant ID
+        flowId,         // Flow ID (user-specific)
+        enableLogging,  // Enable logging
       );
 
-      _log.info('✅ PhonePe SDK initialized successfully');
+      _log.info('✅ PhonePe SDK 3.0.0 initialized successfully');
       _phonePeInitialized = true;
     } catch (error) {
-      _log.error('PhonePe SDK initialization failed', error: error);
+      _log.error('PhonePe SDK 3.0.0 initialization failed', error: error);
+      rethrow;
+    }
+  }
+
+  /// Process payment with PhonePe SDK 3.0.0 (NEW METHOD)
+  static Future<payment_types.PaymentSuccess> processPaymentV3({
+    required String vendorId,
+    required String vendorName,
+    required double amount,
+    String? invoiceId,
+  }) async {
+    try {
+      BaseService.ensureAuthenticated();
+
+      _log.info('💳 Starting PhonePe 3.0.0 payment process', {
+        'amount': amount,
+        'vendor': vendorName,
+        'invoice_id': invoiceId,
+      });
+
+      // Create invoice if not provided
+      String finalInvoiceId = invoiceId ?? 'INV_${DateTime.now().millisecondsSinceEpoch}';
+
+      // MOCK MODE: Skip PhonePe integration for development
+      if (AppConstants.mockPaymentMode || isLocalTesting) {
+        return await _processMockPaymentV3(vendorId, vendorName, amount, finalInvoiceId);
+      }
+
+      // STEP 1: Create Order via Edge Function
+      final orderResponse = await BaseService.supabase.functions.invoke(
+        'create-phonepe-order',
+        body: {
+          'amount': (amount * 100).round(), // Convert to paise
+          'vendor_id': vendorId,
+          'vendor_name': vendorName,
+          'invoice_id': finalInvoiceId,
+        },
+      );
+
+      if (orderResponse.data?['success'] != true) {
+        throw Exception('Order creation failed: ${orderResponse.data?['error']}');
+      }
+
+      final orderData = orderResponse.data as Map<String, dynamic>;
+      final orderId = orderData['orderId'] as String;
+      final orderToken = orderData['token'] as String;
+      final transactionId = orderData['transactionId'] as String;
+
+      _log.info('📋 PhonePe order created', {
+        'orderId': orderId,
+        'transactionId': transactionId,
+      });
+
+      // STEP 2: Initialize PhonePe SDK 3.0.0
+      await initializePhonePe();
+
+      // STEP 3: Create Transaction Request (NEW FORMAT)
+      final request = {
+        "orderId": orderId,
+        "merchantId": AppConstants.phonePeMerchantId,
+        "token": orderToken,
+        "paymentMode": {
+          "type": "PAY_PAGE",
+          "savedCards": true,      // Enable saved cards
+          "allowNewCard": true,    // Allow new cards
+          "preferredMethods": ["CARD", "UPI"] // Prioritize cards and UPI
+        }
+      };
+
+      _log.info('📱 Starting PhonePe SDK 3.0.0 transaction', {'orderId': orderId});
+
+      // STEP 4: Start Transaction with PhonePe SDK 3.0.0
+      final result = await PhonePePaymentSdk.startTransaction(
+        jsonEncode(request),
+        '', // App schema (empty string for Android)
+      );
+
+      _log.info('📱 PhonePe transaction result', {'result': result});
+
+      // STEP 5: Handle Response and Verify Payment
+      return await _handlePaymentResponseV3(result, orderId, transactionId, amount, finalInvoiceId);
+
+    } catch (error, stackTrace) {
+      _log.error('PhonePe 3.0.0 payment processing failed', error: error);
+
+      // ELON FIX: Enhanced error logging with stack trace
+      SmartLogger.logError('PhonePe 3.0.0 payment processing failed',
+        error: error,
+        stackTrace: stackTrace,
+        context: {
+          'vendor_id': vendorId,
+          'vendor_name': vendorName,
+          'amount': amount,
+          'invoice_id': invoiceId,
+          'operation': 'payment_processing_error',
+        }
+      );
+
       rethrow;
     }
   }
@@ -198,12 +299,13 @@ class PaymentService extends BaseService {
           error: 'Payment failed - no response received',
         );
       }
-    } catch (error) {
+    } catch (error, stackTrace) {
       _log.error('Payment processing error', error: error);
 
-      // ELON FIX: Smart log payment failures for debugging
+      // ELON FIX: Enhanced error logging with stack trace
       SmartLogger.logError('Payment processing failed',
         error: error,
+        stackTrace: stackTrace,
         context: {
           'vendor_id': vendorId,
           'amount': amount,
@@ -394,5 +496,131 @@ class PaymentService extends BaseService {
   /// Get rewards for amount
   static double calculateRewards(double amount) {
     return amount * 0.015; // 1.5% rewards
+  }
+
+  /// Process mock payment for PhonePe SDK 3.0.0 testing
+  static Future<payment_types.PaymentSuccess> _processMockPaymentV3(
+    String vendorId,
+    String vendorName,
+    double amount,
+    String invoiceId,
+  ) async {
+    _log.info('🎭 Mock payment mode enabled - simulating PhonePe 3.0.0 payment');
+
+    // Simulate realistic payment delay
+    await Future.delayed(const Duration(seconds: 2));
+
+    // Create mock transaction record with PhonePe 3.0.0 fields
+    final mockOrderId = 'OMO_MOCK_${DateTime.now().millisecondsSinceEpoch}';
+    final mockTransactionId = 'MOCK_TXN_${DateTime.now().millisecondsSinceEpoch}';
+    final fee = payment_types.PaymentFeeCalculator.calculateFee(amount);
+    final rewards = payment_types.PaymentFeeCalculator.calculateRewards(amount);
+
+    final transactionData = {
+      'user_id': BaseService.currentUserId!,
+      'vendor_id': vendorId,
+      'vendor_name': vendorName,
+      'invoice_id': invoiceId,
+      'amount': amount,
+      'fee': fee,
+      'rewards_earned': rewards,
+      'status': 'success',
+      'payment_method': 'Mock Payment (PhonePe 3.0.0)',
+      'phonepe_transaction_id': mockTransactionId,
+      'phonepe_order_id': mockOrderId,
+      'phonepe_order_status': 'SUCCESS',
+      'phonepe_merchant_order_id': 'MOCK_MERCHANT_${DateTime.now().millisecondsSinceEpoch}',
+      'phonepe_response_data': {
+        'success': true,
+        'code': 'PAYMENT_SUCCESS',
+        'message': 'Mock payment completed successfully',
+        'data': {
+          'merchantId': AppConstants.phonePeMerchantId,
+          'orderId': mockOrderId,
+          'transactionId': mockTransactionId,
+          'amount': (amount * 100).round(),
+          'state': 'COMPLETED',
+          'responseCode': 'SUCCESS',
+        }
+      },
+      'completed_at': DateTime.now().toIso8601String(),
+    };
+
+    final transactionResponse = await BaseService.supabase
+        .from('transactions')
+        .insert(transactionData)
+        .select('id')
+        .single();
+
+    final dbTransactionId = transactionResponse['id'] as String;
+
+    _log.info('✅ Mock PhonePe 3.0.0 transaction created', {
+      'transaction_id': dbTransactionId,
+      'phonepe_order_id': mockOrderId,
+      'amount': amount,
+      'vendor_name': vendorName,
+    });
+
+    return payment_types.PaymentSuccess(
+      transactionId: mockTransactionId,
+      invoiceId: invoiceId,
+      amount: amount,
+      rewards: rewards,
+      message: 'Payment completed (PhonePe 3.0.0 Mock Mode)',
+    );
+  }
+
+  /// Handle PhonePe SDK 3.0.0 payment response
+  static Future<payment_types.PaymentSuccess> _handlePaymentResponseV3(
+    dynamic result,
+    String orderId,
+    String transactionId,
+    double amount,
+    String invoiceId,
+  ) async {
+    try {
+      // Parse PhonePe SDK 3.0.0 response
+      final response = result as Map<String, dynamic>;
+      final success = response['success'] == true;
+
+      _log.info('📱 Processing PhonePe 3.0.0 response', {
+        'success': success,
+        'orderId': orderId,
+      });
+
+      if (success) {
+        // STEP 1: Verify payment status via Edge Function
+        final statusResponse = await BaseService.supabase.functions.invoke(
+          'verify-phonepe-payment',
+          body: {'orderId': orderId},
+        );
+
+        if (statusResponse.data?['verified'] == true) {
+          final verifiedTransactionId = statusResponse.data['transactionId'] as String;
+
+          _log.info('✅ PhonePe 3.0.0 payment verified successfully', {
+            'orderId': orderId,
+            'transactionId': verifiedTransactionId,
+          });
+
+          return payment_types.PaymentSuccess(
+            transactionId: verifiedTransactionId,
+            invoiceId: invoiceId,
+            amount: amount,
+            rewards: payment_types.PaymentFeeCalculator.calculateRewards(amount),
+            message: 'Payment completed successfully via PhonePe 3.0.0',
+          );
+        } else {
+          throw Exception('Payment verification failed');
+        }
+      } else {
+        final errorMessage = response['error']?.toString() ?? 'Payment failed';
+        _log.error('❌ PhonePe 3.0.0 payment failed', error: errorMessage);
+        throw Exception('Payment failed: $errorMessage');
+      }
+    } catch (error) {
+      _log.error('PhonePe 3.0.0 response handling failed', error: error);
+      rethrow;
+    }
   }
 }

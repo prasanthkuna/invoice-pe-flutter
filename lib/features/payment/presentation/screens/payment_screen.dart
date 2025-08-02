@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_constants.dart';
 // Payment providers not needed - using local state
 import '../../../../core/services/payment_service.dart';
+import '../../../../core/services/smart_logger.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../shared/models/invoice.dart';
 import '../../../../shared/models/vendor.dart';
@@ -547,29 +548,29 @@ class PaymentScreen extends ConsumerWidget {
     );
 
     try {
-      // Use mock payment service
-      final result = await PaymentService.processPayment(
+      // Use PhonePe SDK 3.0.0 payment service
+      final result = await PaymentService.processPaymentV3(
         vendorId: vendorId ?? invoice?.vendorId ?? '',
+        vendorName: vendor?.name ?? invoice?.vendorName ?? 'Unknown Vendor',
         amount: amount,
         invoiceId: invoiceId,
-        description: 'Payment via InvoicePe',
       );
 
       // Close loading dialog
       if (context.mounted) Navigator.of(context).pop();
 
-      if (result.isSuccess) {
-        final paymentData = {
-          'amount': amount,
-          'vendorName': _getVendorName(invoice, vendor),
-          'vendorId': vendorId ?? invoice?.vendorId ?? '',
-          'invoiceId': invoiceId,
-          'rewards': result.rewards ?? rewards,
-          'transactionId': result.transactionId ?? 'TXN${DateTime.now().millisecondsSinceEpoch}',
-          'paymentMethod': 'Mock Payment',
-          'fee': fee,
-          'total': total,
-        };
+      // Handle PhonePe SDK 3.0.0 payment result
+      final paymentData = {
+        'amount': amount,
+        'vendorName': _getVendorName(invoice, vendor),
+        'vendorId': vendorId ?? invoice?.vendorId ?? '',
+        'invoiceId': invoiceId,
+        'rewards': result.rewards,
+        'transactionId': result.transactionId,
+        'paymentMethod': 'PhonePe',
+        'fee': fee,
+        'total': total,
+      };
 
         // ELON FIX: Refresh providers after successful payment
         // This ensures vendors and transactions lists show updated data
@@ -577,32 +578,24 @@ class PaymentScreen extends ConsumerWidget {
         ref.invalidate(transactionsProvider);
         ref.invalidate(dashboardMetricsProvider);
 
-        if (context.mounted) {
-          context.go('/payment-success', extra: paymentData);
-        }
-      } else if (result.isFailure) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Payment failed. Please try again.'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      } else {
-        // Payment cancelled
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Payment cancelled.'),
-              backgroundColor: Colors.orange,
-            ),
-          );
-        }
+      if (context.mounted) {
+        context.go('/payment-success', extra: paymentData);
       }
-    } catch (error) {
+    } catch (error, stackTrace) {
       // Close loading dialog if still open
       if (context.mounted) Navigator.of(context).pop();
+
+      // ELON FIX: Enhanced error logging with stack trace
+      SmartLogger.logError('Invoice payment failed',
+        error: error,
+        stackTrace: stackTrace,
+        context: {
+          'vendor_id': vendorId,
+          'invoice_id': invoiceId,
+          'amount': amount,
+          'operation': 'invoice_payment_error',
+        }
+      );
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

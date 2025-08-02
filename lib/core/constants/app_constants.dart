@@ -26,17 +26,19 @@ class AppConstants {
   static String get phonePeSaltKey => dotenv.env['PHONEPE_SALT_KEY'] ?? '2a248f9d-db24-4f2d-8512-61449a31292f';
   static String get phonePeSaltIndex => dotenv.env['PHONEPE_SALT_INDEX'] ?? '1';
   static bool get mockPaymentMode {
-    // ELON FIX: For release builds during testing, always use mock mode
-    // This ensures payments work in release builds without PhonePe setup
+    // UAT TESTING MODE: Check environment variable first
+    final envMockMode = dotenv.env['MOCK_PAYMENT_MODE'];
+    if (envMockMode != null) {
+      return envMockMode.toLowerCase() == 'true';
+    }
 
     if (kDebugMode) {
       // Development: Always use mock mode
       return true;
     } else {
-      // CRITICAL FIX: Release builds should use mock mode during testing
-      // The build.gradle.kts sets MOCK_PAYMENT_MODE=true for release builds
-      // Since .env files don't exist in APKs, we default to true for beta testing
-      return true; // Force mock mode for release builds during testing phase
+      // RELEASE BUILD UAT: Can be controlled via environment
+      // For PhonePe UAT testing, set MOCK_PAYMENT_MODE=false in .env
+      return false; // Allow real PhonePe UAT testing in release builds
     }
   }
 

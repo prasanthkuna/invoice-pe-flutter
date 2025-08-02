@@ -8,6 +8,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/providers/app_providers.dart';
 import '../../../../core/providers/data_providers.dart';
 import '../../../../core/services/payment_service.dart';
+import '../../../../core/services/smart_logger.dart';
 import '../../../../core/types/payment_types.dart' as payment_types;
 import '../../../../shared/models/vendor.dart';
 
@@ -576,28 +577,28 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
     );
 
     try {
-      // Process payment using existing service
-      final result = await PaymentService.processPayment(
+      // Process payment using PhonePe SDK 3.0.0 (NEW METHOD)
+      final result = await PaymentService.processPaymentV3(
         vendorId: vendor.id,
+        vendorName: vendor.name,
         amount: amount,
-        description: 'Quick payment to ${vendor.name}',
+        // invoiceId: null (Quick Pay doesn't need invoice)
       );
 
       // Close loading dialog
       if (context.mounted) Navigator.of(context).pop();
 
-      // Handle payment result using proper type checking
-      if (result.isSuccess) {
-        final paymentData = {
-          'amount': amount,
-          'vendorName': vendor.name,
-          'vendorId': vendor.id,
-          'rewards': result.rewards ?? (amount * AppConstants.defaultRewardsPercentage / 100),
-          'transactionId': result.transactionId ?? 'TXN${DateTime.now().millisecondsSinceEpoch}',
-          'paymentMethod': 'Mock Payment',
-          'fee': amount * AppConstants.defaultFeePercentage / 100,
-          'total': total,
-        };
+      // Handle PhonePe SDK 3.0.0 payment result
+      final paymentData = {
+        'amount': amount,
+        'vendorName': vendor.name,
+        'vendorId': vendor.id,
+        'rewards': result.rewards,
+        'transactionId': result.transactionId,
+        'paymentMethod': 'PhonePe',
+        'fee': amount * AppConstants.defaultFeePercentage / 100,
+        'total': total,
+      };
 
         // ELON FIX: Refresh providers after successful payment
         // This ensures vendors and transactions lists show updated data
@@ -610,22 +611,24 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
         quickPaymentAmountNotifier.state = 0.0;
         _amountController.clear();
 
-        if (context.mounted) {
-          context.go('/payment-success', extra: paymentData);
-        }
-      } else {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Payment failed. Please try again.'),
-              backgroundColor: AppTheme.errorColor,
-            ),
-          );
-        }
+      if (context.mounted) {
+        context.go('/payment-success', extra: paymentData);
       }
-    } catch (error) {
+    } catch (error, stackTrace) {
       // Close loading dialog if still open
       if (context.mounted) Navigator.of(context).pop();
+
+      // ELON FIX: Enhanced error logging with stack trace
+      SmartLogger.logError('Quick payment failed',
+        error: error,
+        stackTrace: stackTrace,
+        context: {
+          'vendor_id': vendor.id,
+          'vendor_name': vendor.name,
+          'amount': amount,
+          'operation': 'quick_payment_error',
+        }
+      );
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

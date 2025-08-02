@@ -464,10 +464,16 @@ class _TransactionCard extends StatelessWidget {
     switch (status) {
       case TransactionStatus.initiated:
         return Colors.orange;
+      case TransactionStatus.pending:
+        return Colors.blue;
       case TransactionStatus.success:
         return Colors.green;
       case TransactionStatus.failure:
         return Colors.red;
+      case TransactionStatus.cancelled:
+        return Colors.grey;
+      case TransactionStatus.expired:
+        return Colors.brown;
     }
   }
 
@@ -475,10 +481,16 @@ class _TransactionCard extends StatelessWidget {
     switch (status) {
       case TransactionStatus.initiated:
         return Icons.schedule;
+      case TransactionStatus.pending:
+        return Icons.hourglass_empty;
       case TransactionStatus.success:
         return Icons.check_circle;
       case TransactionStatus.failure:
         return Icons.error;
+      case TransactionStatus.cancelled:
+        return Icons.cancel;
+      case TransactionStatus.expired:
+        return Icons.access_time;
     }
   }
 
