@@ -571,8 +571,11 @@ class PaymentScreen extends ConsumerWidget {
           'total': total,
         };
 
-        // ELON FIX: Avoid excessive refreshes that cause UI flickering
-        // Let providers auto-update on next read instead of forcing immediate refresh
+        // ELON FIX: Refresh providers after successful payment
+        // This ensures vendors and transactions lists show updated data
+        ref.invalidate(vendorsProvider);
+        ref.invalidate(transactionsProvider);
+        ref.invalidate(dashboardMetricsProvider);
 
         if (context.mounted) {
           context.go('/payment-success', extra: paymentData);

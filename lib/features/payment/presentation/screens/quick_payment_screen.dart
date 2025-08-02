@@ -599,8 +599,11 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
           'total': total,
         };
 
-        // ELON FIX: Avoid excessive refreshes that cause UI flickering
-        // Let providers auto-update on next read instead of forcing immediate refresh
+        // ELON FIX: Refresh providers after successful payment
+        // This ensures vendors and transactions lists show updated data
+        ref.invalidate(vendorsProvider);
+        ref.invalidate(transactionsProvider);
+        ref.invalidate(dashboardMetricsProvider);
 
         // Reset form using stored notifiers
         quickPaymentVendorNotifier.state = null;

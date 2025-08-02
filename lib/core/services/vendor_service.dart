@@ -7,18 +7,22 @@ final ComponentLogger _log = Log.component('vendor');
 class VendorService extends BaseService {
   static const String _tableName = 'vendors';
 
-  /// Get all vendors for the current user
+  /// Get all vendors for the current user with calculated transaction stats
   static Future<List<Vendor>> getVendors() async {
     try {
       BaseService.ensureAuthenticated();
 
+      // ELON FIX: Calculate transaction stats dynamically using LEFT JOIN
       final response = await BaseService.supabase
           .from(_tableName)
-          .select()
+          .select('''
+            *,
+            transactions!left(amount, status)
+          ''')
           .eq('user_id', BaseService.currentUserId!)
           .order('created_at', ascending: false);
 
-      return response.map(_fromSupabaseJson).toList();
+      return response.map(_fromSupabaseJsonWithStats).toList();
     } catch (error) {
       throw BaseService.handleError(error);
     }
@@ -152,7 +156,50 @@ class VendorService extends BaseService {
     }
   }
 
-  /// Convert Supabase JSON to Vendor model
+  /// Convert Supabase JSON to Vendor model with calculated transaction stats
+  static Vendor _fromSupabaseJsonWithStats(Map<String, dynamic> json) {
+    // Calculate stats from joined transaction data
+    final transactions = json['transactions'] as List<dynamic>? ?? [];
+
+    double totalPaid = 0.0;
+    int transactionCount = 0;
+
+    for (final transaction in transactions) {
+      final transactionMap = transaction as Map<String, dynamic>;
+      final status = transactionMap['status'] as String?;
+
+      // Only count successful transactions
+      if (status == 'success') {
+        final amount = (transactionMap['amount'] as num?)?.toDouble() ?? 0.0;
+        totalPaid += amount;
+        transactionCount++;
+      }
+    }
+
+    return Vendor(
+      id: json['id'] as String,
+      userId: json['user_id'] as String,
+      name: json['name'] as String,
+      accountNumber: json['account_number'] as String? ?? '',
+      ifscCode: json['ifsc_code'] as String? ?? '',
+      upiId: json['upi_id'] as String?,
+      email: json['email'] as String?,
+      phone: json['phone'] as String?,
+      address: json['address'] as String?,
+      gstin: json['gstin'] as String?,
+      logoUrl: json['logo_url'] as String?,
+      totalPaid: totalPaid, // Use calculated value
+      transactionCount: transactionCount, // Use calculated value
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : null,
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'] as String)
+          : null,
+    );
+  }
+
+  /// Convert Supabase JSON to Vendor model (without transaction stats)
   static Vendor _fromSupabaseJson(Map<String, dynamic> json) {
     return Vendor(
       id: json['id'] as String,
