@@ -67,8 +67,9 @@ dependencies:
   # mobile_scanner: ^7.0.1  # QR/Barcode scanning (DISABLED - not used, will re-enable post-PhonePe integration)
   logger: ^2.4.0  # For comprehensive logging
 
-  # OTP Autofill (PROFESSIONAL - No SMS permissions required)
-  sms_autofill: ^2.3.0  # SMS OTP autofill with User Consent API
+  # OTP Input (PROFESSIONAL - Best paste support)
+  pinput: ^5.0.0  # Modern OTP input with built-in paste functionality
+  sms_autofill: ^2.3.0  # SMS OTP autofill with User Consent API (disabled for demo)
 
   # UI/UX Enhancements (OPTIMIZED - Removed redundant packages)
   # shimmer: ^3.0.0  # REMOVED - Can be built with flutter_animate

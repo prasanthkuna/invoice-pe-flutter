@@ -50,7 +50,7 @@ android {
                 // Fallback to debug signing if keystore not found
                 keyAlias = "androiddebugkey"
                 keyPassword = "android"
-                storeFile = file("debug.keystore")
+                storeFile = file("${System.getProperty("user.home")}/.android/debug.keystore")
                 storePassword = "android"
             }
         }
@@ -110,8 +110,8 @@ android {
         }
 
         release {
-            // ELON-STYLE: Use proper release signing
-            signingConfig = signingConfigs.getByName("release")
+            // ELON FIX: Use debug signing for WhatsApp sharing (Play Protect allows debug certs)
+            signingConfig = signingConfigs.getByName("debug")
 
             // ELON OPTION 1: Ultra-safe configuration - Universal APK only
             isMinifyEnabled = false     // KEEP DISABLED - was causing main thread hang

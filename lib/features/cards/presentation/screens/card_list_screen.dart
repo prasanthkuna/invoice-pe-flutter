@@ -560,7 +560,7 @@ class _PhonePeCardInfoCard extends StatelessWidget {
               ),
               icon: const Icon(Icons.payment),
               label: const Text(
-                'Manage Cards via PhonePe (Coming Soon)',
+                'Manage Cards via PhonePe',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,

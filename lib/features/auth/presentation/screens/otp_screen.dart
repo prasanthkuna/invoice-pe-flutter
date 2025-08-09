@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:sms_autofill/sms_autofill.dart';
+import 'package:pinput/pinput.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/logger.dart';
@@ -29,52 +29,40 @@ class OtpScreen extends ConsumerStatefulWidget {
   ConsumerState<OtpScreen> createState() => _OtpScreenState();
 }
 
-class _OtpScreenState extends ConsumerState<OtpScreen> with CodeAutoFill {
-  final List<TextEditingController> controllers = List.generate(
-    6,
-    (_) => TextEditingController(),
-  );
-  final List<FocusNode> focusNodes = List.generate(6, (_) => FocusNode());
+class _OtpScreenState extends ConsumerState<OtpScreen> {
+  final TextEditingController pinController = TextEditingController();
+  final FocusNode pinFocusNode = FocusNode();
   async.Timer? _timer;
 
-  Future<void> _verifyOtp(
-    BuildContext context,
-    WidgetRef ref,
-    String otp,
-  ) async {
-    // ELON FIX: Store notifier reference BEFORE async operations
-    final isVerifyingNotifier = ref.read(isVerifyingProvider.notifier);
+  Future<void> _verifyOtp(BuildContext context, WidgetRef ref, String otp) async {
+    if (otp.length != 6) return;
 
     try {
-      isVerifyingNotifier.state = true;
+      ref.read(isVerifyingProvider.notifier).state = true;
 
-      final result = await AuthService.verifyOtp(
-        phone: widget.phone,
-        otp: otp,
-      );
+      final result = await AuthService.verifyOtp(phone: widget.phone, otp: otp);
 
       switch (result) {
         case Success():
-          // ELON NUCLEAR FIX: Cancel timer and clear ref BEFORE any navigation
           _timer?.cancel();
           _timer = null;
 
-          // Check profile completion status
           final profileStatus = await AuthService.checkProfileStatus();
-
-          switch (profileStatus) {
-            case app_auth.ProfileComplete():
-              if (context.mounted) {
+          if (context.mounted) {
+            switch (profileStatus) {
+              case app_auth.ProfileComplete():
                 context.go('/dashboard');
-              }
-            case app_auth.ProfileIncomplete():
-              if (context.mounted) {
+              case app_auth.ProfileIncomplete():
                 context.go('/setup-profile');
-              }
+            }
           }
 
         case Failure(error: final error):
           if (context.mounted) {
+            // Clear OTP for re-entry on error
+            pinController.clear();
+            ref.read(otpProvider.notifier).state = '';
+
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(error),
@@ -84,18 +72,17 @@ class _OtpScreenState extends ConsumerState<OtpScreen> with CodeAutoFill {
           }
       }
     } catch (error) {
-      _log.error('OTP verification error', error: error);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $error'),
+          const SnackBar(
+            content: Text('Verification failed. Please try again.'),
             backgroundColor: Colors.red,
           ),
         );
       }
     } finally {
       if (context.mounted) {
-        isVerifyingNotifier.state = false;
+        ref.read(isVerifyingProvider.notifier).state = false;
       }
     }
   }
@@ -104,24 +91,6 @@ class _OtpScreenState extends ConsumerState<OtpScreen> with CodeAutoFill {
   void initState() {
     super.initState();
     _startTimer();
-    _initializeAutofill();
-  }
-
-  /// Initialize SMS autofill listener
-  void _initializeAutofill() async {
-    try {
-      // CRITICAL FIX: Get app signature for SMS autofill
-      final signature = await SmsAutoFill().getAppSignature;
-      _log.info('App signature for SMS autofill', {'signature': signature});
-
-      // Start listening for SMS autofill
-      await SmsAutoFill().listenForCode();
-
-      _log.info('SMS autofill initialized successfully');
-    } catch (error) {
-      _log.error('SMS autofill initialization failed', error: error);
-      // Continue without autofill if it fails
-    }
   }
 
   void _startTimer() {
@@ -129,9 +98,8 @@ class _OtpScreenState extends ConsumerState<OtpScreen> with CodeAutoFill {
     _timer?.cancel();
     _timer = null;
 
-    // ELON DEFINITIVE FIX: Store notifier reference ONCE before async operations
-    // This prevents "ref after disposed" errors in timer callbacks
     final timerNotifier = ref.read(timerProvider.notifier);
+    timerNotifier.state = 60;
 
     _timer = async.Timer.periodic(const Duration(seconds: 1), (timer) {
       // Safety check: widget still mounted
@@ -153,62 +121,17 @@ class _OtpScreenState extends ConsumerState<OtpScreen> with CodeAutoFill {
 
   @override
   void dispose() {
-    // ELON FIX: Cancel timer FIRST before anything else
     _timer?.cancel();
-    _timer = null;
-
-    SmsAutoFill().unregisterListener(); // Clean up autofill listener
-    for (final controller in controllers) {
-      controller.dispose();
-    }
-    for (final focusNode in focusNodes) {
-      focusNode.dispose();
-    }
+    pinController.dispose();
+    pinFocusNode.dispose();
     super.dispose();
   }
 
-  @override
-  void codeUpdated() {
-    // Called when SMS autofill detects an OTP code
-    if (code != null && code!.length == 6 && mounted) {
-      _log.info('SMS autofill detected OTP', {'code_length': code!.length});
 
-      // Cancel timer before autofill to prevent conflicts
-      _timer?.cancel();
-      _timer = null;
 
-      // Fill the OTP fields with the detected code
-      for (int i = 0; i < 6; i++) {
-        if (i < code!.length) {
-          controllers[i].text = code![i];
-        }
-      }
-
-      // ELON DEFINITIVE FIX: Store notifier reference before operations
-      final otpNotifier = ref.read(otpProvider.notifier);
-      otpNotifier.state = code!;
-
-      // Auto-verify the OTP
-      _verifyOtp(context, ref, code!);
-    }
-  }
-
-  void _onOtpChanged() {
-    final otp = controllers.map((c) => c.text).join();
-
-    // ELON DEFINITIVE FIX: Store notifier reference before any operations
+  void _onOtpChanged(String otp) {
     if (mounted) {
-      final otpNotifier = ref.read(otpProvider.notifier);
-      otpNotifier.state = otp;
-
-      if (otp.length == 6) {
-        // Cancel timer before auto-verification to prevent conflicts
-        _timer?.cancel();
-        _timer = null;
-
-        // Auto-verify when OTP is complete
-        _verifyOtp(context, ref, otp);
-      }
+      ref.read(otpProvider.notifier).state = otp;
     }
   }
 
@@ -273,7 +196,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> with CodeAutoFill {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'Code will auto-fill when SMS arrives',
+                      'Paste OTP from messages or enter manually',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: AppTheme.primaryAccent,
                         fontWeight: FontWeight.w500,
@@ -286,55 +209,69 @@ class _OtpScreenState extends ConsumerState<OtpScreen> with CodeAutoFill {
 
             const SizedBox(height: 48),
 
-            // OTP Input
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: List.generate(6, (index) {
-                return Container(
-                  width: 48,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    color: AppTheme.cardBackground,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: controllers[index].text.isNotEmpty
-                          ? AppTheme.primaryAccent
-                          : Colors.transparent,
-                      width: 2,
-                    ),
+            // OTP Input with Pinput (Best paste support)
+            Pinput(
+              controller: pinController,
+              focusNode: pinFocusNode,
+              length: 6,
+              autofocus: true,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              hapticFeedbackType: HapticFeedbackType.lightImpact,
+              onChanged: _onOtpChanged,
+              onCompleted: (pin) => _verifyOtp(context, ref, pin),
+              defaultPinTheme: PinTheme(
+                width: 48,
+                height: 56,
+                textStyle: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.primaryText,
+                ),
+                decoration: BoxDecoration(
+                  color: AppTheme.cardBackground,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.transparent,
+                    width: 2,
                   ),
-                  child: TextField(
-                    controller: controllers[index],
-                    focusNode: focusNodes[index],
-                    textAlign: TextAlign.center,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(1),
-                    ],
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.primaryText,
-                    ),
-                    decoration: const InputDecoration(
-                      border: InputBorder.none,
-                      counterText: '',
-                    ),
-                    // ELON ENHANCEMENT: Enable autofill for the first field
-                    autofillHints: index == 0 ? [AutofillHints.oneTimeCode] : null,
-                    onChanged: (value) {
-                      if (value.isNotEmpty && index < 5) {
-                        focusNodes[index + 1].requestFocus();
-                      } else if (value.isEmpty && index > 0) {
-                        focusNodes[index - 1].requestFocus();
-                      }
-                      _onOtpChanged();
-                    },
+                ),
+              ),
+              focusedPinTheme: PinTheme(
+                width: 48,
+                height: 56,
+                textStyle: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.primaryText,
+                ),
+                decoration: BoxDecoration(
+                  color: AppTheme.cardBackground,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: AppTheme.primaryAccent,
+                    width: 2,
                   ),
-                );
-              }).animate(interval: 100.ms).fadeIn(delay: 600.ms).scale(),
-            ),
+                ),
+              ),
+              submittedPinTheme: PinTheme(
+                width: 48,
+                height: 56,
+                textStyle: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.primaryText,
+                ),
+                decoration: BoxDecoration(
+                  color: AppTheme.cardBackground,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: AppTheme.primaryAccent,
+                    width: 2,
+                  ),
+                ),
+              ),
+            ).animate().fadeIn(delay: 600.ms).scale(),
 
             const SizedBox(height: 32),
 
@@ -383,47 +320,34 @@ class _OtpScreenState extends ConsumerState<OtpScreen> with CodeAutoFill {
 
             const Spacer(),
 
-            // Continue Button
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton(
-                onPressed: (otp.length == 6 && !isVerifying)
-                    ? () => _verifyOtp(context, ref, otp)
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: otp.length == 6
-                      ? AppTheme.primaryAccent
-                      : AppTheme.cardBackground,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-                child: isVerifying
-                    ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
-                          ),
-                        ),
-                      )
-                    : Text(
-                        'Verify',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: otp.length == 6
-                              ? Colors.white
-                              : AppTheme.secondaryText,
+            // Auto-verification indicator
+            if (isVerifying)
+              const Center(
+                child: Column(
+                  children: [
+                    SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          AppTheme.primaryAccent,
                         ),
                       ),
-              ),
-            ).animate().fadeIn(delay: 1000.ms).slideY(begin: 0.5),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Verifying...',
+                      style: TextStyle(
+                        color: AppTheme.secondaryText,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ).animate().fadeIn(),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
           ],
         ),
       ),
