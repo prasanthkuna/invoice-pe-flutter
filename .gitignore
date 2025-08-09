@@ -244,10 +244,38 @@ pubspec.lock.backup
 !android/app/src/main/res/drawable*/background.png
 !ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImageDark*.png
 
+# ================================
+# PCC SUBMISSION CLEANUP - ELON STYLE
+# ================================
+
+# All APK files (build artifacts)
+*.apk
+*.aab
+
+# Android signing (CRITICAL SECURITY)
+key.properties
+local.properties
+
+# PowerShell scripts (potential secrets)
+*.ps1
+
+# PDF documents (bloat)
+*.pdf
+
+# Development debug files
+CRUSH.md
+DEBUG.md
+llms.txt
+
+# Analysis and fix documentation (development only)
+*_ANALYSIS.md
+*_FIX_*.md
+*_REGRESSION_*.md
+*_TIMER_*.md
+*_SOLUTION.md
+
+# Test scripts
+test_*.ps1
+
 # Crush agent workspace
 .crush/
-InvoicePe-Demo-Enhanced-Logging-v1.0.0.apk
-InvoicePe-Demo-Final-v1.0.0.apk
-InvoicePe-Demo-MockMode-v1.0.0.apk
-InvoicePe-Demo-Universal-v1.0.0.apk
-InvoicePe-Demo-v1.0.0.apk
