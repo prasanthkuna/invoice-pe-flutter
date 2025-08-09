@@ -133,7 +133,8 @@ class SmartLogger {
       final maskedMessage = _maskPII(message);
 
       _logger.e('❌ ERROR: $maskedMessage', error: error, stackTrace: stackTrace);
-      _logToBuffer('ERROR', maskedMessage, enrichedContext);
+      _logToBuffer('ERROR', maskedMessage, enrichedContext,
+        error: error, stackTrace: stackTrace);  // ELON FIX: Pass error parameters
     } catch (e) {
       // ELON FIX: Never crash app due to error logging (ironic but necessary)
       if (kDebugMode) {
@@ -225,6 +226,7 @@ class SmartLogger {
     String level,
     String message,
     Map<String, dynamic> context,
+    {dynamic error, StackTrace? stackTrace}  // ELON FIX: Add error parameters
   ) {
     // ELON FIX: Always enable database logging for debugging payment issues
     // Only skip during tests to avoid test database pollution
@@ -235,18 +237,21 @@ class SmartLogger {
     // ELON FIX: Completely non-blocking logging - never crash the app
     Future.microtask(() async {
       try {
-        // Check if Supabase client is available before attempting to log
-        if (Supabase.instance.client.auth.currentUser == null) {
-          // Skip logging if no user is authenticated (app startup phase)
+        // ELON FIX: Allow anonymous logging for auth failures and critical errors
+        final currentUser = Supabase.instance.client.auth.currentUser;
+        final isAuthError = (context['category'] == 'auth') || level == 'ERROR';
+
+        if (currentUser == null && !isAuthError) {
+          // Skip logging for non-auth events when not authenticated
           if (kDebugMode) {
-            debugPrint('⚠️ No authenticated user, skipping database log');
+            debugPrint('⚠️ No authenticated user, skipping non-auth database log');
           }
           return;
         }
 
-        // ELON FIX: Match exact database schema from migration
+        // ELON FIX: Match exact database schema from migration + error_details
         await Supabase.instance.client.from('logs').insert({
-          'user_id': Supabase.instance.client.auth.currentUser?.id,
+          'user_id': currentUser?.id, // Allow null for anonymous auth error logging
           'level': level,
           'category': context['category'] ?? 'general',
           'message': message,
@@ -254,6 +259,12 @@ class SmartLogger {
           'context': context,
           'session_id': _correlationId,
           'created_at': DateTime.now().toIso8601String(),
+          'error_details': error != null || stackTrace != null ? {
+            'error': error?.toString(),
+            'stack_trace': stackTrace?.toString(),
+            'error_type': error?.runtimeType.toString(),
+            'timestamp': DateTime.now().toIso8601String(),
+          } : null,
         });
 
         if (kDebugMode) {
@@ -280,12 +291,14 @@ class SmartLogger {
 class _SmartProductionFilter extends LogFilter {
   @override
   bool shouldLog(LogEvent event) {
-    if (kDebugMode) {
-      return true; // Log everything in debug mode
-    }
+    // ELON FIX: Enable all logs for PhonePe demo debugging
+    return true; // Log everything in all modes for demo
 
-    // In release mode, only log warnings and errors
-    return event.level.index >= Level.warning.index;
+    // TODO: Restore production filtering after PhonePe submission:
+    // if (kDebugMode) {
+    //   return true; // Log everything in debug mode
+    // }
+    // return event.level.index >= Level.warning.index;
   }
 }
 

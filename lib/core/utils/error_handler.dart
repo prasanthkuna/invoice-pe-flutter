@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../services/logger.dart';
+import '../services/smart_logger.dart';  // ELON FIX: Add SmartLogger import
 
 final ComponentLogger _log = Log.component('error');
 
@@ -16,6 +17,18 @@ class ErrorHandler {
     try {
       return await operation();
     } catch (error, stack) {
+      // ELON FIX: Enhanced error logging with complete context
+      SmartLogger.logError(
+        errorMessage ?? 'Async Operation Failed',
+        error: error,
+        stackTrace: stack,
+        context: {
+          'error_type': 'async_operation',
+          'operation': 'handleAsync',
+        },
+      );
+
+      // Also log with existing logger for compatibility
       _log.error(
         errorMessage ?? 'Operation failed',
         error: error,

@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'base_service.dart';
 import 'logger.dart';
+import 'smart_logger.dart'; // ELON FIX: Add SmartLogger for database logging
+import '../constants/app_constants.dart'; // ELON FIX: Add AppConstants for supabaseUrl
 import '../types/result.dart';
 import '../types/auth_types.dart' as app_auth;
 
@@ -150,8 +152,36 @@ class AuthService extends BaseService {
           );
         } on AuthException catch (signupError) {
           _log.error('Auth error during signup', error: signupError);
+
+          // ELON DEBUG: Detailed signup error analysis
+          _log.error('Signup failure details',
+            error: signupError,
+            data: {
+              'error_message': signupError.message,
+              'error_code': signupError.statusCode,
+              'phone': phone,
+              'phone_length': phone.length,
+              'has_country_code': phone.startsWith('+'),
+              'supabase_url': AppConstants.supabaseUrl,
+            },
+          );
+
+          // ELON FIX: Also log to database for debugging
+          SmartLogger.logError(
+            'Sign-up failed for new user',
+            error: signupError,
+            context: {
+              'category': 'auth',
+              'operation': 'signup',
+              'phone': phone,
+              'error_message': signupError.message,
+              'error_code': signupError.statusCode,
+              'supabase_url': AppConstants.supabaseUrl,
+            },
+          );
+
           return app_auth.OtpFailed(
-            error: _parseAuthError(signupError),
+            error: 'Sign-up failed: ${signupError.message}',
             phone: phone,
           );
         } on TimeoutException catch (e) {

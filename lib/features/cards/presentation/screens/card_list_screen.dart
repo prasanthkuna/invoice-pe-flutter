@@ -541,22 +541,26 @@ class _PhonePeCardInfoCard extends StatelessWidget {
 
           const SizedBox(height: 20),
 
-          // Manage Cards Button
+          // Manage Cards Button - DISABLED for PhonePe Demo
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
-              onPressed: () => _initiateCardManagement(context),
+              onPressed: null, // DISABLED for demo submission
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primaryAccent,
-                foregroundColor: Colors.white,
+                backgroundColor: AppTheme.cardBackground,
+                foregroundColor: AppTheme.secondaryText,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(
+                    color: AppTheme.secondaryText.withValues(alpha: 0.3),
+                    width: 1,
+                  ),
                 ),
               ),
               icon: const Icon(Icons.payment),
               label: const Text(
-                'Manage Cards via PhonePe',
+                'Manage Cards via PhonePe (Coming Soon)',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -578,7 +582,7 @@ class _PhonePeCardInfoCard extends StatelessWidget {
               ),
               const SizedBox(width: 6),
               Text(
-                'Cards are saved securely on PhonePe servers',
+                'Card management will be available after PhonePe integration',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: AppTheme.secondaryText,
                 ),

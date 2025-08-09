@@ -87,9 +87,9 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
 
               const SizedBox(height: 80),
 
-              // Welcome Text - FIXED: Remove duplicate welcome message
+              // Welcome Text - ELON FIX: Universal sign-in/sign-up messaging
               Text(
-                showOtpField ? 'Verify OTP' : 'Sign In',
+                showOtpField ? 'Verify OTP' : 'Welcome to InvoicePe',
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
@@ -100,14 +100,49 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
               Text(
                 showOtpField
                     ? 'Enter the 6-digit code sent to your phone'
-                    : 'Enter your phone number to continue',
+                    : 'Sign in to your account or create a new one',
                 style: TextStyle(
                   fontSize: 16,
                   color: AppTheme.secondaryText,
                 ),
               ).animate().fadeIn(delay: 800.ms),
 
-              const SizedBox(height: 40),
+              const SizedBox(height: 16),
+
+              // ELON FIX: Add helpful note about automatic account creation
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryAccent.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: AppTheme.primaryAccent.withValues(alpha: 0.2),
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      color: AppTheme.primaryAccent,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'New to InvoicePe? We\'ll create your account automatically!',
+                        style: TextStyle(
+                          color: AppTheme.primaryAccent,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ).animate().fadeIn(delay: 1000.ms).slideY(begin: 0.2),
+
+              const SizedBox(height: 24),
 
               // Phone Number Field - FIXED KEYBOARD + NEW THEME
               if (!showOtpField) ...[
@@ -286,7 +321,7 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
                           ),
                         )
                       : Text(
-                          showOtpField ? 'Verify & Continue' : 'Send OTP',
+                          showOtpField ? 'Verify & Continue' : 'Continue',
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,

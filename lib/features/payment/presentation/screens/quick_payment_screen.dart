@@ -9,7 +9,6 @@ import '../../../../core/providers/app_providers.dart';
 import '../../../../core/providers/data_providers.dart';
 import '../../../../core/services/payment_service.dart';
 import '../../../../core/services/smart_logger.dart';
-import '../../../../core/types/payment_types.dart' as payment_types;
 import '../../../../shared/models/vendor.dart';
 
 final quickPaymentAmountProvider = StateProvider<double>((ref) => 0.0);

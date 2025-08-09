@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:patrol/patrol.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:invoice_pe_app/core/services/debug_service.dart';
 import 'package:invoice_pe_app/core/constants/app_constants.dart';
 import '../test/utils/test_helpers.dart';
 
@@ -64,14 +63,14 @@ void main() {
         
         // Find and tap Quick Pay button (either FAB or action card)
         final quickPayFinder = find.text('Quick Pay');
-        if (await $.exists(quickPayFinder)) {
+        if ($(quickPayFinder).exists) {
           await $.tap(quickPayFinder);
           await $.pumpAndSettle();
           print('✅ Quick Pay screen opened');
         } else {
           // Try FAB if action card not found
           final fabFinder = find.byType(FloatingActionButton);
-          if (await $.exists(fabFinder)) {
+          if ($(fabFinder).exists) {
             await $.tap(fabFinder);
             await $.pumpAndSettle();
             print('✅ Quick Pay via FAB');
@@ -91,7 +90,7 @@ void main() {
         
         // Look for existing vendors or create new one
         final vendorListTile = find.byType(ListTile);
-        if (await $.exists(vendorListTile)) {
+        if ($(vendorListTile).exists) {
           // Select first vendor
           await $.tap(vendorListTile.first);
           await $.pumpAndSettle();
@@ -99,7 +98,7 @@ void main() {
         } else {
           // Create new vendor for testing
           final addVendorButton = find.byIcon(Icons.add);
-          if (await $.exists(addVendorButton)) {
+          if ($(addVendorButton).exists) {
             await $.tap(addVendorButton);
             await $.pumpAndSettle();
             
@@ -184,16 +183,16 @@ void main() {
         
         bool paymentCompleted = false;
         for (final indicator in successIndicators) {
-          if (await $.exists(indicator)) {
+          if ($(indicator).exists) {
             print('✅ Payment SUCCESS detected');
             paymentCompleted = true;
             break;
           }
         }
-        
+
         if (!paymentCompleted) {
           for (final indicator in failureIndicators) {
-            if (await $.exists(indicator)) {
+            if ($(indicator).exists) {
               print('❌ Payment FAILURE detected');
               paymentCompleted = true;
               break;

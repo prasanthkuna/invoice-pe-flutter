@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';  // ELON FIX: Add for PlatformDispatcher
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,12 +10,27 @@ import 'core/router/app_router.dart';
 import 'core/providers/app_providers.dart';
 import 'core/services/logger.dart';
 import 'core/services/environment_service.dart';
+import 'core/services/smart_logger.dart';  // ELON FIX: Add SmartLogger import
 
 /// Tesla-grade main function with fail-fast initialization
 void main() async {
   // Wrap everything in error boundary for production safety
   await runZonedGuarded<Future<void>>(() async {
     WidgetsFlutterBinding.ensureInitialized();
+
+    // ELON FIX: Add missing platform error handler for async/platform errors
+    PlatformDispatcher.instance.onError = (error, stack) {
+      SmartLogger.logError(
+        'Platform/Async Error',
+        error: error,
+        stackTrace: stack,
+        context: {
+          'error_type': 'platform_async',
+          'runtime_type': error.runtimeType.toString(),
+        },
+      );
+      return true; // Error handled, don't crash
+    };
 
     // Initialize logging first for error tracking
     Log.init();
@@ -75,7 +91,18 @@ void main() async {
       );
     }
   }, (error, stackTrace) {
-    // Global error handler for uncaught exceptions
+    // ELON FIX: Enhanced uncaught exception handler with SmartLogger
+    SmartLogger.logError(
+      'Uncaught Exception',
+      error: error,
+      stackTrace: stackTrace,
+      context: {
+        'error_type': 'uncaught_exception',
+        'runtime_type': error.runtimeType.toString(),
+      },
+    );
+
+    // Also log with existing logger for compatibility
     Log.component('app').error('Uncaught exception',
       error: error,
       stackTrace: stackTrace
@@ -169,8 +196,21 @@ class _AppErrorBoundaryState extends State<_AppErrorBoundary> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    // Catch errors in the widget tree
+    // ELON FIX: Enhanced widget error handler with complete logging
     FlutterError.onError = (FlutterErrorDetails details) {
+      SmartLogger.logError(
+        'Widget Error (App Boundary)',
+        error: details.exception,
+        stackTrace: details.stack,
+        context: {
+          'library': details.library,
+          'context': details.context?.toString(),
+          'silent': details.silent,
+          'error_type': 'widget_app_boundary',
+        },
+      );
+
+      // Also log with existing logger for compatibility
       Log.component('app').error('Widget error caught by boundary',
         error: details.exception,
         stackTrace: details.stack,

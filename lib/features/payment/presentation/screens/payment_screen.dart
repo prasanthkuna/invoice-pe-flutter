@@ -13,7 +13,6 @@ import '../../../../shared/models/vendor.dart';
 import '../../../../core/providers/data_providers.dart';
 import '../../../../core/utils/navigation_helper.dart';
 import '../../../../core/utils/display_helper.dart';
-import '../../../../core/types/payment_types.dart';
 
 final paymentAmountProvider = StateProvider<double>((ref) => 0.0);
 final selectedCardProvider = StateProvider<int>((ref) => 0);

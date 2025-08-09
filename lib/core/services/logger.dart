@@ -252,27 +252,29 @@ class ComponentLogger {
         '[${entry.level.name.toUpperCase()}] '
         '${entry.component}.${entry.operation}';
 
-    if (kDebugMode) {
-      // DEVELOPMENT FIX: Only show warnings and errors to reduce noise
-      if (entry.level.index >= LogLevel.warn.index) {
-        switch (entry.level) {
-          case LogLevel.warn:
-            debugPrint('\x1B[33m$message\x1B[0m'); // Yellow
-          case LogLevel.error:
-          case LogLevel.fatal:
-            debugPrint('\x1B[31m$message\x1B[0m'); // Red
-          default:
-            break;
-        }
-
-        // Only show data for warnings and errors
-        if (entry.data.isNotEmpty) {
-          debugPrint('  Data: ${json.encode(entry.data)}');
-        }
+    // ELON FIX: Enable console output for PhonePe demo debugging
+    if (kDebugMode || kReleaseMode) {
+      // Show all logs for demo debugging
+      switch (entry.level) {
+        case LogLevel.info:
+          debugPrint('\x1B[32m$message\x1B[0m'); // Green
+        case LogLevel.warn:
+          debugPrint('\x1B[33m$message\x1B[0m'); // Yellow
+        case LogLevel.error:
+        case LogLevel.fatal:
+          debugPrint('\x1B[31m$message\x1B[0m'); // Red
+        default:
+          debugPrint(message); // Default color
       }
-    } else {
-      print(json.encode(entry.toJson()));
+
+      // Show data for all logs
+      if (entry.data.isNotEmpty) {
+        debugPrint('  Data: ${json.encode(entry.data)}');
+      }
     }
+
+    // Also output JSON for structured logging
+    print(json.encode(entry.toJson()));
   }
 
   void _outputJson(LogEntry entry) {

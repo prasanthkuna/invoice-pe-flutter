@@ -87,13 +87,13 @@ android {
         }
     }
 
-    // ELON-STYLE: Split APKs by architecture for maximum size reduction
+    // ELON-STYLE: Universal APK for PhonePe submission + Split APKs for optimization
     splits {
         abi {
             isEnable = true
             reset()
             include("arm64-v8a", "armeabi-v7a", "x86_64")
-            isUniversalApk = false  // Don't generate universal APK
+            isUniversalApk = true  // ENABLE for PhonePe submission (generates both split + universal)
         }
     }
 
@@ -113,9 +113,9 @@ android {
             // ELON-STYLE: Use proper release signing
             signingConfig = signingConfigs.getByName("release")
 
-            // EMERGENCY FIX: DISABLE OPTIMIZATION - R8 was causing app to hang
-            isMinifyEnabled = false     // DISABLED - was causing main thread hang
-            isShrinkResources = false   // DISABLED - to isolate the issue
+            // ELON OPTION 1: Ultra-safe configuration - Universal APK only
+            isMinifyEnabled = false     // KEEP DISABLED - was causing main thread hang
+            isShrinkResources = false   // MUST BE DISABLED - requires minifyEnabled = true
             isDebuggable = false
 
             // ProGuard configuration DISABLED for now

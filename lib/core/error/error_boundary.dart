@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'app_error.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/logger.dart';
+import '../services/smart_logger.dart';  // ELON FIX: Add SmartLogger import
 
 final ComponentLogger _log = Log.component('error');
 
@@ -24,7 +25,20 @@ class ErrorBoundary extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ErrorWidget.builder = (FlutterErrorDetails details) {
-      // Log the error
+      // ELON FIX: Enhanced error logging with complete context
+      SmartLogger.logError(
+        'Widget Build Error',
+        error: details.exception,
+        stackTrace: details.stack,
+        context: {
+          'library': details.library,
+          'context': details.context?.toString(),
+          'silent': details.silent,
+          'error_type': 'widget_build',
+        },
+      );
+
+      // Also log with existing logger for compatibility
       _log.error(
         'Error boundary caught error',
         error: details.exception,
@@ -243,7 +257,18 @@ mixin ErrorHandlerMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
   void handleError(Object error, [StackTrace? stackTrace]) {
     final appError = ErrorHandler.fromException(error, stackTrace);
 
-    // Log the error
+    // ELON FIX: Enhanced error logging with stack traces
+    SmartLogger.logError(
+      'Widget Error: ${widget.runtimeType}',
+      error: error,
+      stackTrace: stackTrace,
+      context: {
+        'widget': widget.runtimeType.toString(),
+        'error_type': 'widget_mixin',
+      },
+    );
+
+    // Also log with existing logger for compatibility
     _log.error(
       'Widget error: ${widget.runtimeType}',
       error: error,

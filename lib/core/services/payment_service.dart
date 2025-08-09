@@ -70,8 +70,8 @@ class PaymentService extends BaseService {
         'invoice_id': invoiceId,
       });
 
-      // Create invoice if not provided
-      String finalInvoiceId = invoiceId ?? 'INV_${DateTime.now().millisecondsSinceEpoch}';
+      // Create invoice if not provided - ELON FIX: Generate proper UUID for database
+      String finalInvoiceId = invoiceId ?? await _createInvoiceForPayment(vendorId, amount, 'PhonePe 3.0.0 Payment');
 
       // MOCK MODE: Skip PhonePe integration for development
       if (AppConstants.mockPaymentMode || isLocalTesting) {

@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:patrol/patrol.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:invoice_pe_app/core/services/debug_service.dart';
 import 'package:invoice_pe_app/core/constants/app_constants.dart';
 import '../test/utils/test_helpers.dart';
 
@@ -49,7 +48,7 @@ void main() {
         
         // Select first vendor or create test vendor
         final vendorFinder = find.byType(ListTile).first;
-        if (await $.exists(vendorFinder)) {
+        if ($(vendorFinder).exists) {
           await $.tap(vendorFinder);
         } else {
           // Create test vendor if none exist
@@ -252,7 +251,7 @@ void main() {
         final phonepeOrderId = transactionResponse['phonepe_order_id'];
         if (phonepeOrderId != null) {
           try {
-            final verifyResponse = await supabase.functions.invoke(
+            await supabase.functions.invoke(
               'verify-phonepe-payment',
               body: {'orderId': phonepeOrderId},
             );
