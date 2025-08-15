@@ -88,6 +88,8 @@ docs/generated/
 *_ANALYSIS.md
 *_VERIFICATION.md
 *_COMPLIANCE.md
+!PCI_DSS_SAQ_A_COMPLIANCE.md
+!PCC_SUBMISSION_GUIDE.md
 *_MISSION_*.md
 
 # Large files (use external storage)
@@ -186,8 +188,6 @@ internal-docs/
 # ================================
 # Non-essential documentation (recreatable)
 InvoicePe_TESTING_STRATEGY.md
-PCC_COMPLIANCE_CHECKLIST.md
-docs/
 documentation/
 
 # IDE artifacts (developer-specific)
@@ -232,50 +232,56 @@ pubspec.lock.backup
 *.backup
 
 # ================================
-# DEMO BUILD ESSENTIALS - NEVER IGNORE
+# PHONEPE PCC SQA SUBMISSION CLEANUP
 # ================================
-# Allow essential demo documentation
-!*_PROGRESS.md
-!*_PLAN.md
-!ARCHITECTURAL_*.md
-!ELON_*.md
+# Hide development/analysis files for professional submission
+# (Files preserved locally, just not tracked in git)
 
-# Allow build-essential assets
-!android/app/src/main/res/drawable*/background.png
-!ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImageDark*.png
-
-# ================================
-# PCC SUBMISSION CLEANUP - ELON STYLE
-# ================================
-
-# All APK files (build artifacts)
-*.apk
-*.aab
-
-# Android signing (CRITICAL SECURITY)
-key.properties
-local.properties
-
-# PowerShell scripts (potential secrets)
-*.ps1
-
-# PDF documents (bloat)
-*.pdf
-
-# Development debug files
+# Development Analysis & Debug Files
 CRUSH.md
 DEBUG.md
+KEYBOARD_REGRESSION_ANALYSIS.md
+OTP_TIMER_FIX_SOLUTION.md
+PERFORMANCE_FIX_PLAN.md
+
+# Development Planning Documents
+ELON_ARCHITECTURAL_DEBT_ELIMINATION_PLAN.md
+ELON_COMMIT_ANALYSIS.md
+ELON_UX_ENHANCEMENT_PLAN.md
+
+# Redundant/Outdated Documentation
+ARCHITECTURAL_RESILIENCE_PLAN.md
+INVOICEPE_APP_CONCEPT.md
+SAQ_A_COMPLETION_CHECKLIST.md
+PROJECT_PROGRESS.md
+
+# Future Enhancement Plans (post-submission)
+POST_PHONEPE_ROADMAP.md
+PLAY_STORE_DEPLOYMENT_PLAN.md
+BREX_ENHANCEMENT_MASTER_PLAN.md
+
+# Development Tools
 llms.txt
 
-# Analysis and fix documentation (development only)
+# Build Artifacts & Scripts
+*.apk
+*.aab
+*.ps1
+
+# Security Files
+key.properties
+local.properties
+*.pdf
+
+# Analysis Documentation Pattern
 *_ANALYSIS.md
 *_FIX_*.md
 *_REGRESSION_*.md
 *_TIMER_*.md
 *_SOLUTION.md
 
-# Test scripts
+# Test Scripts
 test_*.ps1
 
-# Crush agent workspace
+# Development Workspaces
 .crush/
