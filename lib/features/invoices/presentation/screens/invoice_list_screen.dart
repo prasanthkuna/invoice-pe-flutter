@@ -307,6 +307,7 @@ class _InvoiceListScreenState extends ConsumerState<InvoiceListScreen>
           ),
         ],
       ),
+        ),
 
       // Add Invoice FAB
       floatingActionButton: FloatingActionButton.extended(
@@ -323,7 +324,7 @@ class _InvoiceListScreenState extends ConsumerState<InvoiceListScreen>
           ),
         ),
       ).animate().scale(delay: 600.ms),
-      ),
+    ),
     );
   }
 }

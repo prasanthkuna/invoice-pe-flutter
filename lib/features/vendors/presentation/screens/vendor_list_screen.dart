@@ -260,6 +260,7 @@ class _VendorListScreenState extends ConsumerState<VendorListScreen>
           ),
         ],
       ),
+        ),
 
       // Add Vendor FAB
       floatingActionButton: FloatingActionButton.extended(
@@ -282,7 +283,7 @@ class _VendorListScreenState extends ConsumerState<VendorListScreen>
           ),
         ),
       ).animate().scale(delay: 600.ms),
-      ),
+    ),
     );
   }
 }
