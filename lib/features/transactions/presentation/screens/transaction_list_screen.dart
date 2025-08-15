@@ -319,7 +319,7 @@ class _BentoTransactionGrid extends StatelessWidget {
             width: cardWidth,
             child: _CompactTransactionCard(
               transaction: transaction,
-              onTap: () => context.go('/transactions/${transaction.id}'),
+              onTap: () => context.push('/transactions/${transaction.id}'),
             ).animate(delay: Duration(milliseconds: 100 * index))
                 .fadeIn()
                 .slideX(begin: 0.3),

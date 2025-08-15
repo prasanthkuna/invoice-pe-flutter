@@ -27,7 +27,7 @@ class InvoiceDetailScreen extends ConsumerWidget {
           elevation: 0,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
-            onPressed: () => context.pop(),
+            onPressed: () => Navigator.canPop(context) ? context.pop() : context.go('/invoices'),
           ),
           actions: [
             IconButton(

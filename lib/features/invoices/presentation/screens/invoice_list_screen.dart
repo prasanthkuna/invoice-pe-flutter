@@ -299,26 +299,7 @@ class _InvoiceListScreenState extends ConsumerState<InvoiceListScreen>
                             ],
                           ),
                         )
-                      : ListView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          itemCount: filteredInvoices.length,
-                          itemBuilder: (context, index) {
-                            final invoice = filteredInvoices[index];
-                            return Container(
-                                  margin: const EdgeInsets.only(bottom: 12),
-                                  child: _InvoiceCard(
-                                    invoice: invoice,
-                                    onTap: () =>
-                                        context.go('/invoices/${invoice.id}'),
-                                  ),
-                                )
-                                .animate(
-                                  delay: Duration(milliseconds: 100 * index),
-                                )
-                                .fadeIn()
-                                .slideX(begin: 0.3);
-                          },
-                        ),
+                      : _BentoInvoiceGrid(invoices: filteredInvoices),
                 ),
               ),
             ],
@@ -342,6 +323,170 @@ class _InvoiceListScreenState extends ConsumerState<InvoiceListScreen>
         ).animate().scale(delay: 600.ms),
       ),
     );
+  }
+}
+
+// ELON UX: Bento Grid for Invoices - Modern 2024 Design Pattern
+class _BentoInvoiceGrid extends StatelessWidget {
+  const _BentoInvoiceGrid({required this.invoices});
+
+  final List<Invoice> invoices;
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width - 32;
+    final cardWidth = (screenWidth - 12) / 2;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Wrap(
+        spacing: 12,
+        runSpacing: 12,
+        children: invoices.asMap().entries.map((entry) {
+          final index = entry.key;
+          final invoice = entry.value;
+          return SizedBox(
+            width: cardWidth,
+            child: _CompactInvoiceCard(
+              invoice: invoice,
+              onTap: () => context.push('/invoices/${invoice.id}'),
+            ).animate(delay: Duration(milliseconds: 100 * index))
+                .fadeIn()
+                .slideX(begin: 0.3),
+          );
+        }).toList(),
+      ),
+    );
+  }
+}
+
+// ELON UX: Compact Invoice Card - 40% smaller, maximum information density
+class _CompactInvoiceCard extends StatelessWidget {
+  const _CompactInvoiceCard({
+    required this.invoice,
+    required this.onTap,
+  });
+  final Invoice invoice;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 80,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppTheme.cardBackground,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: _getStatusColor(invoice.status).withValues(alpha: 0.2),
+            width: 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            // Status Indicator
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: _getStatusColor(invoice.status).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                _getStatusIcon(invoice.status),
+                color: _getStatusColor(invoice.status),
+                size: 16,
+              ),
+            ),
+            const SizedBox(width: 12),
+
+            // Invoice Info
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    invoice.vendorName ?? 'Unknown Vendor',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: AppTheme.primaryText,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '₹${invoice.amount.toStringAsFixed(0)}',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppTheme.secondaryText,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Status Badge
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: _getStatusColor(invoice.status).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                _getStatusLabel(invoice.status),
+                style: TextStyle(
+                  color: _getStatusColor(invoice.status),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Color _getStatusColor(InvoiceStatus status) {
+    switch (status) {
+      case InvoiceStatus.paid:
+        return AppTheme.successColor;
+      case InvoiceStatus.sent:
+        return AppTheme.warningColor;
+      case InvoiceStatus.draft:
+        return AppTheme.secondaryText;
+      default:
+        return AppTheme.secondaryText;
+    }
+  }
+
+  IconData _getStatusIcon(InvoiceStatus status) {
+    switch (status) {
+      case InvoiceStatus.paid:
+        return Icons.check_circle;
+      case InvoiceStatus.sent:
+        return Icons.schedule;
+      case InvoiceStatus.draft:
+        return Icons.edit;
+      default:
+        return Icons.help;
+    }
+  }
+
+  String _getStatusLabel(InvoiceStatus status) {
+    switch (status) {
+      case InvoiceStatus.paid:
+        return 'PAID';
+      case InvoiceStatus.sent:
+        return 'SENT';
+      case InvoiceStatus.draft:
+        return 'DRAFT';
+      default:
+        return 'UNKNOWN';
+    }
   }
 }
 

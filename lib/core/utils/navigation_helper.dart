@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-/// Tesla-grade navigation utility - prevents all navigation crashes
+/// ELON-GRADE navigation utility - impossible to crash navigation
 class NavigationHelper {
-  /// Safe pop with navigation stack check
+  /// ELON PATTERN: Intelligent back navigation with context-aware fallbacks
   static void safePop(BuildContext context, [dynamic result]) {
     if (!context.mounted) return;
 
@@ -12,12 +12,16 @@ class NavigationHelper {
     if (router.canPop()) {
       context.pop(result);
     } else {
-      // Get current location
-      final currentLocation =
-          router.routerDelegate.currentConfiguration.fullPath;
-
-      // Only go to dashboard if not already there
-      if (currentLocation != '/dashboard') {
+      // ELON FIX: Smart fallback based on current route context
+      final currentLocation = router.routerDelegate.currentConfiguration.fullPath;
+      
+      if (currentLocation.contains('/transactions/')) {
+        context.go('/transactions');
+      } else if (currentLocation.contains('/invoices/')) {
+        context.go('/invoices');
+      } else if (currentLocation.contains('/vendors/')) {
+        context.go('/vendors');
+      } else if (currentLocation != '/dashboard') {
         context.go('/dashboard');
       }
     }
@@ -43,5 +47,23 @@ class NavigationHelper {
   static bool canPop(BuildContext context) {
     if (!context.mounted) return false;
     return GoRouter.of(context).canPop();
+  }
+
+  /// ELON PATTERN: Smart navigation - automatically chooses push vs go
+  static void navigateSmart(BuildContext context, String toRoute, {Object? extra}) {
+    if (!context.mounted) return;
+    
+    // Detail routes should use push to maintain navigation stack
+    if (_isDetailRoute(toRoute)) {
+      safePush(context, toRoute, extra: extra);
+    } else {
+      // Flow routes use go to replace navigation stack
+      safeGo(context, toRoute, extra: extra);
+    }
+  }
+
+  /// Detect if route is a detail screen that should maintain stack
+  static bool _isDetailRoute(String route) {
+    return route.contains(RegExp(r'/(transactions|invoices|vendors|cards)/[^/]+$'));
   }
 }

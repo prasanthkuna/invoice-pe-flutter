@@ -26,7 +26,7 @@ class TransactionDetailScreen extends ConsumerWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
+          onPressed: () => Navigator.canPop(context) ? context.pop() : context.go('/transactions'),
         ),
         actions: [
           IconButton(
@@ -155,56 +155,8 @@ class TransactionDetailScreen extends ConsumerWidget {
 
               const SizedBox(height: 20),
 
-              // Transaction Details
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: AppTheme.cardBackground,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: AppTheme.primaryAccent.withValues(alpha: 0.1),
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Transaction Details',
-                      style: TextStyle(
-                        color: AppTheme.primaryText,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    _DetailRow(
-                      label: 'Transaction ID',
-                      value: transaction.id,
-                      isSelectable: true,
-                    ),
-                    const SizedBox(height: 16),
-                    _DetailRow(
-                      label: 'Date & Time',
-                      value: transaction.createdAt != null
-                          ? _formatDateTime(transaction.createdAt!)
-                          : 'Not available',
-                    ),
-                    const SizedBox(height: 16),
-                    _DetailRow(
-                      label: 'Payment Method',
-                      value: transaction.paymentMethod ?? 'PhonePe',
-                    ),
-                    if (transaction.phonepeTransactionId != null) ...[
-                      const SizedBox(height: 16),
-                      _DetailRow(
-                        label: 'PhonePe Transaction ID',
-                        value: transaction.phonepeTransactionId!,
-                        isSelectable: true,
-                      ),
-                    ],
-                  ],
-                ),
-              ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.3),
+              // ELON UX: Compact Transaction Details - Bento Grid Pattern
+              _BentoDetailGrid(transaction: transaction),
 
               const SizedBox(height: 20),
 
@@ -330,7 +282,7 @@ class TransactionDetailScreen extends ConsumerWidget {
                           ),
                           TextButton(
                             onPressed: () {
-                              context.go('/invoices/${transaction.invoiceId}');
+                              context.push('/invoices/${transaction.invoiceId}');
                             },
                             child: const Text('View Invoice'),
                           ),
@@ -454,6 +406,145 @@ class TransactionDetailScreen extends ConsumerWidget {
 
   String _formatDateTime(DateTime date) {
     return '${date.day}/${date.month}/${date.year} at ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
+  }
+}
+
+// ELON UX: Bento Detail Grid - Compact 2x2 Layout
+class _BentoDetailGrid extends StatelessWidget {
+  const _BentoDetailGrid({required this.transaction});
+
+  final Transaction transaction;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppTheme.cardBackground,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppTheme.primaryAccent.withValues(alpha: 0.1),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Transaction Details',
+            style: TextStyle(
+              color: AppTheme.primaryText,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _CompactDetailCard(
+                  icon: Icons.tag,
+                  label: 'ID',
+                  value: transaction.id.substring(0, 8) + '...',
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _CompactDetailCard(
+                  icon: Icons.schedule,
+                  label: 'Date',
+                  value: transaction.createdAt != null
+                      ? '${transaction.createdAt!.day}/${transaction.createdAt!.month}/${transaction.createdAt!.year}'
+                      : 'N/A',
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _CompactDetailCard(
+                  icon: Icons.payment,
+                  label: 'Method',
+                  value: transaction.paymentMethod ?? 'PhonePe',
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _CompactDetailCard(
+                  icon: Icons.confirmation_number,
+                  label: 'PhonePe ID',
+                  value: transaction.phonepeTransactionId != null
+                      ? transaction.phonepeTransactionId!.substring(0, 8) + '...'
+                      : 'N/A',
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.3);
+  }
+}
+
+// ELON UX: Compact Detail Card - Micro Information Display
+class _CompactDetailCard extends StatelessWidget {
+  const _CompactDetailCard({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppTheme.primaryAccent.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppTheme.primaryAccent.withValues(alpha: 0.1),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                icon,
+                size: 16,
+                color: AppTheme.primaryAccent,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  color: AppTheme.secondaryText,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: TextStyle(
+              color: AppTheme.primaryText,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
   }
 }
 
