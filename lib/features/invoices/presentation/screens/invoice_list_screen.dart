@@ -58,7 +58,9 @@ class _InvoiceListScreenState extends ConsumerState<InvoiceListScreen>
     if (!mounted) return;
 
     // Use refresh() for immediate data updates
+    // ignore: unused_result
     ref.refresh(invoicesProvider);
+    // ignore: unused_result
     ref.refresh(filteredInvoicesProvider);
   }
 
@@ -123,7 +125,9 @@ class _InvoiceListScreenState extends ConsumerState<InvoiceListScreen>
         body: RefreshIndicator(
         onRefresh: () async {
           // ELON FIX: Pull-to-refresh for invoice list
+          // ignore: unused_result
           ref.refresh(invoicesProvider);
+          // ignore: unused_result
           ref.refresh(filteredInvoicesProvider);
 
           // Wait a bit for the refresh to complete

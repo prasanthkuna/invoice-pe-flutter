@@ -604,9 +604,13 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
 
         // ELON FIX: Refresh providers after successful payment
         // This ensures vendors and transactions lists show updated data
+        // ignore: unused_result
         ref.refresh(vendorsProvider);
+        // ignore: unused_result
         ref.refresh(transactionsProvider);
+        // ignore: unused_result
         ref.refresh(dashboardMetricsProvider);
+        // ignore: unused_result
         ref.refresh(recentTransactionsProvider);
 
         // Reset form using stored notifiers

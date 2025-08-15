@@ -61,7 +61,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     if (!mounted) return;
 
     // Use refresh() for immediate data updates
+    // ignore: unused_result
     ref.refresh(dashboardMetricsProvider);
+    // ignore: unused_result
     ref.refresh(recentTransactionsProvider);
   }
 

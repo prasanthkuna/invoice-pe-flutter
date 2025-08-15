@@ -59,7 +59,9 @@ class _VendorListScreenState extends ConsumerState<VendorListScreen>
     if (!mounted) return;
 
     // Use refresh() for immediate data updates
+    // ignore: unused_result
     ref.refresh(vendorsProvider);
+    // ignore: unused_result
     ref.refresh(filteredVendorsProvider);
   }
 
@@ -125,7 +127,9 @@ class _VendorListScreenState extends ConsumerState<VendorListScreen>
         body: RefreshIndicator(
         onRefresh: () async {
           // ELON FIX: Pull-to-refresh for vendor list
+          // ignore: unused_result
           ref.refresh(vendorsProvider);
+          // ignore: unused_result
           ref.refresh(filteredVendorsProvider);
 
           // Wait a bit for the refresh to complete
@@ -270,6 +274,7 @@ class _VendorListScreenState extends ConsumerState<VendorListScreen>
             '/vendors/create',
           );
           if (result == true) {
+            // ignore: unused_result
             ref.refresh(vendorsProvider);
           }
         },
