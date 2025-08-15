@@ -293,14 +293,20 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                                 children: transactions.take(3).map((
                                   transaction,
                                 ) {
-                                  return Container(
-                                    margin: const EdgeInsets.only(bottom: 12),
-                                    padding: const EdgeInsets.all(16),
-                                    decoration: BoxDecoration(
-                                      color: AppTheme.cardBackground,
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                    child: Row(
+                                  return GestureDetector(
+                                    onTap: () => context.push('/transactions/${transaction.id}'),
+                                    child: Container(
+                                      margin: const EdgeInsets.only(bottom: 12),
+                                      padding: const EdgeInsets.all(16),
+                                      decoration: BoxDecoration(
+                                        color: AppTheme.cardBackground,
+                                        borderRadius: BorderRadius.circular(16),
+                                        border: Border.all(
+                                          color: AppTheme.primaryAccent.withValues(alpha: 0.1),
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: Row(
                                       children: [
                                         Container(
                                           width: 48,
@@ -377,7 +383,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                                           ),
                                       ],
                                     ),
-                                  );
+                                  ),
+                                );
                                 }).toList(),
                               ).animate().fadeIn(delay: 1400.ms).slideX(begin: 0.3),
                         loading: () => const Center(
