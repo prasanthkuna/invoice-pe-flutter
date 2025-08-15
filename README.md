@@ -1,134 +1,213 @@
-# 🚀 InvoicePe - The Tesla of B2B Payments
+# InvoicePe - B2B Payment Automation Platform
 
-> **MISSION ACCOMPLISHED: We solved India's ₹182.84 trillion payment problem. Pay any vendor with credit cards → instant bank transfers. Zero vendor onboarding. Revolutionary.**
+> **Enterprise-grade B2B payment solution bridging credit cards and UPI for instant vendor settlements. Zero vendor onboarding required.**
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.32.6-02569B?logo=flutter)](https://flutter.dev)
+[![Dart](https://img.shields.io/badge/Dart-3.8+-0175C2?logo=dart)](https://dart.dev)
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL_17-3ECF8E?logo=supabase)](https://supabase.com)
 [![PCI DSS](https://img.shields.io/badge/PCI_DSS-SAQ--A_Compliant-green)](https://www.pcisecuritystandards.org)
 [![PhonePe](https://img.shields.io/badge/PhonePe-SDK_3.0.0-5f259f)](https://developer.phonepe.com)
-[![Build Status](https://img.shields.io/badge/Codemagic-Production_Ready-brightgreen?logo=codemagic)](https://codemagic.io)
-[![Code Quality](https://img.shields.io/badge/Elon_Standard-Over_Delivered-gold)](https://github.com/prasanthkuna/invoice-pe-flutter)
+[![Security](https://img.shields.io/badge/Security-AES--256--GCM-red?logo=security)](https://github.com/prasanthkuna/invoice-pe-flutter)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-## 🎯 We Didn't Just Solve The Problem - We Obliterated It
+## Overview
 
-**India's B2B payments were fundamentally broken.** ₹10 trillion locked in delayed payments. Vendors demanding cash. Credit cards useless for business. 30-90 day payment cycles destroying cash flow.
+InvoicePe is a comprehensive B2B payment automation platform that enables businesses to pay vendors using credit cards while vendors receive instant bank transfers. The platform eliminates traditional vendor onboarding processes and integrates seamlessly with India's UPI ecosystem.
 
-**We rebuilt everything from first principles.** Credit card → instant bank transfer in <20 seconds. Zero vendor onboarding. 1-3% rewards on traditionally cash-only payments. Revolutionary architecture that scales to ₹593 trillion market.
+## Key Benefits
 
----
+### For Businesses
+- **Instant Payments**: Convert 30-90 day payment cycles to <20 second settlements
+- **Credit Card Rewards**: Earn 1-3% rewards on B2B payments traditionally limited to cash
+- **Cash Flow Optimization**: Eliminate delayed payment issues with instant vendor settlements
+- **Zero Integration Complexity**: No vendor onboarding or system integration required
 
-## 🇮🇳 **15 Market Domination Stats - We Own This Space**
+### For Vendors
+- **Immediate Settlement**: Receive bank transfers instantly upon payment initiation
+- **No Onboarding**: Accept payments without registration or platform integration
+- **UPI Compatibility**: Works with existing UPI infrastructure and bank accounts
+- **Professional Documentation**: Automated invoice generation and payment tracking
 
-### 💰 **The Massive Opportunity We're Capturing (1-5)**
+## Market Opportunity
 
-1. **₹182.84 Trillion** - UPI market we're revolutionizing (2023)
-2. **₹10 Trillion FREED** - From delayed MSME payment hell (our solution)
-3. **₹14 Trillion+** - Credit card spending we're unlocking for B2B (2024)
-4. **117 Billion** - UPI transactions we seamlessly integrate with (FY2024)
-5. **₹593 Trillion** - Market size by 2029 (we're positioned to dominate)
+- **₹182.84 Trillion**: India's UPI ecosystem market size (2023)
+- **₹14 Trillion+**: Credit card spending potential for B2B transactions
+- **117 Billion**: Annual UPI transactions supported by the platform
+- **₹593 Trillion**: Projected market size by 2029
 
-### ⚡ **Revolutionary Consumer Impact (6-10)**
+## Technology Stack
 
-6. **30-90 Days → <20 Seconds** - We obliterated payment delays
-7. **1-3% Credit Rewards** - Unlocked on ₹14 trillion previously cash-only market
-8. **₹50,000+ Annual Savings** - Per business (conservative estimate)
-9. **Zero Vendor Onboarding** - vs 5-20 days industry standard (revolutionary)
-10. **100% UPI Compatible** - Seamless integration with 117 billion transaction ecosystem
+### Frontend
+- **Flutter 3.32.6**: Cross-platform mobile development framework
+- **Dart 3.8+**: Modern programming language with null safety
+- **Riverpod 2.6.1**: Reactive state management solution
+- **dart_mappable 4.5.0**: Type-safe data modeling and serialization
 
-### 🚀 **Technical Supremacy (11-15)**
+### Backend
+- **Supabase**: PostgreSQL 17 with real-time capabilities
+- **Edge Functions**: Serverless TypeScript functions for payment processing
+- **Row Level Security (RLS)**: Database-level access control
+- **Real-time Subscriptions**: Live data synchronization
 
-11. **75% Market Integration** - UPI ecosystem compatibility (flawless)
-12. **60% YoY Growth** - Market momentum we're riding (2023)
-13. **20% CAGR** - Credit card market explosion we're capturing
-14. **24/7 Processing** - vs stone-age business hours banking
-15. **PCI DSS SAQ-A** - Military-grade security, ₹0 compliance cost
+### Payment Integration
+- **PhonePe SDK 3.0.0**: Payment gateway integration
+- **PCI DSS SAQ-A Compliant**: Security standards compliance
+- **UPI Integration**: Native Indian payment system support
+- **AES-256-GCM Encryption**: Military-grade data protection
 
----
+### Quality Assurance
+- **very_good_analysis 9.0.0**: Comprehensive linting rules
+- **Patrol 3.11.0**: Integration testing framework
+- **95% Test Coverage**: Comprehensive test suite
+- **CI/CD Pipeline**: Automated testing and deployment
 
-## 🛠️ Revolutionary Tech Stack - We Over-Delivered
+## Quick Start
 
-**Frontend Supremacy:** Flutter 3.32.6 • Dart 3.8+ • Riverpod 2.6.1 (better than promised)
-**Backend Excellence:** Supabase PostgreSQL 17 • Edge Functions • Military-grade RLS
-**Payment Domination:** PhonePe SDK 3.0.0 • PCI DSS SAQ-A • 100% UPI Integration
-**Quality Obsession:** dart_mappable 4.5.0 • very_good_analysis 9.0.0 • Patrol 3.11.0
+### Prerequisites
+- Flutter 3.32.6 or higher
+- Dart 3.8 or higher
+- Android Studio / VS Code
+- Supabase account (for backend services)
 
----
-
-## 🚀 Launch Revolutionary App (2 Minutes - Tesla Speed)
+### Installation
 
 ```bash
-# 1. Clone the revolution
+# Clone the repository
 git clone https://github.com/prasanthkuna/invoice-pe-flutter.git
 cd invoice-pe-flutter
 
-# 2. Setup environment (CRITICAL)
-cp .env.example .env
-# Edit .env with your Supabase credentials (see SETUP.md)
+# Install dependencies
 flutter pub get
 
-# 3. Experience the future
+# Setup environment variables
+cp .env.example .env
+# Edit .env with your configuration (see docs/SETUP.md)
+
+# Run the application
 flutter run
 ```
 
-**🎯 BETA MODE ACTIVE:** Payments run in test mode for rapid user testing. Real PhonePe integration ready - just flip `MOCK_PAYMENT_MODE=false`
+### Configuration
 
----
+Create a `.env` file in the root directory with the following variables:
 
-## 📱 5 Core Features - All Delivered, All Revolutionary
-
-**💳 Payment Engine:** Quick Pay (<20s) • Bulk Payments • Scheduled Automation • WhatsApp Links
-**📊 Business Intelligence:** Real-time Analytics • PDF/Excel Export • Auto Tax Categories • AI Vendor Insights
-**🔒 Military-Grade Security:** AES-256-GCM • Complete Audit Trails • Biometric Auth • Zero-Trust Architecture
-**🏢 Vendor Ecosystem:** Zero Onboarding • Smart Auto-complete • Complete History • Relationship AI
-
----
-
-## 🎯 Performance & Security - We Exceeded Every Target
-
-**⚡ Performance Domination:** <2s Startup (33% faster) • <20s Payment (50% faster) • 60fps UI • 100% Offline • 95% Test Coverage
-**🚀 Beta Features:** Mock Payment Mode • Tesla-Grade Logging • Dark Mode Support • All Platform Icons
-**🏆 PCI DSS SAQ-A Mastery:** Level 4 Merchant • ₹0 Compliance Cost • Military Tokenization • Certified Processor
-**🔒 Security Supremacy:** AES-256-GCM • XSS Immunity • Biometric Fortress • Complete Audit Omniscience
-
----
-
-## 🚀 Roadmap - Aggressive Market Domination
-
-**Phase 1 (COMPLETE):** Revolutionary foundation • 5 core features • PCI DSS compliance
-**Phase 2 (Weeks 1-4):** Market penetration • Enterprise features • AI analytics
-**Phase 3 (Weeks 5-8):** Multi-platform domination • API ecosystem • Global expansion
-
----
-
-## 🤝 Contributing to the Revolution
-
-```bash
-flutter pub get && flutter test && flutter analyze  # Zero errors guaranteed
-flutter test integration_test/  # 95% coverage verified
+```env
+SUPABASE_URL=your_supabase_url
+SUPABASE_ANON_KEY=your_supabase_anon_key
+PHONEPE_MERCHANT_ID=your_merchant_id
+PHONEPE_SALT_KEY=your_salt_key
+MOCK_PAYMENT_MODE=true  # Set to false for production
 ```
 
-**License:** MIT • **Status:** BETA LIVE 🟢 • **Next:** PhonePe UAT Integration
+Refer to `docs/SETUP.md` for detailed configuration instructions.
 
-**Tech Stack:** Flutter 3.32.6 • Dart 3.8+ • Supabase • PhonePe SDK 3.0 • Riverpod 2.6.1
+## Core Features
+
+### Payment Engine
+- **Quick Pay**: Complete vendor payments in under 20 seconds
+- **Bulk Payments**: Process multiple vendor payments simultaneously
+- **Scheduled Payments**: Automate recurring payment workflows
+- **WhatsApp Integration**: Send payment links via WhatsApp for instant processing
+
+### Business Intelligence
+- **Real-time Analytics**: Live dashboard with payment insights and trends
+- **Export Capabilities**: Generate PDF and Excel reports for accounting
+- **Tax Management**: Automated tax categorization and TDS calculations
+- **Vendor Insights**: AI-powered vendor relationship analytics
+
+### Security & Compliance
+- **AES-256-GCM Encryption**: Military-grade data protection
+- **Audit Trails**: Complete transaction logging and compliance tracking
+- **Biometric Authentication**: Secure access with fingerprint/face recognition
+- **PCI DSS SAQ-A**: Compliant payment processing architecture
+
+### Vendor Management
+- **Zero Onboarding**: Instant vendor payments without registration
+- **Smart Autocomplete**: Intelligent vendor suggestion and data completion
+- **Payment History**: Complete transaction history and relationship tracking
+- **UPI Integration**: Seamless integration with vendor UPI accounts
+
+## Performance Metrics
+
+- **Startup Time**: < 2 seconds application launch
+- **Payment Processing**: < 20 seconds end-to-end transaction time
+- **UI Performance**: 60fps smooth animations and transitions
+- **Offline Support**: Core functionality available without internet
+- **Test Coverage**: 95% automated test coverage
+
+## Security Features
+
+- **Data Encryption**: AES-256-GCM encryption for sensitive data
+- **XSS Protection**: Input validation and sanitization
+- **SQL Injection Prevention**: Parameterized queries and validation
+- **Biometric Security**: Hardware-backed authentication
+- **Audit Logging**: Comprehensive security event tracking
+
+## Development Roadmap
+
+### Phase 1 (Completed)
+- ✅ Core payment functionality
+- ✅ PhonePe SDK integration
+- ✅ PCI DSS compliance
+- ✅ Mobile application development
+- ✅ Security implementation
+
+### Phase 2 (In Progress)
+- 🔄 Enterprise features
+- 🔄 Advanced analytics
+- 🔄 API ecosystem development
+- 🔄 Multi-platform support
+
+### Phase 3 (Planned)
+- 📋 International expansion
+- 📋 Additional payment gateways
+- 📋 Advanced AI features
+- 📋 Enterprise integrations
+
+## Contributing
+
+We welcome contributions to InvoicePe! Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+### Development Guidelines
+
+```bash
+# Run tests before submitting
+flutter test
+
+# Check code quality
+flutter analyze
+
+# Run integration tests
+flutter test integration_test/
+
+# Format code
+dart format .
+```
+
+## Documentation
+
+- **[Setup Guide](docs/SETUP.md)**: Detailed installation and configuration
+- **[Architecture](docs/ARCHITECTURE_BLUEPRINT.md)**: System design and architecture
+- **[API Documentation](docs/README.md)**: Backend API reference
+- **[Security](PCI_DSS_SAQ_A_COMPLIANCE.md)**: Security and compliance details
+
+## Support
+
+For support and questions:
+- Create an issue in this repository
+- Contact the development team
+- Refer to the documentation in the `docs/` directory
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 🚀 **MISSION ACCOMPLISHED: Beyond Perfectionist Standard**
-
-**✅ OVER-DELIVERED (99.5%):** 5 Core Features Mastered • PCI DSS SAQ-A Dominated • 95% Test Coverage Achieved • Zero Critical Errors Maintained
-**🎯 PRODUCTION SUPREMACY:** Codemagic Mastered • Android APK Perfected • iOS TestFlight Configured • Flutter Analyze: FLAWLESS
-**📊 REVOLUTIONARY METRICS:** 0 Errors (obliterated 170+) • 12 Packages Optimized • 95% Build Confidence • ₹0 PCI Cost • ELON APPROVED
-
----
-
-## 🏆 **WE DIDN'T JUST REVOLUTIONIZE - WE OBLITERATED THE COMPETITION**
-
-**India's ₹182.84 trillion payment market was waiting for this moment.**
-
-*Built with 🔥 obsession by engineers who refuse to accept "good enough" for Indian businesses who deserve payment perfection.*
-
----
-
-> **"The best part is no part. The best process is no process. We eliminated every unnecessary step, every delay, every friction point. This isn't just better - this is how payments should have always worked."**
-
-**STATUS: REVOLUTIONARY COMPLETE** 🚀 **READY FOR MARKET DOMINATION**
+**Built with precision engineering for the Indian B2B payment ecosystem.**
