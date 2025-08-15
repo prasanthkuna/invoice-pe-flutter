@@ -242,26 +242,7 @@ class _VendorListScreenState extends ConsumerState<VendorListScreen>
                             ],
                           ),
                         )
-                      : ListView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          itemCount: filteredVendors.length,
-                          itemBuilder: (context, index) {
-                            final vendor = filteredVendors[index];
-                            return Container(
-                                  margin: const EdgeInsets.only(bottom: 12),
-                                  child: _VendorCard(
-                                    vendor: vendor,
-                                    onTap: () =>
-                                        context.push('/pay/${vendor.id}'),
-                                  ),
-                                )
-                                .animate(
-                                  delay: Duration(milliseconds: 100 * index),
-                                )
-                                .fadeIn()
-                                .slideX(begin: 0.3);
-                          },
-                        ),
+                      : _BentoVendorGrid(vendors: filteredVendors),
                 ),
               ),
             ],
@@ -295,8 +276,43 @@ class _VendorListScreenState extends ConsumerState<VendorListScreen>
   }
 }
 
-class _VendorCard extends StatelessWidget {
-  const _VendorCard({
+// ELON UX: Bento Grid for Vendors - Modern 2024 Design Pattern
+class _BentoVendorGrid extends StatelessWidget {
+  const _BentoVendorGrid({required this.vendors});
+
+  final List<Vendor> vendors;
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width - 32; // Account for padding
+    final cardWidth = (screenWidth - 12) / 2; // 2 columns with 12px gap
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Wrap(
+        spacing: 12,
+        runSpacing: 12,
+        children: vendors.asMap().entries.map((entry) {
+          final index = entry.key;
+          final vendor = entry.value;
+          return SizedBox(
+            width: cardWidth,
+            child: _CompactVendorCard(
+              vendor: vendor,
+              onTap: () => context.push('/pay/${vendor.id}'),
+            ).animate(delay: Duration(milliseconds: 100 * index))
+                .fadeIn()
+                .slideX(begin: 0.3),
+          );
+        }).toList(),
+      ),
+    );
+  }
+}
+
+// ELON UX: Compact Vendor Card - 40% smaller, maximum information density
+class _CompactVendorCard extends StatelessWidget {
+  const _CompactVendorCard({
     required this.vendor,
     required this.onTap,
   });
@@ -308,156 +324,81 @@ class _VendorCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(20),
+        height: 80, // Fixed height for consistency
+        padding: const EdgeInsets.all(12), // Reduced from 20px
         decoration: BoxDecoration(
           color: AppTheme.cardBackground,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16), // Reduced from 20px
           border: Border.all(
             color: AppTheme.primaryAccent.withValues(alpha: 0.1),
             width: 1,
           ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: [
-            Row(
-              children: [
-                // Vendor Avatar
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: AppTheme.primaryAccent.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Center(
-                    child: Text(
-                      vendor.name.substring(0, 1).toUpperCase(),
-                      style: const TextStyle(
-                        color: AppTheme.primaryAccent,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+            // Compact Vendor Avatar
+            Container(
+              width: 32, // Reduced from 48px
+              height: 32,
+              decoration: BoxDecoration(
+                color: AppTheme.primaryAccent.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8), // Reduced from 12px
+              ),
+              child: Center(
+                child: Text(
+                  vendor.name.substring(0, 1).toUpperCase(),
+                  style: const TextStyle(
+                    color: AppTheme.primaryAccent,
+                    fontSize: 14, // Reduced from 20px
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(width: 16),
+              ),
+            ),
+            const SizedBox(width: 12), // Reduced from 16px
 
-                // Vendor Info
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        vendor.name,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: AppTheme.primaryText,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        vendor.upiId ??
-                            '${vendor.accountNumber} • ${vendor.ifscCode}',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppTheme.secondaryText,
-                        ),
-                      ),
-                    ],
+            // Vendor Info - Optimized for compact display
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    vendor.name,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: AppTheme.primaryText,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-
-                // Action Buttons
-                Row(
-                  children: [
-                    // Edit Button
-                    GestureDetector(
-                      onTap: () => context.push('/vendors/${vendor.id}/edit'),
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AppTheme.secondaryText.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(
-                          Icons.edit,
-                          color: AppTheme.secondaryText,
-                          size: 16,
-                        ),
-                      ),
+                  const SizedBox(height: 2),
+                  Text(
+                    vendor.upiId?.isNotEmpty == true 
+                        ? vendor.upiId! 
+                        : '••••${vendor.accountNumber.substring(vendor.accountNumber.length - 4)}',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppTheme.secondaryText,
                     ),
-                    const SizedBox(width: 8),
-                    // Pay Button
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppTheme.primaryAccent,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Text(
-                        'Pay',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
             ),
 
-            const SizedBox(height: 16),
-
-            // Stats
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Total Paid',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppTheme.secondaryText,
-                        ),
-                      ),
-                      Text(
-                        '₹${vendor.totalPaid.toStringAsFixed(0)}',
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(
-                              color: AppTheme.primaryText,
-                              fontWeight: FontWeight.w600,
-                            ),
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Transactions',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppTheme.secondaryText,
-                        ),
-                      ),
-                      Text(
-                        vendor.transactionCount.toString(),
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(
-                              color: AppTheme.primaryText,
-                              fontWeight: FontWeight.w600,
-                            ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+            // Pay Icon
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppTheme.primaryAccent.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.payment,
+                color: AppTheme.primaryAccent,
+                size: 16,
+              ),
             ),
           ],
         ),

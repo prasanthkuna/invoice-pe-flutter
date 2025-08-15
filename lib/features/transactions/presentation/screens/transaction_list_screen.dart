@@ -285,27 +285,7 @@ class TransactionListScreen extends ConsumerWidget {
                             ),
                           ],
                         )
-                      : ListView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          itemCount: filteredTransactions.length,
-                          itemBuilder: (context, index) {
-                            final transaction = filteredTransactions[index];
-                            return Container(
-                                  margin: const EdgeInsets.only(bottom: 12),
-                                  child: _TransactionCard(
-                                    transaction: transaction,
-                                    onTap: () => context.go(
-                                      '/transactions/${transaction.id}',
-                                    ),
-                                  ),
-                                )
-                                .animate(
-                                  delay: Duration(milliseconds: 100 * index),
-                                )
-                                .fadeIn()
-                                .slideX(begin: 0.3);
-                          },
-                        ),
+                      : _BentoTransactionGrid(transactions: filteredTransactions),
                 ),
               ),
             ),
@@ -313,6 +293,174 @@ class TransactionListScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+}
+
+// ELON UX: Bento Grid for Transactions - Modern 2024 Design Pattern
+class _BentoTransactionGrid extends StatelessWidget {
+  const _BentoTransactionGrid({required this.transactions});
+
+  final List<Transaction> transactions;
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width - 32; // Account for padding
+    final cardWidth = (screenWidth - 12) / 2; // 2 columns with 12px gap
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Wrap(
+        spacing: 12,
+        runSpacing: 12,
+        children: transactions.asMap().entries.map((entry) {
+          final index = entry.key;
+          final transaction = entry.value;
+          return SizedBox(
+            width: cardWidth,
+            child: _CompactTransactionCard(
+              transaction: transaction,
+              onTap: () => context.go('/transactions/${transaction.id}'),
+            ).animate(delay: Duration(milliseconds: 100 * index))
+                .fadeIn()
+                .slideX(begin: 0.3),
+          );
+        }).toList(),
+      ),
+    );
+  }
+}
+
+// ELON UX: Compact Transaction Card - 40% smaller, maximum information density
+class _CompactTransactionCard extends StatelessWidget {
+  const _CompactTransactionCard({
+    required this.transaction,
+    required this.onTap,
+  });
+  final Transaction transaction;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 80, // Fixed height for consistency
+        padding: const EdgeInsets.all(12), // Reduced from 20px
+        decoration: BoxDecoration(
+          color: AppTheme.cardBackground,
+          borderRadius: BorderRadius.circular(16), // Reduced from 20px
+          border: Border.all(
+            color: _getStatusColor(transaction.status).withValues(alpha: 0.2),
+            width: 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            // Status Indicator
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: _getStatusColor(transaction.status).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                _getStatusIcon(transaction.status),
+                color: _getStatusColor(transaction.status),
+                size: 16,
+              ),
+            ),
+            const SizedBox(width: 12),
+
+            // Transaction Info - Optimized for compact display
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    transaction.vendorName ?? 'Unknown Vendor',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: AppTheme.primaryText,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '₹${transaction.amount.toStringAsFixed(0)}',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppTheme.secondaryText,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Status Badge
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: _getStatusColor(transaction.status).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                _getStatusLabel(transaction.status),
+                style: TextStyle(
+                  color: _getStatusColor(transaction.status),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Color _getStatusColor(TransactionStatus status) {
+    switch (status) {
+      case TransactionStatus.success:
+        return AppTheme.successColor;
+      case TransactionStatus.failure:
+        return AppTheme.errorColor;
+      case TransactionStatus.initiated:
+      case TransactionStatus.pending:
+        return AppTheme.warningColor;
+      default:
+        return AppTheme.secondaryText;
+    }
+  }
+
+  IconData _getStatusIcon(TransactionStatus status) {
+    switch (status) {
+      case TransactionStatus.success:
+        return Icons.check_circle;
+      case TransactionStatus.failure:
+        return Icons.error;
+      case TransactionStatus.initiated:
+      case TransactionStatus.pending:
+        return Icons.schedule;
+      default:
+        return Icons.help;
+    }
+  }
+
+  String _getStatusLabel(TransactionStatus status) {
+    switch (status) {
+      case TransactionStatus.success:
+        return 'PAID';
+      case TransactionStatus.failure:
+        return 'FAILED';
+      case TransactionStatus.initiated:
+        return 'PENDING';
+      case TransactionStatus.pending:
+        return 'PENDING';
+      default:
+        return 'UNKNOWN';
+    }
   }
 }
 
