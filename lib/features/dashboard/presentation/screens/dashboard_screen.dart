@@ -8,16 +8,71 @@ import '../../../../core/providers/data_providers.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../shared/models/transaction.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/error/error_boundary.dart';
 
-class DashboardScreen extends ConsumerWidget {
+class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // STANDARD: Refresh dashboard data when screen loads
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends ConsumerState<DashboardScreen>
+    with WidgetsBindingObserver {
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
+    // ELON FIX: Refresh data when dashboard screen is first created
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.invalidate(dashboardMetricsProvider);
-      ref.invalidate(recentTransactionsProvider);
+      _refreshDashboardData();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // ELON FIX: Refresh data when returning to dashboard from other screens
+    // This triggers when the route changes and dashboard becomes active again
+    _refreshDashboardData();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    // ELON FIX: Refresh data when app comes back to foreground
+    if (state == AppLifecycleState.resumed) {
+      _refreshDashboardData();
+    }
+  }
+
+  /// ELON FIX: Centralized dashboard data refresh
+  void _refreshDashboardData() {
+    if (!mounted) return;
+
+    // Use refresh() for immediate data updates
+    ref.refresh(dashboardMetricsProvider);
+    ref.refresh(recentTransactionsProvider);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // ELON FIX: Event-driven refresh instead of dangerous invalidation
+    // Listen for navigation events to refresh data
+    ref.listen(authStateProvider, (previous, next) {
+      if (next.hasValue && next.value?.session != null) {
+        _refreshDashboardData();
+      }
     });
     final dashboardMetrics = ref.watch(dashboardMetricsProvider);
     final currentProfile = ref.watch(currentProfileProvider);
@@ -33,17 +88,28 @@ class DashboardScreen extends ConsumerWidget {
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(
+    return ErrorBoundary(
+      child: Scaffold(
+        backgroundColor: AppTheme.primaryBackground,
+        appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         automaticallyImplyLeading: false,
         toolbarHeight: 0, // Hide the app bar completely for cleaner look
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
+        child: RefreshIndicator(
+          onRefresh: () async {
+            // ELON FIX: Pull-to-refresh functionality for dashboard
+            _refreshDashboardData();
+
+            // Wait a bit for the refresh to complete
+            await Future.delayed(const Duration(milliseconds: 500));
+          },
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            physics: const AlwaysScrollableScrollPhysics(), // Enable pull-to-refresh
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header
@@ -167,214 +233,12 @@ class DashboardScreen extends ConsumerWidget {
                   ),
                 ).animate().fadeIn(delay: 300.ms).slideY(begin: -0.2),
 
-              // Rewards Card (Hero Metric) - TESLA FIX: Simplified for performance
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: AppTheme.secondaryAccent, // Simple color instead of gradient
-                  borderRadius: BorderRadius.circular(24),
-                  // Removed expensive gradient and boxShadow to prevent main thread blocking
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          '✨ Total Rewards Earned',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Text(
-                            'This Month',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    dashboardMetrics.when(
-                      data: (metrics) => Text(
-                        '₹${((metrics['totalRewards'] as num?) ?? 0.0).toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 36,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      loading: () => const Text(
-                        '₹0.00',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 36,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      error: (error, stackTrace) => const Text(
-                        '₹0.00',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 36,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    dashboardMetrics.when(
-                      data: (metrics) => Text(
-                        '${((metrics['monthlyChange'] as num?) ?? 0.0) >= 0 ? '+' : ''}₹${((metrics['monthlyChange'] as num?) ?? 0.0).abs().toStringAsFixed(0)} from last month',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      loading: () => const SizedBox.shrink(),
-                      error: (_, __) => const SizedBox.shrink(),
-                    ),
-                  ],
-                ),
-              ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.3),
+              // ELON UX: Bento Grid Layout - Modern 2024 Design
+              _BentoDashboard(dashboardMetrics: dashboardMetrics),
 
               const SizedBox(height: 24),
 
-              // Metrics Grid
-              dashboardMetrics
-                  .when(
-                    data: (metrics) => Row(
-                      children: [
-                        Expanded(
-                          child: _MetricCard(
-                            title: 'Total Payments',
-                            value:
-                                '₹${(((metrics['totalPayments'] as num?) ?? 0.0) / 1000).toStringAsFixed(0)}K',
-                            subtitle: 'This month',
-                            icon: Icons.payment,
-                            color: AppTheme.primaryAccent,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: _MetricCard(
-                            title: 'Transactions',
-                            value:
-                                ((metrics['monthlyTransactions'] as int?) ?? 0)
-                                    .toString(),
-                            subtitle: 'Completed',
-                            icon: Icons.receipt_long,
-                            color: AppTheme.successColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                    loading: () =>
-                        const Center(child: CircularProgressIndicator()),
-                    error: (error, stackTrace) => const Row(
-                      children: [
-                        Expanded(
-                          child: _MetricCard(
-                            title: 'Total Payments',
-                            value: '₹0K',
-                            subtitle: 'This month',
-                            icon: Icons.payment,
-                            color: AppTheme.primaryAccent,
-                          ),
-                        ),
-                        SizedBox(width: 16),
-                        Expanded(
-                          child: _MetricCard(
-                            title: 'Transactions',
-                            value: '0',
-                            subtitle: 'Completed',
-                            icon: Icons.receipt_long,
-                            color: AppTheme.successColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                  .animate()
-                  .fadeIn(delay: 600.ms)
-                  .slideY(begin: 0.3),
-
-              const SizedBox(height: 32),
-
-              // Quick Actions
-              Text(
-                'Quick Actions',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  color: AppTheme.primaryText,
-                  fontWeight: FontWeight.bold,
-                ),
-              ).animate().fadeIn(delay: 800.ms),
-
-              const SizedBox(height: 16),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: _ActionCard(
-                      title: 'Quick Pay',
-                      subtitle: 'Instant payment',
-                      icon: Icons.flash_on,
-                      onTap: () => context.push('/quick-pay'),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _ActionCard(
-                      title: 'Transactions',
-                      subtitle: 'View history',
-                      icon: Icons.history,
-                      onTap: () => context.push('/transactions'),
-                    ),
-                  ),
-                ],
-              ).animate().fadeIn(delay: 1000.ms).slideY(begin: 0.3),
-
-              const SizedBox(height: 16),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: _ActionCard(
-                      title: 'Vendors',
-                      subtitle: 'Manage vendors',
-                      icon: Icons.business,
-                      onTap: () => context.push('/vendors'),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _ActionCard(
-                      title: 'Cards',
-                      subtitle: 'Payment cards',
-                      icon: Icons.credit_card,
-                      onTap: () => context.push('/cards'),
-                    ),
-                  ),
-                ],
-              ).animate().fadeIn(delay: 1200.ms).slideY(begin: 0.3),
-
-              const SizedBox(height: 24),
+              // ELON UX: Removed old layout - now handled by BentoDashboard
 
               // Recent Activity
               Text(
@@ -535,23 +399,12 @@ class DashboardScreen extends ConsumerWidget {
                 },
               ),
             ],
+            ),
           ),
         ),
       ),
-
-      // Floating Action Button
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push('/quick-pay'),
-        backgroundColor: AppTheme.primaryAccent,
-        icon: const Icon(Icons.flash_on, color: Colors.white),
-        label: const Text(
-          'Quick Pay',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ).animate().scale(delay: 1600.ms),
+      // ELON UX FIX: Removed duplicate FAB - Quick Pay available in action cards
+    ),
     );
   }
 
@@ -620,6 +473,384 @@ class DashboardScreen extends ConsumerWidget {
           ],
         );
       },
+    );
+  }
+}
+
+// ELON UX: Bento Grid Dashboard - Modern 2024 Design Pattern
+class _BentoDashboard extends StatelessWidget {
+  const _BentoDashboard({required this.dashboardMetrics});
+
+  final AsyncValue<Map<String, dynamic>> dashboardMetrics;
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width - 48; // Account for padding
+
+    return dashboardMetrics.when(
+      data: (metrics) => Wrap(
+        spacing: 12,
+        runSpacing: 12,
+        children: [
+          // Row 1: Business Metrics (2x compact cards)
+          _CompactMetric(
+            title: 'Monthly Spend',
+            value: '₹${(((metrics['totalPayments'] as num?) ?? 0.0) / 1000).toStringAsFixed(0)}K',
+            change: '+12%',
+            width: (screenWidth - 12) / 2,
+            icon: Icons.trending_up,
+            color: AppTheme.primaryAccent,
+          ),
+          _CompactMetric(
+            title: 'Active Vendors',
+            value: ((metrics['vendorCount'] as int?) ?? 0).toString(),
+            change: '+2 this month',
+            width: (screenWidth - 12) / 2,
+            icon: Icons.business,
+            color: AppTheme.successColor,
+          ),
+
+          // Row 2: Primary CTA (full width)
+          _QuickPayCard(
+            width: screenWidth,
+            height: 80,
+          ),
+
+          // Row 3: Secondary Actions (3x compact cards)
+          _CompactActionCard(
+            title: 'Transactions',
+            icon: Icons.history,
+            width: (screenWidth - 24) / 3,
+            onTap: () => context.push('/transactions'),
+          ),
+          _CompactActionCard(
+            title: 'Vendors',
+            icon: Icons.business,
+            width: (screenWidth - 24) / 3,
+            onTap: () => context.push('/vendors'),
+          ),
+          _CompactActionCard(
+            title: 'Cards',
+            icon: Icons.credit_card,
+            width: (screenWidth - 24) / 3,
+            onTap: () => context.push('/cards'),
+          ),
+
+          // Row 4: Future Feature Preview
+          _FeatureCard(
+            title: 'Scan Invoice',
+            subtitle: 'Coming Soon',
+            icon: Icons.camera_alt,
+            width: screenWidth,
+            height: 60,
+          ),
+        ],
+      ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.3),
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stackTrace) => _BentoErrorState(screenWidth: screenWidth),
+    );
+  }
+}
+
+// ELON UX: Compact Metric Card - Business KPI focused
+class _CompactMetric extends StatelessWidget {
+  const _CompactMetric({
+    required this.title,
+    required this.value,
+    required this.change,
+    required this.width,
+    required this.icon,
+    required this.color,
+  });
+
+  final String title;
+  final String value;
+  final String change;
+  final double width;
+  final IconData icon;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width,
+      height: 80,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppTheme.cardBackground,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: color.withValues(alpha: 0.2),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Icon(icon, color: color, size: 16),
+              Text(
+                change,
+                style: TextStyle(
+                  color: AppTheme.successColor,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                value,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: AppTheme.primaryText,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+              Text(
+                title,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: AppTheme.secondaryText,
+                  fontSize: 11,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ELON UX: Quick Pay Card - Primary CTA
+class _QuickPayCard extends StatelessWidget {
+  const _QuickPayCard({
+    required this.width,
+    required this.height,
+  });
+
+  final double width;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => context.push('/quick-pay'),
+      child: Container(
+        width: width,
+        height: height,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [AppTheme.primaryAccent, AppTheme.secondaryAccent],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.flash_on,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Quick Pay',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    'Instant payment to vendors',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(
+              Icons.arrow_forward_ios,
+              color: Colors.white,
+              size: 16,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ELON UX: Compact Action Card - Secondary actions
+class _CompactActionCard extends StatelessWidget {
+  const _CompactActionCard({
+    required this.title,
+    required this.icon,
+    required this.width,
+    required this.onTap,
+  });
+
+  final String title;
+  final IconData icon;
+  final double width;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: width,
+        height: 70,
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: AppTheme.cardBackground,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: AppTheme.primaryAccent.withValues(alpha: 0.2),
+            width: 1,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: AppTheme.primaryAccent, size: 18),
+            const SizedBox(height: 4),
+            Text(
+              title,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: AppTheme.primaryText,
+                fontWeight: FontWeight.w500,
+                fontSize: 10,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ELON UX: Feature Card - Future features preview
+class _FeatureCard extends StatelessWidget {
+  const _FeatureCard({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.width,
+    required this.height,
+  });
+
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final double width;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width,
+      height: height,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppTheme.cardBackground.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppTheme.secondaryText.withValues(alpha: 0.3),
+          width: 1,
+          style: BorderStyle.solid,
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: AppTheme.secondaryText, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: AppTheme.secondaryText,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppTheme.secondaryText.withValues(alpha: 0.7),
+                    fontSize: 11,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ELON UX: Error State for Bento Grid
+class _BentoErrorState extends StatelessWidget {
+  const _BentoErrorState({required this.screenWidth});
+
+  final double screenWidth;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 12,
+      runSpacing: 12,
+      children: [
+        _CompactMetric(
+          title: 'Monthly Spend',
+          value: '₹0K',
+          change: '--',
+          width: (screenWidth - 12) / 2,
+          icon: Icons.trending_up,
+          color: AppTheme.primaryAccent,
+        ),
+        _CompactMetric(
+          title: 'Active Vendors',
+          value: '0',
+          change: '--',
+          width: (screenWidth - 12) / 2,
+          icon: Icons.business,
+          color: AppTheme.successColor,
+        ),
+        _QuickPayCard(
+          width: screenWidth,
+          height: 80,
+        ),
+      ],
     );
   }
 }
@@ -694,10 +925,10 @@ class _ActionCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(12), // ELON UX: Reduced from 20 to 12 (40% reduction)
         decoration: BoxDecoration(
           color: AppTheme.cardBackground,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16), // ELON UX: Reduced from 20 to 16
           border: Border.all(
             color: AppTheme.primaryAccent.withValues(alpha: 0.2),
             width: 1,
@@ -706,8 +937,8 @@ class _ActionCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, color: AppTheme.primaryAccent, size: 24),
-            const SizedBox(height: 12),
+            Icon(icon, color: AppTheme.primaryAccent, size: 20), // ELON UX: Reduced from 24 to 20
+            const SizedBox(height: 8), // ELON UX: Reduced from 12 to 8
             Text(
               title,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(

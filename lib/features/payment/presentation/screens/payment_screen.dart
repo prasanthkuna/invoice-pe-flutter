@@ -13,11 +13,12 @@ import '../../../../shared/models/vendor.dart';
 import '../../../../core/providers/data_providers.dart';
 import '../../../../core/utils/navigation_helper.dart';
 import '../../../../core/utils/display_helper.dart';
+import '../../../../core/error/error_boundary.dart';
 
 final paymentAmountProvider = StateProvider<double>((ref) => 0.0);
 final selectedCardProvider = StateProvider<int>((ref) => 0);
 
-class PaymentScreen extends ConsumerWidget {
+class PaymentScreen extends ConsumerStatefulWidget {
   const PaymentScreen({
     super.key,
     this.vendorId,
@@ -27,13 +28,20 @@ class PaymentScreen extends ConsumerWidget {
   final String? invoiceId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PaymentScreen> createState() => _PaymentScreenState();
+}
+
+class _PaymentScreenState extends ConsumerState<PaymentScreen> {
+  bool _hasSetInitialAmount = false;
+
+  @override
+  Widget build(BuildContext context) {
     // Watch for invoice or vendor data
-    final invoiceAsync = invoiceId != null
-        ? ref.watch(invoiceProvider(invoiceId!))
+    final invoiceAsync = widget.invoiceId != null
+        ? ref.watch(invoiceProvider(widget.invoiceId!))
         : null;
-    final vendorAsync = vendorId != null
-        ? ref.watch(vendorProvider(vendorId!))
+    final vendorAsync = widget.vendorId != null
+        ? ref.watch(vendorProvider(widget.vendorId!))
         : null;
 
     final amount = ref.watch(paymentAmountProvider);
@@ -62,15 +70,19 @@ class PaymentScreen extends ConsumerWidget {
     final invoice = invoiceAsync?.value;
     final vendor = vendorAsync?.value;
 
-    // Set initial amount from invoice if available
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (invoice != null && amount == 0.0) {
-        ref.read(paymentAmountProvider.notifier).state = invoice.amount;
-      }
-    });
+    // ELON FIX: Set initial amount from invoice only once
+    if (invoice != null && amount == 0.0 && !_hasSetInitialAmount) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          ref.read(paymentAmountProvider.notifier).state = invoice.amount;
+          _hasSetInitialAmount = true;
+        }
+      });
+    }
 
-    return Scaffold(
-      appBar: AppBar(
+    return ErrorBoundary(
+      child: Scaffold(
+        appBar: AppBar(
         title: Text(invoice != null ? 'Pay Invoice' : 'Make Payment'),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -517,6 +529,7 @@ class PaymentScreen extends ConsumerWidget {
           ],
         ),
       ),
+    ),
     );
   }
 
@@ -528,11 +541,11 @@ class PaymentScreen extends ConsumerWidget {
     double rewards,
     double total,
   ) async {
-    final invoice = invoiceId != null
-        ? ref.read(invoiceProvider(invoiceId!)).value
+    final invoice = widget.invoiceId != null
+        ? ref.read(invoiceProvider(widget.invoiceId!)).value
         : null;
-    final vendor = vendorId != null
-        ? ref.read(vendorProvider(vendorId!)).value
+    final vendor = widget.vendorId != null
+        ? ref.read(vendorProvider(widget.vendorId!)).value
         : null;
 
     // Show loading dialog
@@ -549,21 +562,21 @@ class PaymentScreen extends ConsumerWidget {
     try {
       // Use PhonePe SDK 3.0.0 payment service
       final result = await PaymentService.processPaymentV3(
-        vendorId: vendorId ?? invoice?.vendorId ?? '',
+        vendorId: widget.vendorId ?? invoice?.vendorId ?? '',
         vendorName: vendor?.name ?? invoice?.vendorName ?? 'Unknown Vendor',
         amount: amount,
-        invoiceId: invoiceId,
+        invoiceId: widget.invoiceId,
       );
 
       // Close loading dialog
-      if (context.mounted) Navigator.of(context).pop();
+      if (context.mounted) context.pop();
 
       // Handle PhonePe SDK 3.0.0 payment result
       final paymentData = {
         'amount': amount,
         'vendorName': _getVendorName(invoice, vendor),
-        'vendorId': vendorId ?? invoice?.vendorId ?? '',
-        'invoiceId': invoiceId,
+        'vendorId': widget.vendorId ?? invoice?.vendorId ?? '',
+        'invoiceId': widget.invoiceId,
         'rewards': result.rewards,
         'transactionId': result.transactionId,
         'paymentMethod': 'PhonePe',
@@ -573,24 +586,25 @@ class PaymentScreen extends ConsumerWidget {
 
         // ELON FIX: Refresh providers after successful payment
         // This ensures vendors and transactions lists show updated data
-        ref.invalidate(vendorsProvider);
-        ref.invalidate(transactionsProvider);
-        ref.invalidate(dashboardMetricsProvider);
+        ref.refresh(vendorsProvider);
+        ref.refresh(transactionsProvider);
+        ref.refresh(dashboardMetricsProvider);
+        ref.refresh(recentTransactionsProvider);
 
       if (context.mounted) {
         context.go('/payment-success', extra: paymentData);
       }
     } catch (error, stackTrace) {
       // Close loading dialog if still open
-      if (context.mounted) Navigator.of(context).pop();
+      if (context.mounted) context.pop();
 
       // ELON FIX: Enhanced error logging with stack trace
       SmartLogger.logError('Invoice payment failed',
         error: error,
         stackTrace: stackTrace,
         context: {
-          'vendor_id': vendorId,
-          'invoice_id': invoiceId,
+          'vendor_id': widget.vendorId,
+          'invoice_id': widget.invoiceId,
           'amount': amount,
           'operation': 'invoice_payment_error',
         }

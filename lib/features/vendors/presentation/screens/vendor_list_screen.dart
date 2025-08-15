@@ -7,12 +7,64 @@ import '../../../../shared/models/vendor.dart';
 import '../../../../core/providers/app_providers.dart';
 import '../../../../core/providers/data_providers.dart';
 import '../../../../core/utils/navigation_helper.dart';
+import '../../../../core/error/error_boundary.dart';
 
-class VendorListScreen extends ConsumerWidget {
+class VendorListScreen extends ConsumerStatefulWidget {
   const VendorListScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<VendorListScreen> createState() => _VendorListScreenState();
+}
+
+class _VendorListScreenState extends ConsumerState<VendorListScreen>
+    with WidgetsBindingObserver {
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
+    // ELON FIX: Refresh data when vendor list screen is first created
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _refreshVendorData();
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // ELON FIX: Refresh data when returning to vendor list from other screens
+    _refreshVendorData();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    // ELON FIX: Refresh data when app comes back to foreground
+    if (state == AppLifecycleState.resumed) {
+      _refreshVendorData();
+    }
+  }
+
+  /// ELON FIX: Centralized vendor data refresh
+  void _refreshVendorData() {
+    if (!mounted) return;
+
+    // Use refresh() for immediate data updates
+    ref.refresh(vendorsProvider);
+    ref.refresh(filteredVendorsProvider);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final filteredVendors = ref.watch(filteredVendorsProvider);
     final searchQuery = ref.watch(searchQueryProvider);
     final isAuthenticated = ref.watch(isAuthenticatedProvider);
@@ -54,23 +106,33 @@ class VendorListScreen extends ConsumerWidget {
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Vendors'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        automaticallyImplyLeading: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {
-              // Show search
-            },
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
+    return ErrorBoundary(
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Vendors'),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          automaticallyImplyLeading: true,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.search),
+              onPressed: () {
+                // Show search
+              },
+            ),
+          ],
+        ),
+        body: RefreshIndicator(
+        onRefresh: () async {
+          // ELON FIX: Pull-to-refresh for vendor list
+          ref.refresh(vendorsProvider);
+          ref.refresh(filteredVendorsProvider);
+
+          // Wait a bit for the refresh to complete
+          await Future.delayed(const Duration(milliseconds: 500));
+        },
+        child: Column(
+          children: [
           // Search Bar
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -207,7 +269,7 @@ class VendorListScreen extends ConsumerWidget {
             '/vendors/create',
           );
           if (result == true) {
-            ref.invalidate(vendorsProvider);
+            ref.refresh(vendorsProvider);
           }
         },
         backgroundColor: AppTheme.primaryAccent,
@@ -220,6 +282,7 @@ class VendorListScreen extends ConsumerWidget {
           ),
         ),
       ).animate().scale(delay: 600.ms),
+      ),
     );
   }
 }

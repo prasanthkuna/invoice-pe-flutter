@@ -17,6 +17,7 @@ import '../../features/vendors/presentation/screens/vendor_edit_screen.dart';
 import '../../features/transactions/presentation/screens/transaction_list_screen.dart';
 import '../../features/transactions/presentation/screens/transaction_detail_screen.dart';
 import '../../features/invoices/presentation/screens/invoice_create_screen.dart';
+import '../../features/invoices/presentation/screens/invoice_detail_screen.dart';
 import '../../features/cards/presentation/screens/card_list_screen.dart';
 import '../../features/payment/presentation/screens/payment_screen.dart';
 import '../../features/payment/presentation/screens/payment_success_screen.dart';
@@ -187,6 +188,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/invoices/create',
         name: 'invoice-create',
         builder: (context, state) => const InvoiceCreateScreen(),
+      ),
+      GoRoute(
+        path: '/invoices/:id',
+        name: 'invoice-detail',
+        builder: (context, state) {
+          final invoiceId = state.pathParameters['id']!;
+          return InvoiceDetailScreen(invoiceId: invoiceId);
+        },
       ),
       GoRoute(
         path: '/cards',

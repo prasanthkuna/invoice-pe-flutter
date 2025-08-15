@@ -436,7 +436,7 @@ class _InvoiceCreateScreenState extends ConsumerState<InvoiceCreateScreen> {
       if (!mounted) return;
 
       // Refresh invoices list
-      ref.invalidate(filteredInvoicesProvider);
+      ref.refresh(filteredInvoicesProvider);
 
       // Show success and navigate back
       ErrorHandler.showSuccess(context, 'Invoice created successfully!');

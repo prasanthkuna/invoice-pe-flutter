@@ -6,6 +6,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../shared/models/invoice.dart';
 import '../../../../core/providers/data_providers.dart';
 import '../../../../core/services/invoice_service.dart';
+import '../../../../core/error/error_boundary.dart';
 
 class InvoiceDetailScreen extends ConsumerWidget {
   const InvoiceDetailScreen({
@@ -18,14 +19,15 @@ class InvoiceDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final invoiceAsync = ref.watch(invoiceProvider(invoiceId));
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Invoice Details'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
+    return ErrorBoundary(
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Invoice Details'),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => context.pop(),
         ),
         actions: [
           IconButton(
@@ -397,6 +399,7 @@ class InvoiceDetailScreen extends ConsumerWidget {
           ),
         ),
       ),
+    ),
     );
   }
 
@@ -418,64 +421,64 @@ class InvoiceDetailScreen extends ConsumerWidget {
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
   }
-}
 
-void _showCancelDialog(BuildContext context, WidgetRef ref, Invoice invoice) {
-  showDialog<void>(
-    context: context,
-    builder: (context) => AlertDialog(
-      backgroundColor: AppTheme.cardBackground,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: const Text(
-        'Cancel Invoice',
-        style: TextStyle(color: AppTheme.primaryText),
-      ),
-      content: const Text(
-        'Are you sure you want to cancel this invoice? This action cannot be undone.',
-        style: TextStyle(color: AppTheme.secondaryText),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Keep Invoice'),
+  void _showCancelDialog(BuildContext context, WidgetRef ref, Invoice invoice) {
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppTheme.cardBackground,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text(
+          'Cancel Invoice',
+          style: TextStyle(color: AppTheme.primaryText),
         ),
-        ElevatedButton(
-          onPressed: () async {
-            try {
-              await InvoiceService.updateInvoiceStatus(
-                invoice.id,
-                InvoiceStatus.cancelled,
-              );
-
-              if (!context.mounted) return;
-
-              Navigator.pop(context);
-              ref.invalidate(invoiceProvider(invoice.id));
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Invoice cancelled successfully'),
-                  backgroundColor: Colors.orange,
-                ),
-              );
-            } catch (error) {
-              if (!context.mounted) return;
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Failed to cancel invoice: $error'),
-                  backgroundColor: Colors.red,
-                ),
-              );
-            }
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.red,
-            foregroundColor: Colors.white,
+        content: const Text(
+          'Are you sure you want to cancel this invoice? This action cannot be undone.',
+          style: TextStyle(color: AppTheme.secondaryText),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Keep Invoice'),
           ),
-          child: const Text('Cancel Invoice'),
-        ),
-      ],
-    ),
-  );
+          ElevatedButton(
+            onPressed: () async {
+              try {
+                await InvoiceService.updateInvoiceStatus(
+                  invoice.id,
+                  InvoiceStatus.cancelled,
+                );
+
+                if (!context.mounted) return;
+
+                context.pop();
+                ref.refresh(invoiceProvider(invoice.id));
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Invoice cancelled successfully'),
+                    backgroundColor: Colors.orange,
+                  ),
+                );
+              } catch (error) {
+                if (!context.mounted) return;
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Failed to cancel invoice: $error'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Cancel Invoice'),
+          ),
+        ],
+      ),
+    );
+  }
 }

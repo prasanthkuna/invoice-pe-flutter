@@ -8,6 +8,7 @@ import '../../../../core/services/vendor_service.dart';
 import '../../../../shared/models/vendor.dart';
 import '../../../../core/utils/navigation_helper.dart';
 import '../../../../core/utils/error_handler.dart';
+import '../../../../core/error/error_boundary.dart';
 
 class VendorEditScreen extends ConsumerStatefulWidget {
   const VendorEditScreen({required this.vendorId, super.key});
@@ -61,8 +62,9 @@ class _VendorEditScreenState extends ConsumerState<VendorEditScreen> {
   Widget build(BuildContext context) {
     final vendorAsync = ref.watch(vendorProvider(widget.vendorId));
 
-    return Scaffold(
-      appBar: AppBar(
+    return ErrorBoundary(
+      child: Scaffold(
+        appBar: AppBar(
         title: const Text('Edit Vendor'),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -393,6 +395,7 @@ class _VendorEditScreenState extends ConsumerState<VendorEditScreen> {
           );
         },
       ),
+    ),
     );
   }
 
@@ -481,8 +484,8 @@ class _VendorEditScreenState extends ConsumerState<VendorEditScreen> {
       );
 
       // Refresh vendors list
-      ref.invalidate(vendorsProvider);
-      ref.invalidate(vendorProvider(widget.vendorId));
+      ref.refresh(vendorsProvider);
+      ref.refresh(vendorProvider(widget.vendorId));
 
       if (mounted) {
         ErrorHandler.showSuccess(context, 'Vendor updated successfully!');
@@ -547,7 +550,7 @@ class _VendorEditScreenState extends ConsumerState<VendorEditScreen> {
       await VendorService.deleteVendor(widget.vendorId);
 
       // Refresh vendors list
-      ref.invalidate(vendorsProvider);
+      ref.refresh(vendorsProvider);
 
       if (mounted) {
         ErrorHandler.showSuccess(context, 'Vendor deleted successfully!');

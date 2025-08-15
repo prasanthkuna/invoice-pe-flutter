@@ -6,12 +6,64 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../shared/models/invoice.dart';
 import '../../../../core/providers/data_providers.dart';
 import '../../../../core/providers/app_providers.dart';
+import '../../../../core/error/error_boundary.dart';
 
-class InvoiceListScreen extends ConsumerWidget {
+class InvoiceListScreen extends ConsumerStatefulWidget {
   const InvoiceListScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<InvoiceListScreen> createState() => _InvoiceListScreenState();
+}
+
+class _InvoiceListScreenState extends ConsumerState<InvoiceListScreen>
+    with WidgetsBindingObserver {
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
+    // ELON FIX: Refresh data when invoice list screen is first created
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _refreshInvoiceData();
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // ELON FIX: Refresh data when returning to invoice list from other screens
+    _refreshInvoiceData();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    // ELON FIX: Refresh data when app comes back to foreground
+    if (state == AppLifecycleState.resumed) {
+      _refreshInvoiceData();
+    }
+  }
+
+  /// ELON FIX: Centralized invoice data refresh
+  void _refreshInvoiceData() {
+    if (!mounted) return;
+
+    // Use refresh() for immediate data updates
+    ref.refresh(invoicesProvider);
+    ref.refresh(filteredInvoicesProvider);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final filteredInvoices = ref.watch(filteredInvoicesProvider);
     final searchQuery = ref.watch(invoiceSearchQueryProvider);
     final isAuthenticated = ref.watch(isAuthenticatedProvider);
@@ -53,22 +105,32 @@ class InvoiceListScreen extends ConsumerWidget {
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Invoices'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_list),
-            onPressed: () {
-              _showFilterDialog(context, ref);
-            },
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
+    return ErrorBoundary(
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Invoices'),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.filter_list),
+              onPressed: () {
+                _showFilterDialog(context, ref);
+              },
+            ),
+          ],
+        ),
+        body: RefreshIndicator(
+        onRefresh: () async {
+          // ELON FIX: Pull-to-refresh for invoice list
+          ref.refresh(invoicesProvider);
+          ref.refresh(filteredInvoicesProvider);
+
+          // Wait a bit for the refresh to complete
+          await Future.delayed(const Duration(milliseconds: 500));
+        },
+        child: Column(
+          children: [
           // Search Bar
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -261,6 +323,7 @@ class InvoiceListScreen extends ConsumerWidget {
           ),
         ),
       ).animate().scale(delay: 600.ms),
+      ),
     );
   }
 }

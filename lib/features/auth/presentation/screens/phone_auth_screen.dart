@@ -8,6 +8,7 @@ import '../../../../core/services/auth_service.dart';
 import '../../../../core/types/auth_types.dart' as app_auth;
 import '../../../../core/types/result.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/error/error_boundary.dart';
 
 final phoneControllerProvider = StateProvider<TextEditingController>((ref) {
   return TextEditingController();
@@ -57,7 +58,8 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
     final showOtpField = ref.watch(showOtpFieldProvider);
     final errorMessage = ref.watch(errorMessageProvider);
 
-    return Scaffold(
+    return ErrorBoundary(
+      child: Scaffold(
       backgroundColor: AppTheme.primaryBackground,
       body: SafeArea(
         child: Padding(
@@ -345,6 +347,7 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
           ),
         ),
       ),
+    ),
     );
   }
 

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../shared/models/transaction.dart';
 import '../../../../core/providers/data_providers.dart';
+import '../../../../core/error/error_boundary.dart';
 
 class TransactionDetailScreen extends ConsumerWidget {
   const TransactionDetailScreen({
@@ -17,7 +18,8 @@ class TransactionDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final transactionAsync = ref.watch(transactionProvider(transactionId));
 
-    return Scaffold(
+    return ErrorBoundary(
+      child: Scaffold(
       appBar: AppBar(
         title: const Text('Transaction Details'),
         backgroundColor: Colors.transparent,

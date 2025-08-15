@@ -9,6 +9,7 @@ import '../../../../core/providers/app_providers.dart';
 import '../../../../core/providers/data_providers.dart';
 import '../../../../core/services/payment_service.dart';
 import '../../../../core/services/smart_logger.dart';
+import '../../../../core/error/error_boundary.dart';
 import '../../../../shared/models/vendor.dart';
 
 final quickPaymentAmountProvider = StateProvider<double>((ref) => 0.0);
@@ -64,8 +65,9 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
     final total = amount + fee;
     final rewards = amount * AppConstants.defaultRewardsPercentage / 100;
 
-    return Scaffold(
-      appBar: AppBar(
+    return ErrorBoundary(
+      child: Scaffold(
+        appBar: AppBar(
         title: const Text('Quick Payment'),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -502,6 +504,7 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
           ],
         ),
       ),
+    ),
     );
   }
 
@@ -585,7 +588,7 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
       );
 
       // Close loading dialog
-      if (context.mounted) Navigator.of(context).pop();
+      if (context.mounted) context.pop();
 
       // Handle PhonePe SDK 3.0.0 payment result
       final paymentData = {
@@ -601,9 +604,10 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
 
         // ELON FIX: Refresh providers after successful payment
         // This ensures vendors and transactions lists show updated data
-        ref.invalidate(vendorsProvider);
-        ref.invalidate(transactionsProvider);
-        ref.invalidate(dashboardMetricsProvider);
+        ref.refresh(vendorsProvider);
+        ref.refresh(transactionsProvider);
+        ref.refresh(dashboardMetricsProvider);
+        ref.refresh(recentTransactionsProvider);
 
         // Reset form using stored notifiers
         quickPaymentVendorNotifier.state = null;
@@ -615,7 +619,7 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
       }
     } catch (error, stackTrace) {
       // Close loading dialog if still open
-      if (context.mounted) Navigator.of(context).pop();
+      if (context.mounted) context.pop();
 
       // ELON FIX: Enhanced error logging with stack trace
       SmartLogger.logError('Quick payment failed',

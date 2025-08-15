@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/services/profile_service.dart';
+import '../../../../core/error/error_boundary.dart';
 
 final businessNameProvider = StateProvider<String>((ref) => '');
 final gstinProvider = StateProvider<String>((ref) => '');
@@ -16,7 +17,8 @@ class BusinessInfoScreen extends ConsumerWidget {
     final businessName = ref.watch(businessNameProvider);
     final isValid = businessName.trim().isNotEmpty;
 
-    return Scaffold(
+    return ErrorBoundary(
+      child: Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -186,6 +188,7 @@ class BusinessInfoScreen extends ConsumerWidget {
           ],
         ),
       ),
+    ),
     );
   }
 

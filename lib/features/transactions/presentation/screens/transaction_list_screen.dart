@@ -6,6 +6,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../shared/models/transaction.dart';
 import '../../../../core/providers/app_providers.dart';
 import '../../../../core/providers/data_providers.dart';
+import '../../../../core/error/error_boundary.dart';
 
 class TransactionListScreen extends ConsumerWidget {
   const TransactionListScreen({super.key});
@@ -53,7 +54,8 @@ class TransactionListScreen extends ConsumerWidget {
       );
     }
 
-    return Scaffold(
+    return ErrorBoundary(
+      child: Scaffold(
       appBar: AppBar(
         title: const Text('Transactions'),
         backgroundColor: Colors.transparent,
@@ -298,6 +300,7 @@ class TransactionListScreen extends ConsumerWidget {
           ),
         ],
       ),
+    ),
     );
   }
 }

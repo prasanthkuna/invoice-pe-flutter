@@ -401,7 +401,7 @@ class _VendorCreateScreenState extends ConsumerState<VendorCreateScreen> {
       );
 
       // Refresh vendors list
-      ref.invalidate(vendorsProvider);
+      ref.refresh(vendorsProvider);
 
       if (mounted) {
         ErrorHandler.showSuccess(context, 'Vendor added successfully!');

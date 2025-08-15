@@ -8,11 +8,11 @@ import 'package:go_router/go_router.dart';
 import 'package:pinput/pinput.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/services/auth_service.dart';
-import '../../../../core/services/logger.dart';
 import '../../../../core/types/auth_types.dart' as app_auth;
 import '../../../../core/types/result.dart';
+import '../../../../core/error/error_boundary.dart';
 
-final ComponentLogger _log = Log.component('auth');
+// final ComponentLogger _log = Log.component('auth'); // Unused for now
 
 final otpProvider = StateProvider<String>((ref) => '');
 final timerProvider = StateProvider<int>((ref) => 60);
@@ -137,11 +137,11 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final otp = ref.watch(otpProvider);
     final timer = ref.watch(timerProvider);
     final isVerifying = ref.watch(isVerifyingProvider);
 
-    return Scaffold(
+    return ErrorBoundary(
+      child: Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -351,6 +351,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
           ],
         ),
       ),
+    ),
     );
   }
 }

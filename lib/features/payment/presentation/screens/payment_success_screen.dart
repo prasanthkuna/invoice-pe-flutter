@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/error/error_boundary.dart';
 
 class PaymentSuccessScreen extends StatelessWidget {
   const PaymentSuccessScreen({super.key, this.paymentData});
@@ -18,7 +19,9 @@ class PaymentSuccessScreen extends StatelessWidget {
         (amount * AppConstants.defaultRewardsPercentage / 100);
     final transactionId = paymentData?['transactionId'] ?? 'TXN123456789';
     final paymentMethod = paymentData?['paymentMethod'] ?? 'HDFC **** 1234';
-    return Scaffold(
+
+    return ErrorBoundary(
+      child: Scaffold(
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -275,6 +278,7 @@ class PaymentSuccessScreen extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
   }
 }

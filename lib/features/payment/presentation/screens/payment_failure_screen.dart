@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/error/error_boundary.dart';
 
 class PaymentFailureScreen extends StatelessWidget {
   const PaymentFailureScreen({
@@ -20,7 +21,8 @@ class PaymentFailureScreen extends StatelessWidget {
         paymentData?['failureReason'] ?? 'Payment could not be processed';
     final errorCode = paymentData?['errorCode'] ?? 'UNKNOWN_ERROR';
 
-    return Scaffold(
+    return ErrorBoundary(
+      child: Scaffold(
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -328,6 +330,7 @@ class PaymentFailureScreen extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
   }
 

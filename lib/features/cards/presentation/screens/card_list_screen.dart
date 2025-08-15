@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/services/payment_service.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../shared/models/user_card.dart';
+import '../../../../core/error/error_boundary.dart';
 
 // Mock provider for cards (will be replaced with real provider post-PCC)
 final cardsProvider = StateProvider<List<UserCard>>(
@@ -41,8 +42,9 @@ class CardListScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cards = ref.watch(cardsProvider);
 
-    return Scaffold(
-      appBar: AppBar(
+    return ErrorBoundary(
+      child: Scaffold(
+        appBar: AppBar(
         title: const Text('My Cards'),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -220,6 +222,7 @@ class CardListScreen extends ConsumerWidget {
           ],
         ),
       ),
+    ),
     );
   }
 
@@ -283,7 +286,7 @@ class CardListScreen extends ConsumerWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => context.pop(),
             child: const Text(
               'Cancel',
               style: TextStyle(color: AppTheme.secondaryText),
@@ -291,7 +294,7 @@ class CardListScreen extends ConsumerWidget {
           ),
           TextButton(
             onPressed: () {
-              Navigator.of(context).pop();
+              context.pop();
               final cards = ref.read(cardsProvider);
               ref.read(cardsProvider.notifier).state = cards
                   .where((c) => c.id != card.id)
@@ -596,6 +599,7 @@ class _PhonePeCardInfoCard extends StatelessWidget {
 }
 
 /// Initiate card management via PhonePe
+// ignore: unused_element
 void _initiateCardManagement(BuildContext context) async {
   try {
     // Show loading dialog
