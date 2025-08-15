@@ -111,10 +111,12 @@ class ProfileService extends BaseService {
 
       for (final transaction in transactionsResponse) {
         // CRITICAL FIX: Check for both 'success' and 'completed' status
-        if (transaction['status'] == 'success' || transaction['status'] == 'completed') {
+        if (transaction['status'] == 'success' ||
+            transaction['status'] == 'completed') {
           final amount = (transaction['amount'] as num).toDouble();
           final fee = (transaction['fee'] as num).toDouble();
-          final rewards = (transaction['rewards_earned'] as num?)?.toDouble() ?? 0.0;
+          final rewards =
+              (transaction['rewards_earned'] as num?)?.toDouble() ?? 0.0;
           final createdAt = DateTime.parse(transaction['created_at'] as String);
 
           totalPayments += amount;
@@ -125,7 +127,8 @@ class ProfileService extends BaseService {
           // Calculate monthly rewards
           if (createdAt.isAfter(currentMonthStart)) {
             currentMonthRewards += rewards;
-          } else if (createdAt.isAfter(lastMonthStart) && createdAt.isBefore(lastMonthEnd)) {
+          } else if (createdAt.isAfter(lastMonthStart) &&
+              createdAt.isBefore(lastMonthEnd)) {
             lastMonthRewards += rewards;
           }
         }
@@ -152,8 +155,10 @@ class ProfileService extends BaseService {
         'totalRewards': totalRewards,
         'totalFees': totalFees,
         'totalTransactions': successfulTransactions,
-        'monthlyTransactions': successfulTransactions, // CRITICAL FIX: Add monthly transactions
-        'monthlyChange': monthlyChange, // CRITICAL FIX: Actual monthly change calculation
+        'monthlyTransactions':
+            successfulTransactions, // CRITICAL FIX: Add monthly transactions
+        'monthlyChange':
+            monthlyChange, // CRITICAL FIX: Actual monthly change calculation
         'currentMonthRewards': currentMonthRewards, // Additional metric
         'lastMonthRewards': lastMonthRewards, // Additional metric
         'vendorCount': vendorCountResponse.length,

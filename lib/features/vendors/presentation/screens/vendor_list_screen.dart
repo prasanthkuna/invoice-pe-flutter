@@ -18,7 +18,6 @@ class VendorListScreen extends ConsumerStatefulWidget {
 
 class _VendorListScreenState extends ConsumerState<VendorListScreen>
     with WidgetsBindingObserver {
-
   @override
   void initState() {
     super.initState();
@@ -125,170 +124,173 @@ class _VendorListScreenState extends ConsumerState<VendorListScreen>
           ],
         ),
         body: RefreshIndicator(
-        onRefresh: () async {
-          // ELON FIX: Pull-to-refresh for vendor list
-          // ignore: unused_result
-          ref.refresh(vendorsProvider);
-          // ignore: unused_result
-          ref.refresh(filteredVendorsProvider);
-
-          // Wait a bit for the refresh to complete
-          await Future.delayed(const Duration(milliseconds: 500));
-        },
-        child: Column(
-          children: [
-          // Search Bar
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              onChanged: (value) =>
-                  ref.read(searchQueryProvider.notifier).state = value,
-              style: const TextStyle(color: AppTheme.primaryText),
-              decoration: InputDecoration(
-                hintText: 'Search vendors...',
-                hintStyle: const TextStyle(color: AppTheme.secondaryText),
-                prefixIcon: const Icon(
-                  Icons.search,
-                  color: AppTheme.secondaryText,
-                ),
-                filled: true,
-                fillColor: AppTheme.cardBackground,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-          ).animate().fadeIn(delay: 200.ms).slideY(begin: -0.3),
-
-          // Vendors List
-          Expanded(
-            child: filteredVendors.when(
-              loading: () => const Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    AppTheme.primaryAccent,
-                  ),
-                ),
-              ),
-              error: (error, stackTrace) => Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.error_outline,
-                      size: 64,
-                      color: Colors.red,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Error loading vendors',
-                      style: Theme.of(context).textTheme.headlineSmall
-                          ?.copyWith(
-                            color: Colors.red,
-                          ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      error.toString(),
-                      style: const TextStyle(color: AppTheme.secondaryText),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () => ref.refresh(filteredVendorsProvider),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryAccent,
-                        foregroundColor: Colors.black,
-                      ),
-                      child: const Text('Retry'),
-                    ),
-                  ],
-                ),
-              ),
-              data: (filteredVendors) => filteredVendors.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.business_outlined,
-                            size: 64,
-                            color: AppTheme.secondaryText.withValues(
-                              alpha: 0.5,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            searchQuery.isEmpty
-                                ? 'No vendors yet'
-                                : 'No vendors found',
-                            style: Theme.of(context).textTheme.headlineSmall
-                                ?.copyWith(
-                                  color: AppTheme.secondaryText,
-                                ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            searchQuery.isEmpty
-                                ? 'Add your first vendor to get started'
-                                : 'Try a different search term',
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(
-                                  color: AppTheme.secondaryText.withValues(
-                                    alpha: 0.7,
-                                  ),
-                                ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: filteredVendors.length,
-                      itemBuilder: (context, index) {
-                        final vendor = filteredVendors[index];
-                        return Container(
-                              margin: const EdgeInsets.only(bottom: 12),
-                              child: _VendorCard(
-                                vendor: vendor,
-                                onTap: () => context.push('/pay/${vendor.id}'),
-                              ),
-                            )
-                            .animate(delay: Duration(milliseconds: 100 * index))
-                            .fadeIn()
-                            .slideX(begin: 0.3);
-                      },
-                    ),
-            ),
-          ),
-        ],
-      ),
-        ),
-
-      // Add Vendor FAB
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          final result = await NavigationHelper.safePush<bool>(
-            context,
-            '/vendors/create',
-          );
-          if (result == true) {
+          onRefresh: () async {
+            // ELON FIX: Pull-to-refresh for vendor list
             // ignore: unused_result
             ref.refresh(vendorsProvider);
-          }
-        },
-        backgroundColor: AppTheme.primaryAccent,
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text(
-          'Add Vendor',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
+            // ignore: unused_result
+            ref.refresh(filteredVendorsProvider);
+
+            // Wait a bit for the refresh to complete
+            await Future.delayed(const Duration(milliseconds: 500));
+          },
+          child: Column(
+            children: [
+              // Search Bar
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: TextField(
+                  onChanged: (value) =>
+                      ref.read(searchQueryProvider.notifier).state = value,
+                  style: const TextStyle(color: AppTheme.primaryText),
+                  decoration: InputDecoration(
+                    hintText: 'Search vendors...',
+                    hintStyle: const TextStyle(color: AppTheme.secondaryText),
+                    prefixIcon: const Icon(
+                      Icons.search,
+                      color: AppTheme.secondaryText,
+                    ),
+                    filled: true,
+                    fillColor: AppTheme.cardBackground,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+              ).animate().fadeIn(delay: 200.ms).slideY(begin: -0.3),
+
+              // Vendors List
+              Expanded(
+                child: filteredVendors.when(
+                  loading: () => const Center(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        AppTheme.primaryAccent,
+                      ),
+                    ),
+                  ),
+                  error: (error, stackTrace) => Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.error_outline,
+                          size: 64,
+                          color: Colors.red,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Error loading vendors',
+                          style: Theme.of(context).textTheme.headlineSmall
+                              ?.copyWith(
+                                color: Colors.red,
+                              ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          error.toString(),
+                          style: const TextStyle(color: AppTheme.secondaryText),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () => ref.refresh(filteredVendorsProvider),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.primaryAccent,
+                            foregroundColor: Colors.black,
+                          ),
+                          child: const Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  ),
+                  data: (filteredVendors) => filteredVendors.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.business_outlined,
+                                size: 64,
+                                color: AppTheme.secondaryText.withValues(
+                                  alpha: 0.5,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                searchQuery.isEmpty
+                                    ? 'No vendors yet'
+                                    : 'No vendors found',
+                                style: Theme.of(context).textTheme.headlineSmall
+                                    ?.copyWith(
+                                      color: AppTheme.secondaryText,
+                                    ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                searchQuery.isEmpty
+                                    ? 'Add your first vendor to get started'
+                                    : 'Try a different search term',
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.copyWith(
+                                      color: AppTheme.secondaryText.withValues(
+                                        alpha: 0.7,
+                                      ),
+                                    ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : ListView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          itemCount: filteredVendors.length,
+                          itemBuilder: (context, index) {
+                            final vendor = filteredVendors[index];
+                            return Container(
+                                  margin: const EdgeInsets.only(bottom: 12),
+                                  child: _VendorCard(
+                                    vendor: vendor,
+                                    onTap: () =>
+                                        context.push('/pay/${vendor.id}'),
+                                  ),
+                                )
+                                .animate(
+                                  delay: Duration(milliseconds: 100 * index),
+                                )
+                                .fadeIn()
+                                .slideX(begin: 0.3);
+                          },
+                        ),
+                ),
+              ),
+            ],
           ),
         ),
-      ).animate().scale(delay: 600.ms),
-    ),
+
+        // Add Vendor FAB
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () async {
+            final result = await NavigationHelper.safePush<bool>(
+              context,
+              '/vendors/create',
+            );
+            if (result == true) {
+              // ignore: unused_result
+              ref.refresh(vendorsProvider);
+            }
+          },
+          backgroundColor: AppTheme.primaryAccent,
+          icon: const Icon(Icons.add, color: Colors.white),
+          label: const Text(
+            'Add Vendor',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ).animate().scale(delay: 600.ms),
+      ),
     );
   }
 }

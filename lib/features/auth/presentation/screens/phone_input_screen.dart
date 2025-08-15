@@ -64,8 +64,9 @@ class PhoneInputScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final phoneNumber = ref.watch(phoneNumberProvider);
     final isLoading = ref.watch(isLoadingProvider);
-    final isValid = phoneNumber.length == AppConstants.phoneNumberLength &&
-      RegExp(AppConstants.phoneNumberPattern).hasMatch(phoneNumber);
+    final isValid =
+        phoneNumber.length == AppConstants.phoneNumberLength &&
+        RegExp(AppConstants.phoneNumberPattern).hasMatch(phoneNumber);
 
     return Scaffold(
       appBar: AppBar(
@@ -151,7 +152,9 @@ class PhoneInputScreen extends ConsumerWidget {
                       keyboardType: TextInputType.phone,
                       inputFormatters: [
                         FilteringTextInputFormatter.digitsOnly,
-                        LengthLimitingTextInputFormatter(AppConstants.phoneNumberLength),
+                        LengthLimitingTextInputFormatter(
+                          AppConstants.phoneNumberLength,
+                        ),
                       ],
                       style: const TextStyle(
                         fontSize: 18,

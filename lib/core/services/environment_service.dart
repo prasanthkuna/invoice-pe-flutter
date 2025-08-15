@@ -52,7 +52,9 @@ class EnvironmentService {
         try {
           await dotenv.load(fileName: '.env');
           debugPrint('✅ Development environment loaded from .env');
-          debugPrint('🔍 MOCK_PAYMENT_MODE in .env: "${dotenv.env['MOCK_PAYMENT_MODE']}"');
+          debugPrint(
+            '🔍 MOCK_PAYMENT_MODE in .env: "${dotenv.env['MOCK_PAYMENT_MODE']}"',
+          );
           debugPrint('🔍 All env keys: ${dotenv.env.keys.toList()}');
         } catch (e) {
           debugPrint('⚠️ .env file not found or invalid: $e');
@@ -103,7 +105,11 @@ class EnvironmentService {
   /// Load from system environment variables (CI/CD injection)
   static Future<void> _loadFromSystemEnvironment() async {
     // In production, critical values should come from system environment
-    const criticalKeys = ['SUPABASE_URL', 'SUPABASE_ANON_KEY', 'ENCRYPTION_KEY'];
+    const criticalKeys = [
+      'SUPABASE_URL',
+      'SUPABASE_ANON_KEY',
+      'ENCRYPTION_KEY',
+    ];
 
     for (final key in criticalKeys) {
       // Use String.fromEnvironment with each key individually
@@ -161,7 +167,7 @@ class EnvironmentService {
       // ELON FIX: Don't throw in release mode, log warning and continue
       // App constants will provide hardcoded fallbacks
       debugPrint(
-        '⚠️ WARNING: Missing env config, using hardcoded constants: ${missingKeys.join(', ')}'
+        '⚠️ WARNING: Missing env config, using hardcoded constants: ${missingKeys.join(', ')}',
       );
     }
   }

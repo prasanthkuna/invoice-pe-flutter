@@ -17,7 +17,6 @@ class InvoiceListScreen extends ConsumerStatefulWidget {
 
 class _InvoiceListScreenState extends ConsumerState<InvoiceListScreen>
     with WidgetsBindingObserver {
-
   @override
   void initState() {
     super.initState();
@@ -123,212 +122,225 @@ class _InvoiceListScreenState extends ConsumerState<InvoiceListScreen>
           ],
         ),
         body: RefreshIndicator(
-        onRefresh: () async {
-          // ELON FIX: Pull-to-refresh for invoice list
-          // ignore: unused_result
-          ref.refresh(invoicesProvider);
-          // ignore: unused_result
-          ref.refresh(filteredInvoicesProvider);
+          onRefresh: () async {
+            // ELON FIX: Pull-to-refresh for invoice list
+            // ignore: unused_result
+            ref.refresh(invoicesProvider);
+            // ignore: unused_result
+            ref.refresh(filteredInvoicesProvider);
 
-          // Wait a bit for the refresh to complete
-          await Future.delayed(const Duration(milliseconds: 500));
-        },
-        child: Column(
-          children: [
-          // Search Bar
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              onChanged: (value) =>
-                  ref.read(invoiceSearchQueryProvider.notifier).state = value,
-              style: const TextStyle(color: AppTheme.primaryText),
-              decoration: InputDecoration(
-                hintText: 'Search invoices...',
-                hintStyle: const TextStyle(color: AppTheme.secondaryText),
-                prefixIcon: const Icon(
-                  Icons.search,
-                  color: AppTheme.secondaryText,
-                ),
-                filled: true,
-                fillColor: AppTheme.cardBackground,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-          ).animate().fadeIn(delay: 200.ms).slideY(begin: -0.3),
-
-          // Status Filter Chips
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              children: [
-                _StatusChip(
-                  label: 'All',
-                  isSelected: ref.watch(selectedInvoiceStatusProvider) == null,
-                  onTap: () =>
-                      ref.read(selectedInvoiceStatusProvider.notifier).state =
-                          null,
-                ),
-                const SizedBox(width: 8),
-                _StatusChip(
-                  label: 'Pending',
-                  isSelected:
-                      ref.watch(selectedInvoiceStatusProvider) ==
-                      InvoiceStatus.pending,
-                  onTap: () =>
-                      ref.read(selectedInvoiceStatusProvider.notifier).state =
-                          InvoiceStatus.pending,
-                ),
-                const SizedBox(width: 8),
-                _StatusChip(
-                  label: 'Paid',
-                  isSelected:
-                      ref.watch(selectedInvoiceStatusProvider) ==
-                      InvoiceStatus.paid,
-                  onTap: () =>
-                      ref.read(selectedInvoiceStatusProvider.notifier).state =
-                          InvoiceStatus.paid,
-                ),
-                const SizedBox(width: 8),
-                _StatusChip(
-                  label: 'Overdue',
-                  isSelected:
-                      ref.watch(selectedInvoiceStatusProvider) ==
-                      InvoiceStatus.overdue,
-                  onTap: () =>
-                      ref.read(selectedInvoiceStatusProvider.notifier).state =
-                          InvoiceStatus.overdue,
-                ),
-              ],
-            ),
-          ).animate().fadeIn(delay: 300.ms),
-
-          const SizedBox(height: 16),
-
-          // Invoices List
-          Expanded(
-            child: filteredInvoices.when(
-              loading: () => const Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    AppTheme.primaryAccent,
+            // Wait a bit for the refresh to complete
+            await Future.delayed(const Duration(milliseconds: 500));
+          },
+          child: Column(
+            children: [
+              // Search Bar
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: TextField(
+                  onChanged: (value) =>
+                      ref.read(invoiceSearchQueryProvider.notifier).state =
+                          value,
+                  style: const TextStyle(color: AppTheme.primaryText),
+                  decoration: InputDecoration(
+                    hintText: 'Search invoices...',
+                    hintStyle: const TextStyle(color: AppTheme.secondaryText),
+                    prefixIcon: const Icon(
+                      Icons.search,
+                      color: AppTheme.secondaryText,
+                    ),
+                    filled: true,
+                    fillColor: AppTheme.cardBackground,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
                 ),
-              ),
-              error: (error, stackTrace) => Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+              ).animate().fadeIn(delay: 200.ms).slideY(begin: -0.3),
+
+              // Status Filter Chips
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Row(
                   children: [
-                    const Icon(
-                      Icons.error_outline,
-                      size: 64,
-                      color: Colors.red,
+                    _StatusChip(
+                      label: 'All',
+                      isSelected:
+                          ref.watch(selectedInvoiceStatusProvider) == null,
+                      onTap: () =>
+                          ref
+                                  .read(selectedInvoiceStatusProvider.notifier)
+                                  .state =
+                              null,
                     ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Error loading invoices',
-                      style: Theme.of(context).textTheme.headlineSmall
-                          ?.copyWith(
-                            color: Colors.red,
-                          ),
+                    const SizedBox(width: 8),
+                    _StatusChip(
+                      label: 'Pending',
+                      isSelected:
+                          ref.watch(selectedInvoiceStatusProvider) ==
+                          InvoiceStatus.pending,
+                      onTap: () =>
+                          ref
+                                  .read(selectedInvoiceStatusProvider.notifier)
+                                  .state =
+                              InvoiceStatus.pending,
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      error.toString(),
-                      style: const TextStyle(color: AppTheme.secondaryText),
-                      textAlign: TextAlign.center,
+                    const SizedBox(width: 8),
+                    _StatusChip(
+                      label: 'Paid',
+                      isSelected:
+                          ref.watch(selectedInvoiceStatusProvider) ==
+                          InvoiceStatus.paid,
+                      onTap: () =>
+                          ref
+                                  .read(selectedInvoiceStatusProvider.notifier)
+                                  .state =
+                              InvoiceStatus.paid,
                     ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () => ref.refresh(filteredInvoicesProvider),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryAccent,
-                        foregroundColor: Colors.black,
-                      ),
-                      child: const Text('Retry'),
+                    const SizedBox(width: 8),
+                    _StatusChip(
+                      label: 'Overdue',
+                      isSelected:
+                          ref.watch(selectedInvoiceStatusProvider) ==
+                          InvoiceStatus.overdue,
+                      onTap: () =>
+                          ref
+                                  .read(selectedInvoiceStatusProvider.notifier)
+                                  .state =
+                              InvoiceStatus.overdue,
                     ),
                   ],
                 ),
-              ),
-              data: (filteredInvoices) => filteredInvoices.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.receipt_outlined,
-                            size: 64,
-                            color: AppTheme.secondaryText.withValues(
-                              alpha: 0.5,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            searchQuery.isEmpty
-                                ? 'No invoices yet'
-                                : 'No invoices found',
-                            style: Theme.of(context).textTheme.headlineSmall
-                                ?.copyWith(
-                                  color: AppTheme.secondaryText,
-                                ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            searchQuery.isEmpty
-                                ? 'Create your first invoice to get started'
-                                : 'Try a different search term',
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(
-                                  color: AppTheme.secondaryText.withValues(
-                                    alpha: 0.7,
-                                  ),
-                                ),
-                          ),
-                        ],
+              ).animate().fadeIn(delay: 300.ms),
+
+              const SizedBox(height: 16),
+
+              // Invoices List
+              Expanded(
+                child: filteredInvoices.when(
+                  loading: () => const Center(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        AppTheme.primaryAccent,
                       ),
-                    )
-                  : ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: filteredInvoices.length,
-                      itemBuilder: (context, index) {
-                        final invoice = filteredInvoices[index];
-                        return Container(
-                              margin: const EdgeInsets.only(bottom: 12),
-                              child: _InvoiceCard(
-                                invoice: invoice,
-                                onTap: () =>
-                                    context.go('/invoices/${invoice.id}'),
-                              ),
-                            )
-                            .animate(delay: Duration(milliseconds: 100 * index))
-                            .fadeIn()
-                            .slideX(begin: 0.3);
-                      },
                     ),
-            ),
+                  ),
+                  error: (error, stackTrace) => Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.error_outline,
+                          size: 64,
+                          color: Colors.red,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Error loading invoices',
+                          style: Theme.of(context).textTheme.headlineSmall
+                              ?.copyWith(
+                                color: Colors.red,
+                              ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          error.toString(),
+                          style: const TextStyle(color: AppTheme.secondaryText),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () =>
+                              ref.refresh(filteredInvoicesProvider),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.primaryAccent,
+                            foregroundColor: Colors.black,
+                          ),
+                          child: const Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  ),
+                  data: (filteredInvoices) => filteredInvoices.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.receipt_outlined,
+                                size: 64,
+                                color: AppTheme.secondaryText.withValues(
+                                  alpha: 0.5,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                searchQuery.isEmpty
+                                    ? 'No invoices yet'
+                                    : 'No invoices found',
+                                style: Theme.of(context).textTheme.headlineSmall
+                                    ?.copyWith(
+                                      color: AppTheme.secondaryText,
+                                    ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                searchQuery.isEmpty
+                                    ? 'Create your first invoice to get started'
+                                    : 'Try a different search term',
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.copyWith(
+                                      color: AppTheme.secondaryText.withValues(
+                                        alpha: 0.7,
+                                      ),
+                                    ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : ListView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          itemCount: filteredInvoices.length,
+                          itemBuilder: (context, index) {
+                            final invoice = filteredInvoices[index];
+                            return Container(
+                                  margin: const EdgeInsets.only(bottom: 12),
+                                  child: _InvoiceCard(
+                                    invoice: invoice,
+                                    onTap: () =>
+                                        context.go('/invoices/${invoice.id}'),
+                                  ),
+                                )
+                                .animate(
+                                  delay: Duration(milliseconds: 100 * index),
+                                )
+                                .fadeIn()
+                                .slideX(begin: 0.3);
+                          },
+                        ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
         ),
 
-      // Add Invoice FAB
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          context.go('/invoices/create');
-        },
-        backgroundColor: AppTheme.primaryAccent,
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text(
-          'Create Invoice',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
+        // Add Invoice FAB
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () {
+            context.go('/invoices/create');
+          },
+          backgroundColor: AppTheme.primaryAccent,
+          icon: const Icon(Icons.add, color: Colors.white),
+          label: const Text(
+            'Create Invoice',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-        ),
-      ).animate().scale(delay: 600.ms),
-    ),
+        ).animate().scale(delay: 600.ms),
+      ),
     );
   }
 }

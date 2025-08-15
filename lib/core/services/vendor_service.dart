@@ -161,8 +161,8 @@ class VendorService extends BaseService {
     // Calculate stats from joined transaction data
     final transactions = json['transactions'] as List<dynamic>? ?? [];
 
-    double totalPaid = 0.0;
-    int transactionCount = 0;
+    var totalPaid = 0.0;
+    var transactionCount = 0;
 
     for (final transaction in transactions) {
       final transactionMap = transaction as Map<String, dynamic>;

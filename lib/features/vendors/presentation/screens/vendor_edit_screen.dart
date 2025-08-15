@@ -65,337 +65,342 @@ class _VendorEditScreenState extends ConsumerState<VendorEditScreen> {
     return ErrorBoundary(
       child: Scaffold(
         appBar: AppBar(
-        title: const Text('Edit Vendor'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios),
-          onPressed: () => NavigationHelper.safePop(context),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.delete, color: AppTheme.errorColor),
-            onPressed: _showDeleteDialog,
+          title: const Text('Edit Vendor'),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios),
+            onPressed: () => NavigationHelper.safePop(context),
           ),
-        ],
-      ),
-      body: vendorAsync.when(
-        loading: () => const Center(
-          child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryAccent),
-          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.delete, color: AppTheme.errorColor),
+              onPressed: _showDeleteDialog,
+            ),
+          ],
         ),
-        error: (error, stack) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.error_outline,
-                size: 64,
-                color: AppTheme.errorColor,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Error loading vendor',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+        body: vendorAsync.when(
+          loading: () => const Center(
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryAccent),
+            ),
+          ),
+          error: (error, stack) => Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.error_outline,
+                  size: 64,
                   color: AppTheme.errorColor,
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                error.toString(),
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppTheme.secondaryText,
+                const SizedBox(height: 16),
+                Text(
+                  'Error loading vendor',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: AppTheme.errorColor,
+                  ),
                 ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () => NavigationHelper.safePop(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryAccent,
-                  foregroundColor: Colors.white,
+                const SizedBox(height: 8),
+                Text(
+                  error.toString(),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppTheme.secondaryText,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                child: const Text('Go Back'),
-              ),
-            ],
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => NavigationHelper.safePop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryAccent,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('Go Back'),
+                ),
+              ],
+            ),
           ),
-        ),
-        data: (vendor) {
-          // Populate fields when data loads
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (_vendor == null) {
-              _populateFields(vendor);
-            }
-          });
+          data: (vendor) {
+            // Populate fields when data loads
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (_vendor == null) {
+                _populateFields(vendor);
+              }
+            });
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header
-                  Text(
-                    'Edit Vendor',
-                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                      color: AppTheme.primaryText,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ).animate().fadeIn(delay: 200.ms).slideY(begin: -0.3),
-
-                  const SizedBox(height: 8),
-
-                  Text(
-                    'Update vendor details',
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: AppTheme.secondaryText,
-                    ),
-                  ).animate().fadeIn(delay: 400.ms),
-
-                  const SizedBox(height: 32),
-
-                  // Basic Information
-                  Text(
-                    'Basic Information',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: AppTheme.primaryText,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ).animate().fadeIn(delay: 600.ms),
-
-                  const SizedBox(height: 16),
-
-                  // Name Field
-                  _buildTextField(
-                    controller: _nameController,
-                    label: 'Vendor Name',
-                    hint: 'Enter vendor name',
-                    icon: Icons.business,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Vendor name is required';
-                      }
-                      if (value.trim().length < 2) {
-                        return 'Vendor name must be at least 2 characters';
-                      }
-                      return null;
-                    },
-                  ).animate().fadeIn(delay: 800.ms).slideY(begin: 0.3),
-
-                  const SizedBox(height: 16),
-
-                  // Phone Field
-                  _buildTextField(
-                    controller: _phoneController,
-                    label: 'Phone Number',
-                    hint: 'Enter phone number',
-                    icon: Icons.phone,
-                    keyboardType: TextInputType.phone,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(10),
-                    ],
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Phone number is required';
-                      }
-                      if (value.trim().length != 10) {
-                        return 'Phone number must be 10 digits';
-                      }
-                      return null;
-                    },
-                  ).animate().fadeIn(delay: 1000.ms).slideY(begin: 0.3),
-
-                  const SizedBox(height: 16),
-
-                  // Email Field
-                  _buildTextField(
-                    controller: _emailController,
-                    label: 'Email (Optional)',
-                    hint: 'Enter email address',
-                    icon: Icons.email,
-                    keyboardType: TextInputType.emailAddress,
-                    validator: (value) {
-                      if (value != null && value.trim().isNotEmpty) {
-                        if (!RegExp(
-                          r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                        ).hasMatch(value.trim())) {
-                          return 'Enter a valid email address';
-                        }
-                      }
-                      return null;
-                    },
-                  ).animate().fadeIn(delay: 1200.ms).slideY(begin: 0.3),
-
-                  const SizedBox(height: 32),
-
-                  // Payment Method
-                  Text(
-                    'Payment Method',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: AppTheme.primaryText,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ).animate().fadeIn(delay: 1400.ms),
-
-                  const SizedBox(height: 16),
-
-                  // Payment Method Toggle
-                  Container(
-                    decoration: BoxDecoration(
-                      color: AppTheme.cardBackground,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => setState(() => _useUpi = true),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              decoration: BoxDecoration(
-                                color: _useUpi
-                                    ? AppTheme.primaryAccent
-                                    : Colors.transparent,
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Text(
-                                'UPI ID',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: _useUpi
-                                      ? Colors.white
-                                      : AppTheme.secondaryText,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(24.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header
+                    Text(
+                      'Edit Vendor',
+                      style: Theme.of(context).textTheme.headlineLarge
+                          ?.copyWith(
+                            color: AppTheme.primaryText,
+                            fontWeight: FontWeight.bold,
                           ),
-                        ),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => setState(() => _useUpi = false),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              decoration: BoxDecoration(
-                                color: !_useUpi
-                                    ? AppTheme.primaryAccent
-                                    : Colors.transparent,
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Text(
-                                'Bank Account',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: !_useUpi
-                                      ? Colors.white
-                                      : AppTheme.secondaryText,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ).animate().fadeIn(delay: 1600.ms).slideY(begin: 0.3),
+                    ).animate().fadeIn(delay: 200.ms).slideY(begin: -0.3),
 
-                  const SizedBox(height: 16),
+                    const SizedBox(height: 8),
 
-                  // Payment Details
-                  if (_useUpi) ...[
-                    _buildTextField(
-                      controller: _upiIdController,
-                      label: 'UPI ID',
-                      hint: 'vendor@upi',
-                      icon: Icons.account_balance_wallet,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'UPI ID is required';
-                        }
-                        if (!value.contains('@')) {
-                          return 'Enter a valid UPI ID';
-                        }
-                        return null;
-                      },
-                    ).animate().fadeIn(delay: 1800.ms).slideY(begin: 0.3),
-                  ] else ...[
-                    _buildTextField(
-                      controller: _accountNumberController,
-                      label: 'Account Number',
-                      hint: 'Enter account number',
-                      icon: Icons.account_balance,
-                      keyboardType: TextInputType.number,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Account number is required';
-                        }
-                        if (value.trim().length < 9) {
-                          return 'Enter a valid account number';
-                        }
-                        return null;
-                      },
-                    ).animate().fadeIn(delay: 1800.ms).slideY(begin: 0.3),
+                    Text(
+                      'Update vendor details',
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: AppTheme.secondaryText,
+                      ),
+                    ).animate().fadeIn(delay: 400.ms),
+
+                    const SizedBox(height: 32),
+
+                    // Basic Information
+                    Text(
+                      'Basic Information',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: AppTheme.primaryText,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ).animate().fadeIn(delay: 600.ms),
 
                     const SizedBox(height: 16),
 
+                    // Name Field
                     _buildTextField(
-                      controller: _ifscCodeController,
-                      label: 'IFSC Code',
-                      hint: 'Enter IFSC code',
-                      icon: Icons.code,
-                      textCapitalization: TextCapitalization.characters,
+                      controller: _nameController,
+                      label: 'Vendor Name',
+                      hint: 'Enter vendor name',
+                      icon: Icons.business,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'IFSC code is required';
+                          return 'Vendor name is required';
                         }
-                        if (value.trim().length != 11) {
-                          return 'IFSC code must be 11 characters';
+                        if (value.trim().length < 2) {
+                          return 'Vendor name must be at least 2 characters';
                         }
                         return null;
                       },
-                    ).animate().fadeIn(delay: 2000.ms).slideY(begin: 0.3),
-                  ],
+                    ).animate().fadeIn(delay: 800.ms).slideY(begin: 0.3),
 
-                  const SizedBox(height: 32),
+                    const SizedBox(height: 16),
 
-                  // Update Button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : _updateVendor,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryAccent,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
+                    // Phone Field
+                    _buildTextField(
+                      controller: _phoneController,
+                      label: 'Phone Number',
+                      hint: 'Enter phone number',
+                      icon: Icons.phone,
+                      keyboardType: TextInputType.phone,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(10),
+                      ],
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Phone number is required';
+                        }
+                        if (value.trim().length != 10) {
+                          return 'Phone number must be 10 digits';
+                        }
+                        return null;
+                      },
+                    ).animate().fadeIn(delay: 1000.ms).slideY(begin: 0.3),
+
+                    const SizedBox(height: 16),
+
+                    // Email Field
+                    _buildTextField(
+                      controller: _emailController,
+                      label: 'Email (Optional)',
+                      hint: 'Enter email address',
+                      icon: Icons.email,
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (value) {
+                        if (value != null && value.trim().isNotEmpty) {
+                          if (!RegExp(
+                            r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                          ).hasMatch(value.trim())) {
+                            return 'Enter a valid email address';
+                          }
+                        }
+                        return null;
+                      },
+                    ).animate().fadeIn(delay: 1200.ms).slideY(begin: 0.3),
+
+                    const SizedBox(height: 32),
+
+                    // Payment Method
+                    Text(
+                      'Payment Method',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: AppTheme.primaryText,
+                        fontWeight: FontWeight.w600,
                       ),
-                      child: _isLoading
-                          ? const CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                Colors.white,
-                              ),
-                            )
-                          : const Text(
-                              'Update Vendor',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
+                    ).animate().fadeIn(delay: 1400.ms),
+
+                    const SizedBox(height: 16),
+
+                    // Payment Method Toggle
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppTheme.cardBackground,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => setState(() => _useUpi = true),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: _useUpi
+                                      ? AppTheme.primaryAccent
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Text(
+                                  'UPI ID',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: _useUpi
+                                        ? Colors.white
+                                        : AppTheme.secondaryText,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                               ),
                             ),
-                    ),
-                  ).animate().fadeIn(delay: 2400.ms).slideY(begin: 0.5),
-                ],
+                          ),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => setState(() => _useUpi = false),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: !_useUpi
+                                      ? AppTheme.primaryAccent
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Text(
+                                  'Bank Account',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: !_useUpi
+                                        ? Colors.white
+                                        : AppTheme.secondaryText,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ).animate().fadeIn(delay: 1600.ms).slideY(begin: 0.3),
+
+                    const SizedBox(height: 16),
+
+                    // Payment Details
+                    if (_useUpi) ...[
+                      _buildTextField(
+                        controller: _upiIdController,
+                        label: 'UPI ID',
+                        hint: 'vendor@upi',
+                        icon: Icons.account_balance_wallet,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'UPI ID is required';
+                          }
+                          if (!value.contains('@')) {
+                            return 'Enter a valid UPI ID';
+                          }
+                          return null;
+                        },
+                      ).animate().fadeIn(delay: 1800.ms).slideY(begin: 0.3),
+                    ] else ...[
+                      _buildTextField(
+                        controller: _accountNumberController,
+                        label: 'Account Number',
+                        hint: 'Enter account number',
+                        icon: Icons.account_balance,
+                        keyboardType: TextInputType.number,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Account number is required';
+                          }
+                          if (value.trim().length < 9) {
+                            return 'Enter a valid account number';
+                          }
+                          return null;
+                        },
+                      ).animate().fadeIn(delay: 1800.ms).slideY(begin: 0.3),
+
+                      const SizedBox(height: 16),
+
+                      _buildTextField(
+                        controller: _ifscCodeController,
+                        label: 'IFSC Code',
+                        hint: 'Enter IFSC code',
+                        icon: Icons.code,
+                        textCapitalization: TextCapitalization.characters,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'IFSC code is required';
+                          }
+                          if (value.trim().length != 11) {
+                            return 'IFSC code must be 11 characters';
+                          }
+                          return null;
+                        },
+                      ).animate().fadeIn(delay: 2000.ms).slideY(begin: 0.3),
+                    ],
+
+                    const SizedBox(height: 32),
+
+                    // Update Button
+                    SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: _isLoading ? null : _updateVendor,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.primaryAccent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: _isLoading
+                            ? const CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
+                                ),
+                              )
+                            : const Text(
+                                'Update Vendor',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                              ),
+                      ),
+                    ).animate().fadeIn(delay: 2400.ms).slideY(begin: 0.5),
+                  ],
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
-    ),
     );
   }
 

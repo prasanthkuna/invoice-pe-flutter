@@ -76,7 +76,6 @@ dependencies:
   # flutter_staggered_animations: ^1.1.1  # REMOVED - Redundant with flutter_animate
 
   # Utilities
-  cupertino_icons: ^1.0.8
   share_plus: ^10.0.0  # For sharing PDFs
 
 dev_dependencies:

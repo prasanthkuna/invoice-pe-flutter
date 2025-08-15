@@ -132,9 +132,18 @@ class SmartLogger {
       final enrichedContext = _enrichContext(context, 'error');
       final maskedMessage = _maskPII(message);
 
-      _logger.e('❌ ERROR: $maskedMessage', error: error, stackTrace: stackTrace);
-      _logToBuffer('ERROR', maskedMessage, enrichedContext,
-        error: error, stackTrace: stackTrace);  // ELON FIX: Pass error parameters
+      _logger.e(
+        '❌ ERROR: $maskedMessage',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      _logToBuffer(
+        'ERROR',
+        maskedMessage,
+        enrichedContext,
+        error: error,
+        stackTrace: stackTrace,
+      ); // ELON FIX: Pass error parameters
     } catch (e) {
       // ELON FIX: Never crash app due to error logging (ironic but necessary)
       if (kDebugMode) {
@@ -225,9 +234,10 @@ class SmartLogger {
   static void _logToBuffer(
     String level,
     String message,
-    Map<String, dynamic> context,
-    {dynamic error, StackTrace? stackTrace}  // ELON FIX: Add error parameters
-  ) {
+    Map<String, dynamic> context, {
+    dynamic error,
+    StackTrace? stackTrace, // ELON FIX: Add error parameters
+  }) {
     // ELON FIX: Always enable database logging for debugging payment issues
     // Only skip during tests to avoid test database pollution
     if (const bool.fromEnvironment('flutter.test', defaultValue: false)) {
@@ -244,14 +254,17 @@ class SmartLogger {
         if (currentUser == null && !isAuthError) {
           // Skip logging for non-auth events when not authenticated
           if (kDebugMode) {
-            debugPrint('⚠️ No authenticated user, skipping non-auth database log');
+            debugPrint(
+              '⚠️ No authenticated user, skipping non-auth database log',
+            );
           }
           return;
         }
 
         // ELON FIX: Match exact database schema from migration + error_details
         await Supabase.instance.client.from('logs').insert({
-          'user_id': currentUser?.id, // Allow null for anonymous auth error logging
+          'user_id':
+              currentUser?.id, // Allow null for anonymous auth error logging
           'level': level,
           'category': context['category'] ?? 'general',
           'message': message,
@@ -259,12 +272,14 @@ class SmartLogger {
           'context': context,
           'session_id': _correlationId,
           'created_at': DateTime.now().toIso8601String(),
-          'error_details': error != null || stackTrace != null ? {
-            'error': error?.toString(),
-            'stack_trace': stackTrace?.toString(),
-            'error_type': error?.runtimeType.toString(),
-            'timestamp': DateTime.now().toIso8601String(),
-          } : null,
+          'error_details': error != null || stackTrace != null
+              ? {
+                  'error': error?.toString(),
+                  'stack_trace': stackTrace?.toString(),
+                  'error_type': error?.runtimeType.toString(),
+                  'timestamp': DateTime.now().toIso8601String(),
+                }
+              : null,
         });
 
         if (kDebugMode) {

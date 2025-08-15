@@ -19,22 +19,22 @@ class PhonePeAuthToken with PhonePeAuthTokenMappable {
   final DateTime expiresAt;
   final bool isActive;
   final DateTime? createdAt;
-  
+
   /// Check if token is expired
   bool get isExpired => DateTime.now().isAfter(expiresAt);
-  
+
   /// Check if token is valid (active and not expired)
   bool get isValid => isActive && !isExpired;
-  
+
   /// Get authorization header value
   String get authorizationHeader => '$tokenType $accessToken';
-  
+
   /// Time until token expires (in minutes)
   int get minutesUntilExpiry {
     if (isExpired) return 0;
     return expiresAt.difference(DateTime.now()).inMinutes;
   }
-  
+
   /// Check if token needs refresh (expires in less than 5 minutes)
   bool get needsRefresh => minutesUntilExpiry < 5;
 

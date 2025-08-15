@@ -29,10 +29,12 @@ class PaymentService extends BaseService {
       _log.info('🚀 Initializing PhonePe SDK 3.0.0');
 
       // NEW: SDK 3.0.0 initialization pattern
-      final environment = AppConstants.phonePeEnvironment; // "SANDBOX" or "PRODUCTION"
-      final merchantId = AppConstants.phonePeMerchantId;    // Merchant ID
-      final flowId = 'INVOICE_PE_FLOW_${DateTime.now().millisecondsSinceEpoch}'; // Unique flow ID
-      final enableLogging = AppConstants.debugMode;        // Enable logging
+      final environment =
+          AppConstants.phonePeEnvironment; // "SANDBOX" or "PRODUCTION"
+      final merchantId = AppConstants.phonePeMerchantId; // Merchant ID
+      final flowId =
+          'INVOICE_PE_FLOW_${DateTime.now().millisecondsSinceEpoch}'; // Unique flow ID
+      final enableLogging = AppConstants.debugMode; // Enable logging
 
       _log.info(
         '📱 PhonePe SDK 3.0.0 Config: Environment=$environment, MerchantId=$merchantId, FlowId=$flowId',
@@ -40,10 +42,10 @@ class PaymentService extends BaseService {
 
       // PhonePe SDK 3.0.0 initialization (NEW API)
       await PhonePePaymentSdk.init(
-        environment,    // Environment string
-        merchantId,     // Merchant ID
-        flowId,         // Flow ID (user-specific)
-        enableLogging,  // Enable logging
+        environment, // Environment string
+        merchantId, // Merchant ID
+        flowId, // Flow ID (user-specific)
+        enableLogging, // Enable logging
       );
 
       _log.info('✅ PhonePe SDK 3.0.0 initialized successfully');
@@ -71,11 +73,22 @@ class PaymentService extends BaseService {
       });
 
       // Create invoice if not provided - ELON FIX: Generate proper UUID for database
-      String finalInvoiceId = invoiceId ?? await _createInvoiceForPayment(vendorId, amount, 'PhonePe 3.0.0 Payment');
+      final finalInvoiceId =
+          invoiceId ??
+          await _createInvoiceForPayment(
+            vendorId,
+            amount,
+            'PhonePe 3.0.0 Payment',
+          );
 
       // MOCK MODE: Skip PhonePe integration for development
       if (AppConstants.mockPaymentMode || isLocalTesting) {
-        return await _processMockPaymentV3(vendorId, vendorName, amount, finalInvoiceId);
+        return await _processMockPaymentV3(
+          vendorId,
+          vendorName,
+          amount,
+          finalInvoiceId,
+        );
       }
 
       // STEP 1: Create Order via Edge Function
@@ -90,7 +103,9 @@ class PaymentService extends BaseService {
       );
 
       if (orderResponse.data?['success'] != true) {
-        throw Exception('Order creation failed: ${orderResponse.data?['error']}');
+        throw Exception(
+          'Order creation failed: ${orderResponse.data?['error']}',
+        );
       }
 
       final orderData = orderResponse.data as Map<String, dynamic>;
@@ -113,13 +128,15 @@ class PaymentService extends BaseService {
         "token": orderToken,
         "paymentMode": {
           "type": "PAY_PAGE",
-          "savedCards": true,      // Enable saved cards
-          "allowNewCard": true,    // Allow new cards
-          "preferredMethods": ["CARD", "UPI"] // Prioritize cards and UPI
-        }
+          "savedCards": true, // Enable saved cards
+          "allowNewCard": true, // Allow new cards
+          "preferredMethods": ["CARD", "UPI"], // Prioritize cards and UPI
+        },
       };
 
-      _log.info('📱 Starting PhonePe SDK 3.0.0 transaction', {'orderId': orderId});
+      _log.info('📱 Starting PhonePe SDK 3.0.0 transaction', {
+        'orderId': orderId,
+      });
 
       // STEP 4: Start Transaction with PhonePe SDK 3.0.0
       final result = await PhonePePaymentSdk.startTransaction(
@@ -130,13 +147,19 @@ class PaymentService extends BaseService {
       _log.info('📱 PhonePe transaction result', {'result': result});
 
       // STEP 5: Handle Response and Verify Payment
-      return await _handlePaymentResponseV3(result, orderId, transactionId, amount, finalInvoiceId);
-
+      return await _handlePaymentResponseV3(
+        result,
+        orderId,
+        transactionId,
+        amount,
+        finalInvoiceId,
+      );
     } catch (error, stackTrace) {
       _log.error('PhonePe 3.0.0 payment processing failed', error: error);
 
       // ELON FIX: Enhanced error logging with stack trace
-      SmartLogger.logError('PhonePe 3.0.0 payment processing failed',
+      SmartLogger.logError(
+        'PhonePe 3.0.0 payment processing failed',
         error: error,
         stackTrace: stackTrace,
         context: {
@@ -145,7 +168,7 @@ class PaymentService extends BaseService {
           'amount': amount,
           'invoice_id': invoiceId,
           'operation': 'payment_processing_error',
-        }
+        },
       );
 
       rethrow;
@@ -174,12 +197,15 @@ class PaymentService extends BaseService {
         _log.info('🚀 Mock payment mode - simulating payment');
 
         // ELON FIX: Add smart logging for payment debugging
-        SmartLogger.logPayment('Mock payment initiated', context: {
-          'invoice_id': finalInvoiceId,
-          'amount': amount,
-          'vendor_id': vendorId,
-          'operation': 'mock_payment_start',
-        });
+        SmartLogger.logPayment(
+          'Mock payment initiated',
+          context: {
+            'invoice_id': finalInvoiceId,
+            'amount': amount,
+            'vendor_id': vendorId,
+            'operation': 'mock_payment_start',
+          },
+        );
 
         // Simulate realistic payment delay
         await Future.delayed(const Duration(seconds: 2));
@@ -206,12 +232,15 @@ class PaymentService extends BaseService {
         });
 
         // ELON FIX: Smart log payment success
-        SmartLogger.logPayment('Mock payment completed successfully', context: {
-          'transaction_id': actualTransactionId,
-          'invoice_id': finalInvoiceId,
-          'amount': amount,
-          'operation': 'mock_payment_success',
-        });
+        SmartLogger.logPayment(
+          'Mock payment completed successfully',
+          context: {
+            'transaction_id': actualTransactionId,
+            'invoice_id': finalInvoiceId,
+            'amount': amount,
+            'operation': 'mock_payment_success',
+          },
+        );
 
         return payment_types.PaymentSuccess(
           transactionId: actualTransactionId,
@@ -303,7 +332,8 @@ class PaymentService extends BaseService {
       _log.error('Payment processing error', error: error);
 
       // ELON FIX: Enhanced error logging with stack trace
-      SmartLogger.logError('Payment processing failed',
+      SmartLogger.logError(
+        'Payment processing failed',
         error: error,
         stackTrace: stackTrace,
         context: {
@@ -311,12 +341,12 @@ class PaymentService extends BaseService {
           'amount': amount,
           'invoice_id': invoiceId,
           'operation': 'payment_processing_error',
-        }
+        },
       );
 
       // Ensure we always return a proper PaymentFailure
       return payment_types.PaymentFailure(
-        error: 'Payment processing failed: ${error.toString()}',
+        error: 'Payment processing failed: $error',
         transactionId: null,
       );
     }
@@ -369,7 +399,8 @@ class PaymentService extends BaseService {
       // Calculate fees and rewards
       final fee = amount * 0.02; // 2% fee
       final rewards = amount * 0.015; // 1.5% rewards
-      final mockTransactionId = 'MOCK_TXN_${DateTime.now().millisecondsSinceEpoch}';
+      final mockTransactionId =
+          'MOCK_TXN_${DateTime.now().millisecondsSinceEpoch}';
 
       _log.info('💰 Creating transaction with calculated values', {
         'vendor_name': vendorName,
@@ -435,18 +466,19 @@ class PaymentService extends BaseService {
       _log.error('❌ Failed to create mock transaction', error: error);
 
       // ELON FIX: Smart log transaction creation failures
-      SmartLogger.logError('Mock transaction creation failed',
+      SmartLogger.logError(
+        'Mock transaction creation failed',
         error: error,
         context: {
           'invoice_id': invoiceId,
           'vendor_id': vendorId,
           'amount': amount,
           'operation': 'mock_transaction_creation_error',
-        }
+        },
       );
 
       // Re-throw with more context
-      throw Exception('Mock transaction creation failed: ${error.toString()}');
+      throw Exception('Mock transaction creation failed: $error');
     }
   }
 
@@ -505,14 +537,17 @@ class PaymentService extends BaseService {
     double amount,
     String invoiceId,
   ) async {
-    _log.info('🎭 Mock payment mode enabled - simulating PhonePe 3.0.0 payment');
+    _log.info(
+      '🎭 Mock payment mode enabled - simulating PhonePe 3.0.0 payment',
+    );
 
     // Simulate realistic payment delay
     await Future.delayed(const Duration(seconds: 2));
 
     // Create mock transaction record with PhonePe 3.0.0 fields
     final mockOrderId = 'OMO_MOCK_${DateTime.now().millisecondsSinceEpoch}';
-    final mockTransactionId = 'MOCK_TXN_${DateTime.now().millisecondsSinceEpoch}';
+    final mockTransactionId =
+        'MOCK_TXN_${DateTime.now().millisecondsSinceEpoch}';
     final fee = payment_types.PaymentFeeCalculator.calculateFee(amount);
     final rewards = payment_types.PaymentFeeCalculator.calculateRewards(amount);
 
@@ -529,7 +564,8 @@ class PaymentService extends BaseService {
       'phonepe_transaction_id': mockTransactionId,
       'phonepe_order_id': mockOrderId,
       'phonepe_order_status': 'SUCCESS',
-      'phonepe_merchant_order_id': 'MOCK_MERCHANT_${DateTime.now().millisecondsSinceEpoch}',
+      'phonepe_merchant_order_id':
+          'MOCK_MERCHANT_${DateTime.now().millisecondsSinceEpoch}',
       'phonepe_response_data': {
         'success': true,
         'code': 'PAYMENT_SUCCESS',
@@ -541,7 +577,7 @@ class PaymentService extends BaseService {
           'amount': (amount * 100).round(),
           'state': 'COMPLETED',
           'responseCode': 'SUCCESS',
-        }
+        },
       },
       'completed_at': DateTime.now().toIso8601String(),
     };
@@ -596,7 +632,8 @@ class PaymentService extends BaseService {
         );
 
         if (statusResponse.data?['verified'] == true) {
-          final verifiedTransactionId = statusResponse.data['transactionId'] as String;
+          final verifiedTransactionId =
+              statusResponse.data['transactionId'] as String;
 
           _log.info('✅ PhonePe 3.0.0 payment verified successfully', {
             'orderId': orderId,
@@ -607,7 +644,9 @@ class PaymentService extends BaseService {
             transactionId: verifiedTransactionId,
             invoiceId: invoiceId,
             amount: amount,
-            rewards: payment_types.PaymentFeeCalculator.calculateRewards(amount),
+            rewards: payment_types.PaymentFeeCalculator.calculateRewards(
+              amount,
+            ),
             message: 'Payment completed successfully via PhonePe 3.0.0',
           );
         } else {

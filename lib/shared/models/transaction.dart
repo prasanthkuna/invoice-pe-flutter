@@ -4,12 +4,12 @@ part 'transaction.mapper.dart';
 
 @MappableEnum()
 enum TransactionStatus {
-  initiated,    // Payment initiated
-  pending,      // Payment in progress
-  success,      // Payment completed successfully
-  failure,      // Payment failed
-  cancelled,    // Payment cancelled by user
-  expired       // Payment expired/timed out
+  initiated, // Payment initiated
+  pending, // Payment in progress
+  success, // Payment completed successfully
+  failure, // Payment failed
+  cancelled, // Payment cancelled by user
+  expired, // Payment expired/timed out
 }
 
 @MappableClass()
@@ -61,18 +61,19 @@ class Transaction with TransactionMappable {
   final DateTime? completedAt;
 
   // NEW: PhonePe SDK 3.0.0 fields
-  final String? phonepeOrderId;           // PhonePe Order ID (OMO123456789)
-  final String? phonepeOrderToken;        // Order Token for SDK
-  final String? phonepeOrderStatus;       // Order Status (separate from transaction)
-  final String? phonepeMerchantOrderId;   // Our internal order reference
-  final Map<String, dynamic>? phonepeErrorDetails;  // Detailed error codes/messages
-  final Map<String, dynamic>? phonepeResponseData;  // Complete PhonePe response
-  final DateTime? webhookReceivedAt;      // Webhook timestamp
-  final bool? webhookVerified;            // Webhook signature verified
+  final String? phonepeOrderId; // PhonePe Order ID (OMO123456789)
+  final String? phonepeOrderToken; // Order Token for SDK
+  final String? phonepeOrderStatus; // Order Status (separate from transaction)
+  final String? phonepeMerchantOrderId; // Our internal order reference
+  final Map<String, dynamic>?
+  phonepeErrorDetails; // Detailed error codes/messages
+  final Map<String, dynamic>? phonepeResponseData; // Complete PhonePe response
+  final DateTime? webhookReceivedAt; // Webhook timestamp
+  final bool? webhookVerified; // Webhook signature verified
   final Map<String, dynamic>? webhookData; // Webhook payload
-  final DateTime? lastStatusCheckAt;      // Last polling timestamp
-  final int? statusCheckCount;            // Polling retry count
-  final bool autoPollingEnabled;          // Enable/disable polling
+  final DateTime? lastStatusCheckAt; // Last polling timestamp
+  final int? statusCheckCount; // Polling retry count
+  final bool autoPollingEnabled; // Enable/disable polling
 
   static Transaction fromMap(Map<String, dynamic> map) =>
       TransactionMapper.fromMap(map);

@@ -82,8 +82,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     });
   }
 
-
-
   // Removed unused _handleAuthLoading method
 
   /// Atomic navigation to dashboard

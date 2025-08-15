@@ -12,18 +12,23 @@ class AppConstants {
   // App Info - Dynamic environment detection
   static String get appName => dotenv.env['APP_NAME'] ?? 'InvoicePe';
   static String get appVersion => dotenv.env['APP_VERSION'] ?? '1.0.0';
-  static String get environment => dotenv.env['ENVIRONMENT'] ?? (kDebugMode ? 'DEBUG' : 'PRODUCTION');
+  static String get environment =>
+      dotenv.env['ENVIRONMENT'] ?? (kDebugMode ? 'DEBUG' : 'PRODUCTION');
 
   // Supabase Configuration - Environment-aware with fallbacks
   static String get supabaseUrl =>
       dotenv.env['SUPABASE_URL'] ?? 'https://ixwwtabatwskafyvlwnm.supabase.co';
   static String get supabaseAnonKey =>
-      dotenv.env['SUPABASE_ANON_KEY'] ?? 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml4d3d0YWJhdHdza2FmeXZsd25tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE2NTY0MDAsImV4cCI6MjA2NzIzMjQwMH0.g7UfD3IVgsXEkUSYL4utfXBClzvvpduZDMwqPD0BNwc';
+      dotenv.env['SUPABASE_ANON_KEY'] ??
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml4d3d0YWJhdHdza2FmeXZsd25tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE2NTY0MDAsImV4cCI6MjA2NzIzMjQwMH0.g7UfD3IVgsXEkUSYL4utfXBClzvvpduZDMwqPD0BNwc';
 
   // PhonePe Configuration - Environment-aware
-  static String get phonePeEnvironment => dotenv.env['PHONEPE_ENVIRONMENT'] ?? 'UAT';
-  static String get phonePeMerchantId => dotenv.env['PHONEPE_MERCHANT_ID'] ?? 'DEMOUAT';
-  static String get phonePeSaltKey => dotenv.env['PHONEPE_SALT_KEY'] ?? '2a248f9d-db24-4f2d-8512-61449a31292f';
+  static String get phonePeEnvironment =>
+      dotenv.env['PHONEPE_ENVIRONMENT'] ?? 'UAT';
+  static String get phonePeMerchantId =>
+      dotenv.env['PHONEPE_MERCHANT_ID'] ?? 'DEMOUAT';
+  static String get phonePeSaltKey =>
+      dotenv.env['PHONEPE_SALT_KEY'] ?? '2a248f9d-db24-4f2d-8512-61449a31292f';
   static String get phonePeSaltIndex => dotenv.env['PHONEPE_SALT_INDEX'] ?? '1';
   static bool get mockPaymentMode {
     // ELON FIX: Force mock mode for PhonePe demo submission
@@ -52,10 +57,14 @@ class AppConstants {
   static const String encryptionKey = 'InvoicePe2025AES256SecureKey4PCI';
 
   // Development Configuration - Environment-aware
-  static bool get debugMode => dotenv.env['DEBUG_MODE']?.toLowerCase() == 'true' || kDebugMode;
-  static String get logLevel => dotenv.env['LOG_LEVEL'] ?? (kDebugMode ? 'DEBUG' : 'INFO');
-  static bool get enableAnalytics => dotenv.env['ENABLE_ANALYTICS']?.toLowerCase() == 'true';
-  static bool get enableDatabaseLogging => dotenv.env['ENABLE_DATABASE_LOGGING']?.toLowerCase() != 'false';
+  static bool get debugMode =>
+      dotenv.env['DEBUG_MODE']?.toLowerCase() == 'true' || kDebugMode;
+  static String get logLevel =>
+      dotenv.env['LOG_LEVEL'] ?? (kDebugMode ? 'DEBUG' : 'INFO');
+  static bool get enableAnalytics =>
+      dotenv.env['ENABLE_ANALYTICS']?.toLowerCase() == 'true';
+  static bool get enableDatabaseLogging =>
+      dotenv.env['ENABLE_DATABASE_LOGGING']?.toLowerCase() != 'false';
 
   // Storage Buckets
   static const String invoicesBucket = 'invoices';
@@ -93,7 +102,9 @@ class AppConstants {
       assert(appName.isNotEmpty, 'App name cannot be empty');
 
       if (kDebugMode) {
-        debugPrint('✅ Configuration validation passed - All constants hardcoded');
+        debugPrint(
+          '✅ Configuration validation passed - All constants hardcoded',
+        );
         debugPrint('📱 App: $appName v$appVersion ($environment)');
         debugPrint('🔒 Mock Payment Mode: $mockPaymentMode');
       }

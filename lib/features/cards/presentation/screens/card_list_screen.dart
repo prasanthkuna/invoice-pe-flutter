@@ -45,184 +45,186 @@ class CardListScreen extends ConsumerWidget {
     return ErrorBoundary(
       child: Scaffold(
         appBar: AppBar(
-        title: const Text('My Cards'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios),
-          onPressed: () => context.pop(),
+          title: const Text('My Cards'),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios),
+            onPressed: () => context.pop(),
+          ),
         ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // PhonePe Card Management Info
-            _PhonePeCardInfoCard(),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // PhonePe Card Management Info
+              _PhonePeCardInfoCard(),
 
-            const SizedBox(height: 24),
+              const SizedBox(height: 24),
 
-            // Header
-            Text(
-              'Payment Methods',
-              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                color: AppTheme.primaryText,
-                fontWeight: FontWeight.bold,
-              ),
-            ).animate().fadeIn(delay: 200.ms).slideY(begin: -0.3),
-
-            const SizedBox(height: 8),
-
-            Text(
-              'Securely managed by PhonePe with bank-grade security',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: AppTheme.secondaryText,
-              ),
-            ).animate().fadeIn(delay: 400.ms),
-
-            const SizedBox(height: 32),
-
-            // PCC Notice
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: AppTheme.warningColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: AppTheme.warningColor.withValues(alpha: 0.3),
-                  width: 1,
+              // Header
+              Text(
+                'Payment Methods',
+                style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                  color: AppTheme.primaryText,
+                  fontWeight: FontWeight.bold,
                 ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.security,
-                        color: AppTheme.warningColor,
-                        size: 24,
+              ).animate().fadeIn(delay: 200.ms).slideY(begin: -0.3),
+
+              const SizedBox(height: 8),
+
+              Text(
+                'Securely managed by PhonePe with bank-grade security',
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: AppTheme.secondaryText,
+                ),
+              ).animate().fadeIn(delay: 400.ms),
+
+              const SizedBox(height: 32),
+
+              // PCC Notice
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: AppTheme.warningColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: AppTheme.warningColor.withValues(alpha: 0.3),
+                    width: 1,
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.security,
+                          color: AppTheme.warningColor,
+                          size: 24,
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          'PCC Certification Required',
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(
+                                color: AppTheme.warningColor,
+                                fontWeight: FontWeight.w600,
+                              ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Advanced card management features will be available after PCC certification. Currently showing demo cards for UI testing.',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: AppTheme.primaryText,
                       ),
-                      const SizedBox(width: 12),
+                    ),
+                  ],
+                ),
+              ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.3),
+
+              const SizedBox(height: 32),
+
+              // Cards List
+              if (cards.isEmpty) ...[
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(40),
+                  decoration: BoxDecoration(
+                    color: AppTheme.cardBackground,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.credit_card_outlined,
+                        size: 64,
+                        color: AppTheme.secondaryText.withValues(alpha: 0.5),
+                      ),
+                      const SizedBox(height: 16),
                       Text(
-                        'PCC Certification Required',
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(
-                              color: AppTheme.warningColor,
-                              fontWeight: FontWeight.w600,
-                            ),
+                        'No Cards Added',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: AppTheme.secondaryText,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Add your first payment card to get started',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: AppTheme.secondaryText,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Advanced card management features will be available after PCC certification. Currently showing demo cards for UI testing.',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppTheme.primaryText,
-                    ),
-                  ),
-                ],
-              ),
-            ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.3),
+                ).animate().fadeIn(delay: 800.ms).slideY(begin: 0.3),
+              ] else ...[
+                ...cards.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final card = entry.value;
+                  return Container(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        child: _CardItem(
+                          card: card,
+                          onTap: () => _showCardDetails(context, card),
+                          onDelete: () => _deleteCard(context, ref, card),
+                        ),
+                      )
+                      .animate(
+                        delay: Duration(milliseconds: 800 + (index * 200)),
+                      )
+                      .fadeIn()
+                      .slideX(begin: 0.3);
+                }),
+              ],
 
-            const SizedBox(height: 32),
+              const SizedBox(height: 32),
 
-            // Cards List
-            if (cards.isEmpty) ...[
-              Container(
+              // Add Card Button (Disabled for PCC)
+              SizedBox(
                 width: double.infinity,
-                padding: const EdgeInsets.all(40),
-                decoration: BoxDecoration(
-                  color: AppTheme.cardBackground,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Column(
-                  children: [
-                    Icon(
-                      Icons.credit_card_outlined,
-                      size: 64,
-                      color: AppTheme.secondaryText.withValues(alpha: 0.5),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'No Cards Added',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: AppTheme.secondaryText,
+                height: 56,
+                child: ElevatedButton(
+                  onPressed: null, // Disabled until PCC certification
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.cardBackground,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: BorderSide(
+                        color: AppTheme.secondaryText.withValues(alpha: 0.3),
+                        width: 1,
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Add your first payment card to get started',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppTheme.secondaryText,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ).animate().fadeIn(delay: 800.ms).slideY(begin: 0.3),
-            ] else ...[
-              ...cards.asMap().entries.map((entry) {
-                final index = entry.key;
-                final card = entry.value;
-                return Container(
-                      margin: const EdgeInsets.only(bottom: 16),
-                      child: _CardItem(
-                        card: card,
-                        onTap: () => _showCardDetails(context, card),
-                        onDelete: () => _deleteCard(context, ref, card),
-                      ),
-                    )
-                    .animate(delay: Duration(milliseconds: 800 + (index * 200)))
-                    .fadeIn()
-                    .slideX(begin: 0.3);
-              }),
-            ],
-
-            const SizedBox(height: 32),
-
-            // Add Card Button (Disabled for PCC)
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton(
-                onPressed: null, // Disabled until PCC certification
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.cardBackground,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    side: BorderSide(
-                      color: AppTheme.secondaryText.withValues(alpha: 0.3),
-                      width: 1,
                     ),
                   ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.add_card,
-                      color: AppTheme.secondaryText.withValues(alpha: 0.5),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      'Add New Card (Available Post-PCC)',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.add_card,
                         color: AppTheme.secondaryText.withValues(alpha: 0.5),
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 12),
+                      Text(
+                        'Add New Card (Available Post-PCC)',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.secondaryText.withValues(alpha: 0.5),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ).animate().fadeIn(delay: 1200.ms).slideY(begin: 0.5),
-          ],
+              ).animate().fadeIn(delay: 1200.ms).slideY(begin: 0.5),
+            ],
+          ),
         ),
       ),
-    ),
     );
   }
 
@@ -639,7 +641,7 @@ void _initiateCardManagement(BuildContext context) async {
       // Show error message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Card management failed: ${error.toString()}'),
+          content: Text('Card management failed: $error'),
           backgroundColor: Colors.red,
         ),
       );

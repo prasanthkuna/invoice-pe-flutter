@@ -4,10 +4,14 @@ import 'package:flutter/services.dart';
 // InvoicePe Revolutionary Theme Implementation (User Specification)
 class AppTheme {
   // Color Palette (User's Revolutionary Design)
-  static const Color primaryBackground = Color(0xFF0D3B66); // Deep Blue (Primary)
+  static const Color primaryBackground = Color(
+    0xFF0D3B66,
+  ); // Deep Blue (Primary)
   static const Color cardBackground = Color(0xFF1A4A73); // Lighter Deep Blue
   static const Color primaryAccent = Color(0xFFFFA500); // Bright Orange (CTA)
-  static const Color secondaryAccent = Color(0xFF33A02C); // Vibrant Green (Success)
+  static const Color secondaryAccent = Color(
+    0xFF33A02C,
+  ); // Vibrant Green (Success)
   static const Color primaryText = Color(0xFFFFFFFF); // Pure White
   static const Color secondaryText = Color(0xFFCCCCCC); // Medium Gray
   static const Color successColor = Color(0xFF33A02C); // Vibrant Green

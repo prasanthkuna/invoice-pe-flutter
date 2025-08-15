@@ -397,6 +397,7 @@ class TransactionDetailScreen extends ConsumerWidget {
           ),
         ),
       ),
+    ),
     );
   }
 

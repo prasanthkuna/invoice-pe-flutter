@@ -19,7 +19,6 @@ class DashboardScreen extends ConsumerStatefulWidget {
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen>
     with WidgetsBindingObserver {
-
   @override
   void initState() {
     super.initState();
@@ -94,319 +93,325 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
       child: Scaffold(
         backgroundColor: AppTheme.primaryBackground,
         appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        automaticallyImplyLeading: false,
-        toolbarHeight: 0, // Hide the app bar completely for cleaner look
-      ),
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: () async {
-            // ELON FIX: Pull-to-refresh functionality for dashboard
-            _refreshDashboardData();
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          automaticallyImplyLeading: false,
+          toolbarHeight: 0, // Hide the app bar completely for cleaner look
+        ),
+        body: SafeArea(
+          child: RefreshIndicator(
+            onRefresh: () async {
+              // ELON FIX: Pull-to-refresh functionality for dashboard
+              _refreshDashboardData();
 
-            // Wait a bit for the refresh to complete
-            await Future.delayed(const Duration(milliseconds: 500));
-          },
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            physics: const AlwaysScrollableScrollPhysics(), // Enable pull-to-refresh
-            child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              // Wait a bit for the refresh to complete
+              await Future.delayed(const Duration(milliseconds: 500));
+            },
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24.0),
+              physics:
+                  const AlwaysScrollableScrollPhysics(), // Enable pull-to-refresh
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // REMOVED: Duplicate welcome message
-                      currentProfile.when(
-                        data: (profile) => Text(
-                          profile?.businessName ?? 'Business Owner',
-                          style: Theme.of(context).textTheme.headlineMedium
-                              ?.copyWith(
-                                color: AppTheme.primaryText,
-                                fontWeight: FontWeight.bold,
-                              ),
-                        ),
-                        loading: () => Text(
-                          'Loading...',
-                          style: Theme.of(context).textTheme.headlineMedium
-                              ?.copyWith(
-                                color: AppTheme.primaryText,
-                                fontWeight: FontWeight.bold,
-                              ),
-                        ),
-                        error: (error, stackTrace) => Text(
-                          'Business Owner',
-                          style: Theme.of(context).textTheme.headlineMedium
-                              ?.copyWith(
-                                color: AppTheme.primaryText,
-                                fontWeight: FontWeight.bold,
-                              ),
-                        ),
-                      ),
-                    ],
-                  ),
+                  // Header
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: AppTheme.cardBackground,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: const Icon(
-                          Icons.notifications_outlined,
-                          color: AppTheme.primaryText,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      GestureDetector(
-                        onTap: () => _showLogoutDialog(context, ref),
-                        child: Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: AppTheme.cardBackground,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: const Icon(
-                            Icons.logout,
-                            color: AppTheme.primaryText,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ).animate().fadeIn(delay: 200.ms).slideY(begin: -0.3),
-
-              const SizedBox(height: 32),
-
-              // Beta Mode Banner
-              if (AppConstants.mockPaymentMode)
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  margin: const EdgeInsets.only(bottom: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: Colors.orange.withValues(alpha: 0.3),
-                      width: 1,
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.rocket_launch_rounded,
-                        color: Colors.orange,
-                        size: 24,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Beta Mode Active',
-                              style: TextStyle(
-                                color: Colors.orange,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // REMOVED: Duplicate welcome message
+                          currentProfile.when(
+                            data: (profile) => Text(
+                              profile?.businessName ?? 'Business Owner',
+                              style: Theme.of(context).textTheme.headlineMedium
+                                  ?.copyWith(
+                                    color: AppTheme.primaryText,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                             ),
-                            Text(
-                              'Payments are in test mode. Real transactions coming soon!',
-                              style: TextStyle(
-                                color: Colors.orange.shade700,
-                                fontSize: 14,
-                              ),
+                            loading: () => Text(
+                              'Loading...',
+                              style: Theme.of(context).textTheme.headlineMedium
+                                  ?.copyWith(
+                                    color: AppTheme.primaryText,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                             ),
-                          ],
-                        ),
+                            error: (error, stackTrace) => Text(
+                              'Business Owner',
+                              style: Theme.of(context).textTheme.headlineMedium
+                                  ?.copyWith(
+                                    color: AppTheme.primaryText,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ).animate().fadeIn(delay: 300.ms).slideY(begin: -0.2),
-
-              // ELON UX: Bento Grid Layout - Modern 2024 Design
-              _BentoDashboard(dashboardMetrics: dashboardMetrics),
-
-              const SizedBox(height: 24),
-
-              // ELON UX: Removed old layout - now handled by BentoDashboard
-
-              // Recent Activity
-              Text(
-                'Recent Activity',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  color: AppTheme.primaryText,
-                  fontWeight: FontWeight.bold,
-                ),
-              ).animate().fadeIn(delay: 1200.ms),
-
-              const SizedBox(height: 16),
-
-              // Activity List
-              Consumer(
-                builder: (context, ref, _) {
-                  final recentTransactions = ref.watch(
-                    recentTransactionsProvider,
-                  );
-                  return recentTransactions.when(
-                    data: (transactions) => transactions.isEmpty
-                        ? Container(
-                            padding: const EdgeInsets.all(24),
+                      Row(
+                        children: [
+                          Container(
+                            width: 48,
+                            height: 48,
                             decoration: BoxDecoration(
                               color: AppTheme.cardBackground,
                               borderRadius: BorderRadius.circular(16),
                             ),
-                            child: Center(
-                              child: Column(
-                                children: [
-                                  Icon(
-                                    Icons.history,
-                                    size: 48,
-                                    color: AppTheme.secondaryText.withValues(
-                                      alpha: 0.5,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  const Text(
-                                    'No recent activity',
-                                    style: TextStyle(
-                                      color: AppTheme.secondaryText,
-                                    ),
-                                  ),
-                                ],
+                            child: const Icon(
+                              Icons.notifications_outlined,
+                              color: AppTheme.primaryText,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          GestureDetector(
+                            onTap: () => _showLogoutDialog(context, ref),
+                            child: Container(
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(
+                                color: AppTheme.cardBackground,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: const Icon(
+                                Icons.logout,
+                                color: AppTheme.primaryText,
                               ),
                             ),
-                          ).animate().fadeIn(delay: 1400.ms)
-                        : Column(
-                            children: transactions.take(3).map((
-                              transaction,
-                            ) {
-                              return Container(
-                                margin: const EdgeInsets.only(bottom: 12),
-                                padding: const EdgeInsets.all(16),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ).animate().fadeIn(delay: 200.ms).slideY(begin: -0.3),
+
+                  const SizedBox(height: 32),
+
+                  // Beta Mode Banner
+                  if (AppConstants.mockPaymentMode)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      margin: const EdgeInsets.only(bottom: 20),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: Colors.orange.withValues(alpha: 0.3),
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.rocket_launch_rounded,
+                            color: Colors.orange,
+                            size: 24,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Beta Mode Active',
+                                  style: TextStyle(
+                                    color: Colors.orange,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  'Payments are in test mode. Real transactions coming soon!',
+                                  style: TextStyle(
+                                    color: Colors.orange.shade700,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ).animate().fadeIn(delay: 300.ms).slideY(begin: -0.2),
+
+                  // ELON UX: Bento Grid Layout - Modern 2024 Design
+                  _BentoDashboard(dashboardMetrics: dashboardMetrics),
+
+                  const SizedBox(height: 24),
+
+                  // ELON UX: Removed old layout - now handled by BentoDashboard
+
+                  // Recent Activity
+                  Text(
+                    'Recent Activity',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      color: AppTheme.primaryText,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ).animate().fadeIn(delay: 1200.ms),
+
+                  const SizedBox(height: 16),
+
+                  // Activity List
+                  Consumer(
+                    builder: (context, ref, _) {
+                      final recentTransactions = ref.watch(
+                        recentTransactionsProvider,
+                      );
+                      return recentTransactions.when(
+                        data: (transactions) => transactions.isEmpty
+                            ? Container(
+                                padding: const EdgeInsets.all(24),
                                 decoration: BoxDecoration(
                                   color: AppTheme.cardBackground,
                                   borderRadius: BorderRadius.circular(16),
                                 ),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 48,
-                                      height: 48,
-                                      decoration: BoxDecoration(
-                                        color: AppTheme.primaryAccent
+                                child: Center(
+                                  child: Column(
+                                    children: [
+                                      Icon(
+                                        Icons.history,
+                                        size: 48,
+                                        color: AppTheme.secondaryText
                                             .withValues(
-                                              alpha: 0.1,
+                                              alpha: 0.5,
                                             ),
-                                        borderRadius: BorderRadius.circular(
-                                          12,
+                                      ),
+                                      const SizedBox(height: 16),
+                                      const Text(
+                                        'No recent activity',
+                                        style: TextStyle(
+                                          color: AppTheme.secondaryText,
                                         ),
                                       ),
-                                      child: Icon(
-                                        transaction.status ==
-                                                TransactionStatus.success
-                                            ? Icons.check_circle
-                                            : transaction.status ==
-                                                  TransactionStatus.failure
-                                            ? Icons.error
-                                            : Icons.schedule,
-                                        color:
-                                            transaction.status ==
-                                                TransactionStatus.success
-                                            ? AppTheme.successColor
-                                            : transaction.status ==
-                                                  TransactionStatus.failure
-                                            ? AppTheme.errorColor
-                                            : AppTheme.warningColor,
-                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ).animate().fadeIn(delay: 1400.ms)
+                            : Column(
+                                children: transactions.take(3).map((
+                                  transaction,
+                                ) {
+                                  return Container(
+                                    margin: const EdgeInsets.only(bottom: 12),
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: AppTheme.cardBackground,
+                                      borderRadius: BorderRadius.circular(16),
                                     ),
-                                    const SizedBox(width: 16),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          width: 48,
+                                          height: 48,
+                                          decoration: BoxDecoration(
+                                            color: AppTheme.primaryAccent
+                                                .withValues(
+                                                  alpha: 0.1,
+                                                ),
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
+                                          child: Icon(
+                                            transaction.status ==
+                                                    TransactionStatus.success
+                                                ? Icons.check_circle
+                                                : transaction.status ==
+                                                      TransactionStatus.failure
+                                                ? Icons.error
+                                                : Icons.schedule,
+                                            color:
+                                                transaction.status ==
+                                                    TransactionStatus.success
+                                                ? AppTheme.successColor
+                                                : transaction.status ==
+                                                      TransactionStatus.failure
+                                                ? AppTheme.errorColor
+                                                : AppTheme.warningColor,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 16),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Payment to ${transaction.vendorName ?? "Unknown"}',
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .titleMedium
+                                                    ?.copyWith(
+                                                      color:
+                                                          AppTheme.primaryText,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                              ),
+                                              Text(
+                                                '₹${transaction.amount.toStringAsFixed(0)} • ${_getRelativeTime(transaction.createdAt)}',
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodySmall
+                                                    ?.copyWith(
+                                                      color: AppTheme
+                                                          .secondaryText,
+                                                    ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        if (transaction.rewardsEarned > 0)
                                           Text(
-                                            'Payment to ${transaction.vendorName ?? "Unknown"}',
+                                            '+₹${transaction.rewardsEarned.toStringAsFixed(0)}',
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .titleMedium
                                                 ?.copyWith(
-                                                  color: AppTheme.primaryText,
-                                                  fontWeight: FontWeight.w500,
+                                                  color:
+                                                      AppTheme.secondaryAccent,
+                                                  fontWeight: FontWeight.bold,
                                                 ),
                                           ),
-                                          Text(
-                                            '₹${transaction.amount.toStringAsFixed(0)} • ${_getRelativeTime(transaction.createdAt)}',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodySmall
-                                                ?.copyWith(
-                                                  color: AppTheme.secondaryText,
-                                                ),
-                                          ),
-                                        ],
-                                      ),
+                                      ],
                                     ),
-                                    if (transaction.rewardsEarned > 0)
-                                      Text(
-                                        '+₹${transaction.rewardsEarned.toStringAsFixed(0)}',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleMedium
-                                            ?.copyWith(
-                                              color: AppTheme.secondaryAccent,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                      ),
-                                  ],
-                                ),
-                              );
-                            }).toList(),
-                          ).animate().fadeIn(delay: 1400.ms).slideX(begin: 0.3),
-                    loading: () => const Center(
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          AppTheme.primaryAccent,
-                        ),
-                      ),
-                    ).animate().fadeIn(delay: 1400.ms),
-                    error: (_, __) => Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: AppTheme.cardBackground,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          'Unable to load recent activity',
-                          style: TextStyle(
-                            color: AppTheme.secondaryText,
+                                  );
+                                }).toList(),
+                              ).animate().fadeIn(delay: 1400.ms).slideX(begin: 0.3),
+                        loading: () => const Center(
+                          child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              AppTheme.primaryAccent,
+                            ),
                           ),
-                        ),
-                      ),
-                    ).animate().fadeIn(delay: 1400.ms),
-                  );
-                },
+                        ).animate().fadeIn(delay: 1400.ms),
+                        error: (_, __) => Container(
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: AppTheme.cardBackground,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: const Center(
+                            child: Text(
+                              'Unable to load recent activity',
+                              style: TextStyle(
+                                color: AppTheme.secondaryText,
+                              ),
+                            ),
+                          ),
+                        ).animate().fadeIn(delay: 1400.ms),
+                      );
+                    },
+                  ),
+                ],
               ),
-            ],
             ),
           ),
         ),
+        // ELON UX FIX: Removed duplicate FAB - Quick Pay available in action cards
       ),
-      // ELON UX FIX: Removed duplicate FAB - Quick Pay available in action cards
-    ),
     );
   }
 
@@ -487,7 +492,8 @@ class _BentoDashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width - 48; // Account for padding
+    final screenWidth =
+        MediaQuery.of(context).size.width - 48; // Account for padding
 
     return dashboardMetrics.when(
       data: (metrics) => Wrap(
@@ -497,7 +503,8 @@ class _BentoDashboard extends StatelessWidget {
           // Row 1: Business Metrics (2x compact cards)
           _CompactMetric(
             title: 'Monthly Spend',
-            value: '₹${(((metrics['totalPayments'] as num?) ?? 0.0) / 1000).toStringAsFixed(0)}K',
+            value:
+                '₹${(((metrics['totalPayments'] as num?) ?? 0.0) / 1000).toStringAsFixed(0)}K',
             change: '+12%',
             width: (screenWidth - 12) / 2,
             icon: Icons.trending_up,
@@ -857,107 +864,6 @@ class _BentoErrorState extends StatelessWidget {
   }
 }
 
-class _MetricCard extends StatelessWidget {
-  const _MetricCard({
-    required this.title,
-    required this.value,
-    required this.subtitle,
-    required this.icon,
-    required this.color,
-  });
-  final String title;
-  final String value;
-  final String subtitle;
-  final IconData icon;
-  final Color color;
+// _MetricCard class removed - was unused (unused_element warning)
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppTheme.cardBackground,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(height: 12),
-          Text(
-            value,
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-              color: AppTheme.primaryText,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppTheme.secondaryText,
-            ),
-          ),
-          Text(
-            subtitle,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppTheme.secondaryText,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ActionCard extends StatelessWidget {
-  const _ActionCard({
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.onTap,
-  });
-  final String title;
-  final String subtitle;
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(12), // ELON UX: Reduced from 20 to 12 (40% reduction)
-        decoration: BoxDecoration(
-          color: AppTheme.cardBackground,
-          borderRadius: BorderRadius.circular(16), // ELON UX: Reduced from 20 to 16
-          border: Border.all(
-            color: AppTheme.primaryAccent.withValues(alpha: 0.2),
-            width: 1,
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(icon, color: AppTheme.primaryAccent, size: 20), // ELON UX: Reduced from 24 to 20
-            const SizedBox(height: 8), // ELON UX: Reduced from 12 to 8
-            Text(
-              title,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: AppTheme.primaryText,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              subtitle,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppTheme.secondaryText,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+// _ActionCard class removed - was unused (unused_element warning)

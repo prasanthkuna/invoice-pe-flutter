@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:ui';  // ELON FIX: Add for PlatformDispatcher
+import 'dart:ui'; // ELON FIX: Add for PlatformDispatcher
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,112 +10,112 @@ import 'core/router/app_router.dart';
 import 'core/providers/app_providers.dart';
 import 'core/services/logger.dart';
 import 'core/services/environment_service.dart';
-import 'core/services/smart_logger.dart';  // ELON FIX: Add SmartLogger import
+import 'core/services/smart_logger.dart'; // ELON FIX: Add SmartLogger import
 
 /// Tesla-grade main function with fail-fast initialization
 void main() async {
   // Wrap everything in error boundary for production safety
-  await runZonedGuarded<Future<void>>(() async {
-    WidgetsFlutterBinding.ensureInitialized();
+  await runZonedGuarded<Future<void>>(
+    () async {
+      WidgetsFlutterBinding.ensureInitialized();
 
-    // ELON FIX: Add missing platform error handler for async/platform errors
-    PlatformDispatcher.instance.onError = (error, stack) {
+      // ELON FIX: Add missing platform error handler for async/platform errors
+      PlatformDispatcher.instance.onError = (error, stack) {
+        SmartLogger.logError(
+          'Platform/Async Error',
+          error: error,
+          stackTrace: stack,
+          context: {
+            'error_type': 'platform_async',
+            'runtime_type': error.runtimeType.toString(),
+          },
+        );
+        return true; // Error handled, don't crash
+      };
+
+      // Initialize logging first for error tracking
+      Log.init();
+
+      try {
+        // PHASE 1: Critical environment setup with validation - MAIN THREAD OPTIMIZED
+        await EnvironmentService.initialize();
+
+        // Validate configuration immediately after environment load (fast, in-memory)
+        AppConstants.validateConfiguration();
+
+        // PHASE 2: Initialize Supabase with timeout to prevent hanging
+        Log.component('app').info('Starting Supabase initialization...');
+
+        // TESLA FIX: Use microtask to prevent blocking main thread during Supabase init
+        await Future.microtask(() async {
+          await Future.any([
+            Supabase.initialize(
+              url: AppConstants.supabaseUrl,
+              anonKey: AppConstants.supabaseAnonKey,
+              debug: AppConstants.debugMode,
+            ),
+            Future.delayed(
+              const Duration(seconds: 10),
+              () => throw TimeoutException('Supabase initialization timeout'),
+            ),
+          ]);
+        });
+
+        Log.component('app').info('Supabase initialization completed');
+
+        // PHASE 3: Launch UI with error boundary - BACK TO FULL APP
+        runApp(
+          ProviderScope(
+            child: _AppErrorBoundary(
+              child: const InvoicePeApp(),
+            ),
+          ),
+        );
+
+        // DEFERRED: Non-critical initialization after first frame
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          await _deferredInitialization();
+        });
+      } catch (error, stackTrace) {
+        // Critical startup failure - show error screen
+        Log.component('app').error(
+          'Critical startup failure',
+          error: error,
+          stackTrace: stackTrace,
+        );
+
+        runApp(
+          MaterialApp(
+            home: _StartupErrorScreen(error: error.toString()),
+            debugShowCheckedModeBanner: false,
+          ),
+        );
+      }
+    },
+    (error, stackTrace) {
+      // ELON FIX: Enhanced uncaught exception handler with SmartLogger
       SmartLogger.logError(
-        'Platform/Async Error',
+        'Uncaught Exception',
         error: error,
-        stackTrace: stack,
+        stackTrace: stackTrace,
         context: {
-          'error_type': 'platform_async',
+          'error_type': 'uncaught_exception',
           'runtime_type': error.runtimeType.toString(),
         },
       );
-      return true; // Error handled, don't crash
-    };
 
-    // Initialize logging first for error tracking
-    Log.init();
+      // Also log with existing logger for compatibility
+      Log.component(
+        'app',
+      ).error('Uncaught exception', error: error, stackTrace: stackTrace);
 
-    try {
-      // PHASE 1: Critical environment setup with validation - MAIN THREAD OPTIMIZED
-      await EnvironmentService.initialize();
-
-      // Validate configuration immediately after environment load (fast, in-memory)
-      AppConstants.validateConfiguration();
-
-      // PHASE 2: Initialize Supabase with timeout to prevent hanging
-      Log.component('app').info('Starting Supabase initialization...');
-
-      // TESLA FIX: Use microtask to prevent blocking main thread during Supabase init
-      await Future.microtask(() async {
-        await Future.any([
-          Supabase.initialize(
-            url: AppConstants.supabaseUrl,
-            anonKey: AppConstants.supabaseAnonKey,
-            debug: AppConstants.debugMode,
-          ),
-          Future.delayed(
-            const Duration(seconds: 10),
-            () => throw TimeoutException('Supabase initialization timeout'),
-          ),
-        ]);
-      });
-
-      Log.component('app').info('Supabase initialization completed');
-
-      // PHASE 3: Launch UI with error boundary - BACK TO FULL APP
-      runApp(
-        ProviderScope(
-          child: _AppErrorBoundary(
-            child: const InvoicePeApp(),
-          ),
-        ),
-      );
-
-      // DEFERRED: Non-critical initialization after first frame
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        await _deferredInitialization();
-      });
-
-    } catch (error, stackTrace) {
-      // Critical startup failure - show error screen
-      Log.component('app').error('Critical startup failure',
-        error: error,
-        stackTrace: stackTrace
-      );
-
-      runApp(
-        MaterialApp(
-          home: _StartupErrorScreen(error: error.toString()),
-          debugShowCheckedModeBanner: false,
-        ),
-      );
-    }
-  }, (error, stackTrace) {
-    // ELON FIX: Enhanced uncaught exception handler with SmartLogger
-    SmartLogger.logError(
-      'Uncaught Exception',
-      error: error,
-      stackTrace: stackTrace,
-      context: {
-        'error_type': 'uncaught_exception',
-        'runtime_type': error.runtimeType.toString(),
-      },
-    );
-
-    // Also log with existing logger for compatibility
-    Log.component('app').error('Uncaught exception',
-      error: error,
-      stackTrace: stackTrace
-    );
-
-    // In debug mode, crash. In release mode, log and continue.
-    if (kDebugMode) {
-      throw error;
-    }
-  });
+      // In debug mode, crash. In release mode, log and continue.
+      if (kDebugMode) {
+        throw error;
+      }
+    },
+  );
 }
-
-
 
 /// Deferred initialization for non-critical services
 Future<void> _deferredInitialization() async {
@@ -211,7 +211,8 @@ class _AppErrorBoundaryState extends State<_AppErrorBoundary> {
       );
 
       // Also log with existing logger for compatibility
-      Log.component('app').error('Widget error caught by boundary',
+      Log.component('app').error(
+        'Widget error caught by boundary',
         error: details.exception,
         stackTrace: details.stack,
       );

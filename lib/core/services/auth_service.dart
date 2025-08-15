@@ -88,7 +88,8 @@ class AuthService extends BaseService {
           Future.delayed(
             const Duration(seconds: 10), // Reduced from 30 to 10 seconds
             () => app_auth.OtpFailed(
-              error: 'Request timeout - please check your internet connection and try again',
+              error:
+                  'Request timeout - please check your internet connection and try again',
               phone: phone,
             ),
           ),
@@ -104,7 +105,9 @@ class AuthService extends BaseService {
   }
 
   /// Perform OTP send with retry logic and enhanced debugging
-  static Future<app_auth.OtpResult> _performOtpSendWithRetry(String phone) async {
+  static Future<app_auth.OtpResult> _performOtpSendWithRetry(
+    String phone,
+  ) async {
     try {
       // Enhanced logging for debugging
       _log.info('OTP send attempt', {
@@ -154,7 +157,8 @@ class AuthService extends BaseService {
           _log.error('Auth error during signup', error: signupError);
 
           // ELON DEBUG: Detailed signup error analysis
-          _log.error('Signup failure details',
+          _log.error(
+            'Signup failure details',
             error: signupError,
             data: {
               'error_message': signupError.message,
@@ -241,7 +245,10 @@ class AuthService extends BaseService {
   }
 
   /// Perform the actual OTP verification
-  static Future<app_auth.AuthResult> _performOtpVerification(String phone, String otp) async {
+  static Future<app_auth.AuthResult> _performOtpVerification(
+    String phone,
+    String otp,
+  ) async {
     try {
       final response = await BaseService.supabase.auth.verifyOTP(
         phone: phone,
@@ -306,8 +313,6 @@ class AuthService extends BaseService {
   /// Check if user is authenticated
   static bool get isAuthenticated => currentUser != null;
 
-
-
   /// Restore session on app startup
   static Future<bool> restoreSession() async {
     try {
@@ -364,8 +369,10 @@ class AuthService extends BaseService {
             _log.info('Profile already exists - continuing');
           } else {
             // This is a real error, not a race condition
-            _log.error('Profile creation failed with unexpected error',
-              error: insertError);
+            _log.error(
+              'Profile creation failed with unexpected error',
+              error: insertError,
+            );
             throw Exception('Failed to create user profile: $insertError');
           }
         }
@@ -384,7 +391,9 @@ class AuthService extends BaseService {
         throw Exception('Critical: Profile creation failed - $error');
       } else {
         // In development, log warning but continue
-        _log.info('Development mode: Continuing despite profile creation failure');
+        _log.info(
+          'Development mode: Continuing despite profile creation failure',
+        );
       }
     }
   }

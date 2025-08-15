@@ -59,7 +59,9 @@ class Log {
     if (_componentLoggers.length <= _maxComponentLoggers ~/ 2) return;
 
     // Remove half of the loggers (simple LRU approximation)
-    final keysToRemove = _componentLoggers.keys.take(_maxComponentLoggers ~/ 2).toList();
+    final keysToRemove = _componentLoggers.keys
+        .take(_maxComponentLoggers ~/ 2)
+        .toList();
     for (final key in keysToRemove) {
       _componentLoggers.remove(key);
     }

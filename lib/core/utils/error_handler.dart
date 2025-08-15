@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../services/logger.dart';
-import '../services/smart_logger.dart';  // ELON FIX: Add SmartLogger import
+import '../services/smart_logger.dart'; // ELON FIX: Add SmartLogger import
 
 final ComponentLogger _log = Log.component('error');
 

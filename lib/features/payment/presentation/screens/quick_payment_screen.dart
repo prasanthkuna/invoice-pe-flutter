@@ -68,443 +68,449 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
     return ErrorBoundary(
       child: Scaffold(
         appBar: AppBar(
-        title: const Text('Quick Payment'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios),
-          onPressed: () => context.pop(),
+          title: const Text('Quick Payment'),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios),
+            onPressed: () => context.pop(),
+          ),
         ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            Text(
-              'Pay Any Vendor',
-              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                color: AppTheme.primaryText,
-                fontWeight: FontWeight.bold,
-              ),
-            ).animate().fadeIn(delay: 200.ms).slideY(begin: -0.3),
-
-            const SizedBox(height: 8),
-
-            Text(
-              'Select vendor and amount to pay instantly',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: AppTheme.secondaryText,
-              ),
-            ).animate().fadeIn(delay: 400.ms),
-
-            const SizedBox(height: 32),
-
-            // Vendor Selection
-            Text(
-              'Select Vendor',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: AppTheme.primaryText,
-                fontWeight: FontWeight.w600,
-              ),
-            ).animate().fadeIn(delay: 600.ms),
-
-            const SizedBox(height: 16),
-
-            // Vendor Dropdown
-            GestureDetector(
-              onTap: () =>
-                  setState(() => _showVendorDropdown = !_showVendorDropdown),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: AppTheme.cardBackground,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: selectedVendor != null
-                        ? AppTheme.primaryAccent.withValues(alpha: 0.5)
-                        : AppTheme.secondaryText.withValues(alpha: 0.2),
-                    width: 1,
-                  ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header
+              Text(
+                'Pay Any Vendor',
+                style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                  color: AppTheme.primaryText,
+                  fontWeight: FontWeight.bold,
                 ),
-                child: Row(
-                  children: [
-                    if (selectedVendor != null) ...[
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: AppTheme.primaryAccent.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Center(
-                          child: Text(
-                            selectedVendor.name.substring(0, 1).toUpperCase(),
-                            style: const TextStyle(
-                              color: AppTheme.primaryAccent,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
+              ).animate().fadeIn(delay: 200.ms).slideY(begin: -0.3),
+
+              const SizedBox(height: 8),
+
+              Text(
+                'Select vendor and amount to pay instantly',
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: AppTheme.secondaryText,
+                ),
+              ).animate().fadeIn(delay: 400.ms),
+
+              const SizedBox(height: 32),
+
+              // Vendor Selection
+              Text(
+                'Select Vendor',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: AppTheme.primaryText,
+                  fontWeight: FontWeight.w600,
+                ),
+              ).animate().fadeIn(delay: 600.ms),
+
+              const SizedBox(height: 16),
+
+              // Vendor Dropdown
+              GestureDetector(
+                onTap: () =>
+                    setState(() => _showVendorDropdown = !_showVendorDropdown),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: AppTheme.cardBackground,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: selectedVendor != null
+                          ? AppTheme.primaryAccent.withValues(alpha: 0.5)
+                          : AppTheme.secondaryText.withValues(alpha: 0.2),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      if (selectedVendor != null) ...[
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: AppTheme.primaryAccent.withValues(
+                              alpha: 0.1,
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Center(
+                            child: Text(
+                              selectedVendor.name.substring(0, 1).toUpperCase(),
+                              style: const TextStyle(
+                                color: AppTheme.primaryAccent,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              selectedVendor.name,
-                              style: Theme.of(context).textTheme.titleMedium
-                                  ?.copyWith(
-                                    color: AppTheme.primaryText,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                            ),
-                            Text(
-                              selectedVendor.phone ?? 'No phone',
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(
-                                    color: AppTheme.secondaryText,
-                                  ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ] else ...[
-                      const Icon(
-                        Icons.business,
-                        color: AppTheme.secondaryText,
-                        size: 24,
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Text(
-                          'Choose a vendor to pay',
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(
-                                color: AppTheme.secondaryText,
-                              ),
-                        ),
-                      ),
-                    ],
-                    Icon(
-                      _showVendorDropdown
-                          ? Icons.keyboard_arrow_up
-                          : Icons.keyboard_arrow_down,
-                      color: AppTheme.secondaryText,
-                    ),
-                  ],
-                ),
-              ),
-            ).animate().fadeIn(delay: 800.ms).slideY(begin: 0.3),
-
-            // Vendor List Dropdown
-            if (_showVendorDropdown) ...[
-              const SizedBox(height: 8),
-              Container(
-                constraints: const BoxConstraints(maxHeight: 200),
-                decoration: BoxDecoration(
-                  color: AppTheme.cardBackground,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: AppTheme.secondaryText.withValues(alpha: 0.2),
-                    width: 1,
-                  ),
-                ),
-                child: vendors.when(
-                  data: (vendorList) => vendorList.isEmpty
-                      ? Padding(
-                          padding: const EdgeInsets.all(20),
+                        const SizedBox(width: 16),
+                        Expanded(
                           child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Icon(
-                                Icons.business_outlined,
-                                size: 48,
-                                color: AppTheme.secondaryText,
+                              Text(
+                                selectedVendor.name,
+                                style: Theme.of(context).textTheme.titleMedium
+                                    ?.copyWith(
+                                      color: AppTheme.primaryText,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                               ),
-                              const SizedBox(height: 16),
-                              const Text(
-                                'No vendors yet',
-                                style: TextStyle(
-                                  color: AppTheme.primaryText,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              TextButton(
-                                onPressed: () => context.go('/vendors/create'),
-                                child: const Text('Add Your First Vendor'),
+                              Text(
+                                selectedVendor.phone ?? 'No phone',
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(
+                                      color: AppTheme.secondaryText,
+                                    ),
                               ),
                             ],
                           ),
-                        )
-                      : ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: vendorList.length + 1,
-                          itemBuilder: (context, index) {
-                            if (index == vendorList.length) {
-                              return ListTile(
-                                leading: const Icon(
-                                  Icons.add_circle_outline,
-                                  color: AppTheme.primaryAccent,
+                        ),
+                      ] else ...[
+                        const Icon(
+                          Icons.business,
+                          color: AppTheme.secondaryText,
+                          size: 24,
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Text(
+                            'Choose a vendor to pay',
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
+                                  color: AppTheme.secondaryText,
                                 ),
-                                title: const Text(
-                                  'Add New Vendor',
+                          ),
+                        ),
+                      ],
+                      Icon(
+                        _showVendorDropdown
+                            ? Icons.keyboard_arrow_up
+                            : Icons.keyboard_arrow_down,
+                        color: AppTheme.secondaryText,
+                      ),
+                    ],
+                  ),
+                ),
+              ).animate().fadeIn(delay: 800.ms).slideY(begin: 0.3),
+
+              // Vendor List Dropdown
+              if (_showVendorDropdown) ...[
+                const SizedBox(height: 8),
+                Container(
+                  constraints: const BoxConstraints(maxHeight: 200),
+                  decoration: BoxDecoration(
+                    color: AppTheme.cardBackground,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: AppTheme.secondaryText.withValues(alpha: 0.2),
+                      width: 1,
+                    ),
+                  ),
+                  child: vendors.when(
+                    data: (vendorList) => vendorList.isEmpty
+                        ? Padding(
+                            padding: const EdgeInsets.all(20),
+                            child: Column(
+                              children: [
+                                const Icon(
+                                  Icons.business_outlined,
+                                  size: 48,
+                                  color: AppTheme.secondaryText,
+                                ),
+                                const SizedBox(height: 16),
+                                const Text(
+                                  'No vendors yet',
                                   style: TextStyle(
-                                    color: AppTheme.primaryAccent,
+                                    color: AppTheme.primaryText,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
-                                onTap: () {
-                                  setState(() => _showVendorDropdown = false);
-                                  context.go('/vendors/create');
-                                },
-                              );
-                            }
-                            final vendor = vendorList[index];
-                            return ListTile(
-                              leading: Container(
-                                width: 32,
-                                height: 32,
-                                decoration: BoxDecoration(
-                                  color: AppTheme.primaryAccent.withValues(
-                                    alpha: 0.1,
-                                  ),
-                                  borderRadius: BorderRadius.circular(8),
+                                const SizedBox(height: 8),
+                                TextButton(
+                                  onPressed: () =>
+                                      context.go('/vendors/create'),
+                                  child: const Text('Add Your First Vendor'),
                                 ),
-                                child: Center(
-                                  child: Text(
-                                    vendor.name.substring(0, 1).toUpperCase(),
-                                    style: const TextStyle(
+                              ],
+                            ),
+                          )
+                        : ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: vendorList.length + 1,
+                            itemBuilder: (context, index) {
+                              if (index == vendorList.length) {
+                                return ListTile(
+                                  leading: const Icon(
+                                    Icons.add_circle_outline,
+                                    color: AppTheme.primaryAccent,
+                                  ),
+                                  title: const Text(
+                                    'Add New Vendor',
+                                    style: TextStyle(
                                       color: AppTheme.primaryAccent,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  onTap: () {
+                                    setState(() => _showVendorDropdown = false);
+                                    context.go('/vendors/create');
+                                  },
+                                );
+                              }
+                              final vendor = vendorList[index];
+                              return ListTile(
+                                leading: Container(
+                                  width: 32,
+                                  height: 32,
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.primaryAccent.withValues(
+                                      alpha: 0.1,
+                                    ),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      vendor.name.substring(0, 1).toUpperCase(),
+                                      style: const TextStyle(
+                                        color: AppTheme.primaryAccent,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              title: Text(
-                                vendor.name,
-                                style: const TextStyle(
-                                  color: AppTheme.primaryText,
-                                  fontWeight: FontWeight.w500,
+                                title: Text(
+                                  vendor.name,
+                                  style: const TextStyle(
+                                    color: AppTheme.primaryText,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
-                              ),
-                              subtitle: Text(
-                                vendor.phone ?? 'No phone',
-                                style: const TextStyle(
-                                  color: AppTheme.secondaryText,
-                                  fontSize: 12,
+                                subtitle: Text(
+                                  vendor.phone ?? 'No phone',
+                                  style: const TextStyle(
+                                    color: AppTheme.secondaryText,
+                                    fontSize: 12,
+                                  ),
                                 ),
-                              ),
-                              onTap: () {
-                                ref
-                                        .read(
-                                          quickPaymentVendorProvider.notifier,
-                                        )
-                                        .state =
-                                    vendor;
-                                setState(() => _showVendorDropdown = false);
-                              },
-                            );
-                          },
-                        ),
-                  loading: () => const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(20),
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          AppTheme.primaryAccent,
-                        ),
-                      ),
-                    ),
-                  ),
-                  error: (error, stack) => Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Text(
-                      'Error loading vendors: $error',
-                      style: const TextStyle(color: AppTheme.errorColor),
-                    ),
-                  ),
-                ),
-              ).animate().fadeIn(delay: 100.ms).slideY(begin: -0.2),
-            ],
-
-            const SizedBox(height: 32),
-
-            // Amount Input
-            Text(
-              'Enter Amount',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: AppTheme.primaryText,
-                fontWeight: FontWeight.w600,
-              ),
-            ).animate().fadeIn(delay: 1000.ms),
-
-            const SizedBox(height: 16),
-
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: AppTheme.cardBackground,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      const Text(
-                        '₹',
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.primaryText,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: TextField(
-                          controller: _amountController,
-                          autofocus: selectedVendor != null, // Smart focus: only when vendor selected
-                          onChanged: (value) {
-                            final parsedAmount = double.tryParse(value) ?? 0.0;
-                            ref
-                                    .read(quickPaymentAmountProvider.notifier)
-                                    .state =
-                                parsedAmount;
-                          },
-                          keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true,
+                                onTap: () {
+                                  ref
+                                          .read(
+                                            quickPaymentVendorProvider.notifier,
+                                          )
+                                          .state =
+                                      vendor;
+                                  setState(() => _showVendorDropdown = false);
+                                },
+                              );
+                            },
                           ),
-                          inputFormatters: [
-                            FilteringTextInputFormatter.allow(
-                              RegExp(r'^\d+\.?\d{0,2}'),
-                            ),
-                          ],
-                          style: const TextStyle(
+                    loading: () => const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(20),
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            AppTheme.primaryAccent,
+                          ),
+                        ),
+                      ),
+                    ),
+                    error: (error, stack) => Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Text(
+                        'Error loading vendors: $error',
+                        style: const TextStyle(color: AppTheme.errorColor),
+                      ),
+                    ),
+                  ),
+                ).animate().fadeIn(delay: 100.ms).slideY(begin: -0.2),
+              ],
+
+              const SizedBox(height: 32),
+
+              // Amount Input
+              Text(
+                'Enter Amount',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: AppTheme.primaryText,
+                  fontWeight: FontWeight.w600,
+                ),
+              ).animate().fadeIn(delay: 1000.ms),
+
+              const SizedBox(height: 16),
+
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: AppTheme.cardBackground,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        const Text(
+                          '₹',
+                          style: TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.bold,
                             color: AppTheme.primaryText,
                           ),
-                          decoration: const InputDecoration(
-                            hintText: '0.00',
-                            hintStyle: TextStyle(
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: TextField(
+                            controller: _amountController,
+                            autofocus:
+                                selectedVendor !=
+                                null, // Smart focus: only when vendor selected
+                            onChanged: (value) {
+                              final parsedAmount =
+                                  double.tryParse(value) ?? 0.0;
+                              ref
+                                      .read(quickPaymentAmountProvider.notifier)
+                                      .state =
+                                  parsedAmount;
+                            },
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(
+                                RegExp(r'^\d+\.?\d{0,2}'),
+                              ),
+                            ],
+                            style: const TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.bold,
-                              color: AppTheme.secondaryText,
+                              color: AppTheme.primaryText,
                             ),
-                            border: InputBorder.none,
+                            decoration: const InputDecoration(
+                              hintText: '0.00',
+                              hintStyle: TextStyle(
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.secondaryText,
+                              ),
+                              border: InputBorder.none,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    if (amount > 0) ...[
+                      const SizedBox(height: 24),
+                      const Divider(color: AppTheme.secondaryText),
+                      const SizedBox(height: 16),
+
+                      // Fee Breakdown
+                      _buildFeeRow('Amount', '₹${amount.toStringAsFixed(2)}'),
+                      const SizedBox(height: 8),
+                      _buildFeeRow(
+                        'Processing Fee (${AppConstants.defaultFeePercentage}%)',
+                        '₹${fee.toStringAsFixed(2)}',
+                      ),
+                      const SizedBox(height: 8),
+                      _buildFeeRow(
+                        'Rewards Earned',
+                        '+₹${rewards.toStringAsFixed(2)}',
+                        isReward: true,
+                      ),
+                      const SizedBox(height: 16),
+                      const Divider(color: AppTheme.secondaryText),
+                      const SizedBox(height: 16),
+                      _buildFeeRow(
+                        'Total',
+                        '₹${total.toStringAsFixed(2)}',
+                        isTotal: true,
+                      ),
+                    ],
+                  ],
+                ),
+              ).animate().fadeIn(delay: 1200.ms).slideY(begin: 0.3),
+
+              if (selectedVendor != null &&
+                  amount >= AppConstants.minPaymentAmount) ...[
+                const SizedBox(height: 32),
+
+                // Total Debit Information
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppTheme.cardBackground,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: AppTheme.secondaryText.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        color: AppTheme.primaryAccent,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          '₹${total.toStringAsFixed(2)} will be debited from your payment method',
+                          style: TextStyle(
+                            color: AppTheme.secondaryText,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
                     ],
                   ),
+                ).animate().fadeIn(delay: 1300.ms).slideY(begin: 0.3),
 
-                  if (amount > 0) ...[
-                    const SizedBox(height: 24),
-                    const Divider(color: AppTheme.secondaryText),
-                    const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-                    // Fee Breakdown
-                    _buildFeeRow('Amount', '₹${amount.toStringAsFixed(2)}'),
-                    const SizedBox(height: 8),
-                    _buildFeeRow(
-                      'Processing Fee (${AppConstants.defaultFeePercentage}%)',
-                      '₹${fee.toStringAsFixed(2)}',
+                // Pay Button - Shows actual payment to vendor
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: () => _processQuickPayment(
+                      context,
+                      ref,
+                      selectedVendor,
+                      amount,
+                      total,
                     ),
-                    const SizedBox(height: 8),
-                    _buildFeeRow(
-                      'Rewards Earned',
-                      '+₹${rewards.toStringAsFixed(2)}',
-                      isReward: true,
-                    ),
-                    const SizedBox(height: 16),
-                    const Divider(color: AppTheme.secondaryText),
-                    const SizedBox(height: 16),
-                    _buildFeeRow(
-                      'Total',
-                      '₹${total.toStringAsFixed(2)}',
-                      isTotal: true,
-                    ),
-                  ],
-                ],
-              ),
-            ).animate().fadeIn(delay: 1200.ms).slideY(begin: 0.3),
-
-            if (selectedVendor != null &&
-                amount >= AppConstants.minPaymentAmount) ...[
-              const SizedBox(height: 32),
-
-              // Total Debit Information
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppTheme.cardBackground,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: AppTheme.secondaryText.withValues(alpha: 0.2),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.info_outline,
-                      color: AppTheme.primaryAccent,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        '₹${total.toStringAsFixed(2)} will be debited from your payment method',
-                        style: TextStyle(
-                          color: AppTheme.secondaryText,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primaryAccent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                  ],
-                ),
-              ).animate().fadeIn(delay: 1300.ms).slideY(begin: 0.3),
-
-              const SizedBox(height: 16),
-
-              // Pay Button - Shows actual payment to vendor
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: () => _processQuickPayment(
-                    context,
-                    ref,
-                    selectedVendor,
-                    amount,
-                    total,
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryAccent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                    child: Text(
+                      'Pay ₹${amount.toStringAsFixed(2)} to ${selectedVendor.name}',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
-                  child: Text(
-                    'Pay ₹${amount.toStringAsFixed(2)} to ${selectedVendor.name}',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ).animate().fadeIn(delay: 1400.ms).slideY(begin: 0.5),
+                ).animate().fadeIn(delay: 1400.ms).slideY(begin: 0.5),
+              ],
             ],
-          ],
+          ),
         ),
       ),
-    ),
     );
   }
 
@@ -549,8 +555,12 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
     double total,
   ) async {
     // ELON FIX: Store notifiers BEFORE async operations
-    final quickPaymentVendorNotifier = ref.read(quickPaymentVendorProvider.notifier);
-    final quickPaymentAmountNotifier = ref.read(quickPaymentAmountProvider.notifier);
+    final quickPaymentVendorNotifier = ref.read(
+      quickPaymentVendorProvider.notifier,
+    );
+    final quickPaymentAmountNotifier = ref.read(
+      quickPaymentAmountProvider.notifier,
+    );
 
     // Validate session before payment
     final isAuthenticated = ref.read(isAuthenticatedProvider);
@@ -602,21 +612,21 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
         'total': total,
       };
 
-        // ELON FIX: Refresh providers after successful payment
-        // This ensures vendors and transactions lists show updated data
-        // ignore: unused_result
-        ref.refresh(vendorsProvider);
-        // ignore: unused_result
-        ref.refresh(transactionsProvider);
-        // ignore: unused_result
-        ref.refresh(dashboardMetricsProvider);
-        // ignore: unused_result
-        ref.refresh(recentTransactionsProvider);
+      // ELON FIX: Refresh providers after successful payment
+      // This ensures vendors and transactions lists show updated data
+      // ignore: unused_result
+      ref.refresh(vendorsProvider);
+      // ignore: unused_result
+      ref.refresh(transactionsProvider);
+      // ignore: unused_result
+      ref.refresh(dashboardMetricsProvider);
+      // ignore: unused_result
+      ref.refresh(recentTransactionsProvider);
 
-        // Reset form using stored notifiers
-        quickPaymentVendorNotifier.state = null;
-        quickPaymentAmountNotifier.state = 0.0;
-        _amountController.clear();
+      // Reset form using stored notifiers
+      quickPaymentVendorNotifier.state = null;
+      quickPaymentAmountNotifier.state = 0.0;
+      _amountController.clear();
 
       if (context.mounted) {
         context.go('/payment-success', extra: paymentData);
@@ -626,7 +636,8 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
       if (context.mounted) context.pop();
 
       // ELON FIX: Enhanced error logging with stack trace
-      SmartLogger.logError('Quick payment failed',
+      SmartLogger.logError(
+        'Quick payment failed',
         error: error,
         stackTrace: stackTrace,
         context: {
@@ -634,7 +645,7 @@ class _QuickPaymentScreenState extends ConsumerState<QuickPaymentScreen> {
           'vendor_name': vendor.name,
           'amount': amount,
           'operation': 'quick_payment_error',
-        }
+        },
       );
 
       if (context.mounted) {
